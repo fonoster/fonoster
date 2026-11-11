@@ -24,13 +24,14 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
-import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { BillingHooks } from "../exchanges/types";
 import { getAccessKeyIdFromToken } from "../utils";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-function createDeleteUser(prisma: Prisma) {
+function createDeleteUser(prisma: Prisma, billing?: BillingHooks) {
   const deleteUser = async (
     call: { request: BaseApiObject },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
@@ -42,6 +43,39 @@ function createDeleteUser(prisma: Prisma) {
     const accessKeyId = getAccessKeyIdFromToken(token);
 
     logger.verbose("deleting user from the system", { ref, accessKeyId });
+
+    const user = await prisma.user.findUnique({ where: { ref, accessKeyId } });
+    if (!user) {
+      callback({
+        code: status.NOT_FOUND,
+        message: "The requested resource was not found"
+      });
+      return;
+    }
+
+    // Fonoster Cloud: the plan stops before the user goes, and a user who owes can't leave. Fails
+    // closed: when billing can't be asked, the user stays.
+    if (billing) {
+      try {
+        await billing.closeAccount(ref);
+      } catch (e) {
+        const { code, message } = e as { code?: number; message?: string };
+        if (code === status.FAILED_PRECONDITION) {
+          callback({ code, message });
+        } else {
+          logger.warn("could not close the user's billing account", {
+            ref,
+            code,
+            message
+          });
+          callback({
+            code: status.UNAVAILABLE,
+            message: "couldn't check the user's billing; try again"
+          });
+        }
+        return;
+      }
+    }
 
     await prisma.user.delete({
       where: {

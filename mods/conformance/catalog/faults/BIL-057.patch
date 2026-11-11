@@ -1,0 +1,12 @@
+diff --git a/mods/billing/src/stripe/accounts.ts b/mods/billing/src/stripe/accounts.ts
+--- a/mods/billing/src/stripe/accounts.ts
++++ b/mods/billing/src/stripe/accounts.ts
+@@ -45,7 +45,7 @@
+     where: { accountId, sentAt: null, kind: { in: CHARGING_KINDS } }
+   });
+   if (
+-    (await balanceOf(tx, accountId)) < 0n ||
++    false ||
+     account.status === "past_due" ||
+     account.rechargePendingAt ||
+     charging > 0

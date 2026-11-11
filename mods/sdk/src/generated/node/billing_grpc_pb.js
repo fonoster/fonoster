@@ -33,6 +33,28 @@ function deserialize_fonoster_billing_v1beta2_BillingSummary(buffer_arg) {
   return billing_pb.BillingSummary.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_billing_v1beta2_CloseAccountRequest(arg) {
+  if (!(arg instanceof billing_pb.CloseAccountRequest)) {
+    throw new Error('Expected argument of type fonoster.billing.v1beta2.CloseAccountRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_billing_v1beta2_CloseAccountRequest(buffer_arg) {
+  return billing_pb.CloseAccountRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_billing_v1beta2_CloseAccountResponse(arg) {
+  if (!(arg instanceof billing_pb.CloseAccountResponse)) {
+    throw new Error('Expected argument of type fonoster.billing.v1beta2.CloseAccountResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_billing_v1beta2_CloseAccountResponse(buffer_arg) {
+  return billing_pb.CloseAccountResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_billing_v1beta2_CreatePortalSessionRequest(arg) {
   if (!(arg instanceof billing_pb.CreatePortalSessionRequest)) {
     throw new Error('Expected argument of type fonoster.billing.v1beta2.CreatePortalSessionRequest');
@@ -163,6 +185,19 @@ createPortalSession: {
     requestDeserialize: deserialize_fonoster_billing_v1beta2_CreatePortalSessionRequest,
     responseSerialize: serialize_fonoster_billing_v1beta2_CreatePortalSessionResponse,
     responseDeserialize: deserialize_fonoster_billing_v1beta2_CreatePortalSessionResponse,
+  },
+  // Closes an owner's billing account before the owner is deleted (internal: the apiserver calls
+// it from Identity's DeleteUser and does not serve it)
+closeAccount: {
+    path: '/fonoster.billing.v1beta2.Billing/CloseAccount',
+    requestStream: false,
+    responseStream: false,
+    requestType: billing_pb.CloseAccountRequest,
+    responseType: billing_pb.CloseAccountResponse,
+    requestSerialize: serialize_fonoster_billing_v1beta2_CloseAccountRequest,
+    requestDeserialize: deserialize_fonoster_billing_v1beta2_CloseAccountRequest,
+    responseSerialize: serialize_fonoster_billing_v1beta2_CloseAccountResponse,
+    responseDeserialize: deserialize_fonoster_billing_v1beta2_CloseAccountResponse,
   },
 };
 

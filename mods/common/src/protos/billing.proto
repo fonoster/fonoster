@@ -34,6 +34,9 @@ service Billing {
   rpc Subscribe (SubscribeRequest) returns (BillingSummary) {}
   // A Stripe Customer Portal link for payment methods and invoices
   rpc CreatePortalSession (CreatePortalSessionRequest) returns (CreatePortalSessionResponse) {}
+  // Closes an owner's billing account before the owner is deleted (internal: the apiserver calls
+  // it from Identity's DeleteUser and does not serve it)
+  rpc CloseAccount (CloseAccountRequest) returns (CloseAccountResponse) {}
 }
 
 message GetBillingRequest {
@@ -90,3 +93,9 @@ message CreatePortalSessionRequest {
 message CreatePortalSessionResponse {
   string url = 1;
 }
+
+message CloseAccountRequest {
+  string owner_ref = 1;
+}
+
+message CloseAccountResponse {}

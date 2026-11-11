@@ -298,6 +298,7 @@ class Users {
   /**
    * Deletes an existing User from Fonoster.
    * Note that this operation is irreversible.
+   * Where billing is on, the user's plan is canceled, and the delete fails with FAILED_PRECONDITION while the user has a balance due.
    *
    * @param {string} ref - The reference of the User to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted User

@@ -18,11 +18,59 @@
  */
 import { PlanSettings } from "../config";
 import { BillingAccount, Db } from "../db";
-import { lockAccount } from "../ledger";
+import { balanceOf, lockAccount } from "../ledger";
 import { centsOf, credits } from "../money";
 import { enqueue } from "./outbox";
 
 export class BillingError extends Error {}
+
+/** Why an owner can't be deleted yet (#1376). */
+export const BALANCE_DUE =
+  "the user has a balance due: pay it under Billing, then delete the user";
+
+/** Unsent intents that would still charge the owner. */
+const CHARGING_KINDS = ["meter_event", "credit_grant", "topup_invoice"];
+
+/**
+ * Closes a settled account before its owner is deleted (#1376): auto-recharge off and, on
+ * Pay-as-you-go, the subscription canceled through the outbox. Refuses (BillingError) while the
+ * owner owes anything. The account, its ledger and its Stripe customer stay.
+ */
+export async function closeAccount(tx: Db, accountId: string) {
+  await lockAccount(tx, accountId);
+  const account = await tx.billingAccount.findUniqueOrThrow({
+    where: { id: accountId }
+  });
+  const charging = await tx.stripeOutbox.count({
+    where: { accountId, sentAt: null, kind: { in: CHARGING_KINDS } }
+  });
+  if (
+    (await balanceOf(tx, accountId)) < 0n ||
+    account.status === "past_due" ||
+    account.rechargePendingAt ||
+    charging > 0
+  )
+    throw new BillingError(BALANCE_DUE);
+  await tx.billingAccount.update({
+    where: { id: accountId },
+    data: { autoRecharge: false, rechargeThreshold: null, rechargeAmount: null }
+  });
+  const subscription = account.stripeSubscriptionId;
+  if (!subscription) return;
+  const pending = await tx.stripeOutbox.findFirst({
+    where: {
+      accountId,
+      kind: "cancel_subscription",
+      sentAt: null,
+      payload: { path: ["subscription"], equals: subscription }
+    }
+  });
+  if (!pending)
+    await enqueue(tx, accountId, {
+      kind: "cancel_subscription",
+      payload: { subscription }
+    });
+}
 
 /** Moves an account to Pay-as-you-go: the Stripe customer (if new) and the subscription. */
 export async function subscribe(tx: Db, accountId: string) {

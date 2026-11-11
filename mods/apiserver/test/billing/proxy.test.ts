@@ -20,6 +20,7 @@ import { createServiceDefinition } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import { expect } from "chai";
 import { buildService } from "../../src/billing/buildService";
+import { createCloseAccount } from "../../src/billing/createCloseAccount";
 
 // The apiserver's Billing API (add-billing-service 6.1): passed to the billing service for the
 // workspace owner only, with owner_ref always the caller's.
@@ -50,7 +51,20 @@ describe("@apiserver/billing proxy", function () {
           cb({
             code: grpc.status.FAILED_PRECONDITION,
             details: "add a payment method before buying credits"
-          })
+          }),
+        closeAccount: (
+          call: grpc.ServerUnaryCall<{ ownerRef: string }, unknown>,
+          cb: grpc.sendUnaryData<unknown>
+        ) => {
+          seen.push(call.request);
+          if (call.request.ownerRef === "owes")
+            cb({
+              code: grpc.status.FAILED_PRECONDITION,
+              details:
+                "the user has a balance due: pay it under Billing, then delete the user"
+            });
+          else cb(null, {});
+        }
       }
     );
     const port = await new Promise<number>((resolve, reject) =>
@@ -99,5 +113,21 @@ describe("@apiserver/billing proxy", function () {
       code: grpc.status.FAILED_PRECONDITION,
       message: "add a payment method before buying credits"
     });
+  });
+
+  it("[BIL-057] closes an owner's billing account for Identity, with billing's refusal", async () => {
+    const closeAccount = createCloseAccount(address);
+    await closeAccount("user-1");
+    expect(seen.at(-1)).to.include({ ownerRef: "user-1" });
+    const refused = await closeAccount("owes").catch((e) => e);
+    expect(refused).to.deep.equal({
+      code: grpc.status.FAILED_PRECONDITION,
+      message:
+        "the user has a balance due: pay it under Billing, then delete the user"
+    });
+  });
+
+  it("[BIL-057] never serves CloseAccount to the dashboard or the SDK", () => {
+    expect(buildService(address).handlers).to.not.have.property("closeAccount");
   });
 });

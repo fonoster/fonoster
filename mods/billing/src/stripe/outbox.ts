@@ -50,7 +50,8 @@ export type OutboxIntent =
         purpose: "topup" | "recharge";
       };
     }
-  | { kind: "refund"; payload: { paymentIntent: string; cents: number } };
+  | { kind: "refund"; payload: { paymentIntent: string; cents: number } }
+  | { kind: "cancel_subscription"; payload: { subscription: string } };
 
 export async function enqueue(tx: Db, accountId: string, intent: OutboxIntent) {
   return tx.stripeOutbox.create({
@@ -245,6 +246,22 @@ async function send(deps: Deps, row: Row): Promise<Prisma.InputJsonValue> {
         { idempotencyKey }
       );
       return { refund: r.id };
+    }
+    case "cancel_subscription": {
+      // Ends the plan now: no proration and no final invoice. A subscription Stripe no longer has
+      // is already gone; the customer.subscription.deleted webhook ends the plan here.
+      try {
+        const s = await stripe.subscriptions.cancel(
+          p.subscription as string,
+          {},
+          { idempotencyKey }
+        );
+        return { subscription: s.id, status: s.status };
+      } catch (e) {
+        if ((e as { code?: string }).code === "resource_missing")
+          return { subscription: p.subscription as string, missing: true };
+        throw e;
+      }
     }
     default:
       throw new Error(`unknown outbox kind ${row.kind}`);

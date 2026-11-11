@@ -356,5 +356,6 @@
   "APB-045": "The app's speech speed reaches the vendor in its own form",
   "APB-046": "A speech speed out of range is refused, naming speech.speed",
   "BIL-056": "A Flux voice's TTS characters name the Flux model",
-  "DSH-067": "A webhook delivery shows the event JSON Fonoster sent"
+  "DSH-067": "A webhook delivery shows the event JSON Fonoster sent",
+  "BIL-057": "Deleting a user cancels their plan, or is refused while they owe"
 }
