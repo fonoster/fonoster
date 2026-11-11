@@ -51,6 +51,17 @@ New releases are listed newest first. For releases up to 0.27, see the
 - `--speed` on `applications:create` and `applications:update`, from `0.7` to `1.2`.
   `applications:get` shows the speed.
 
+## Secrets
+
+- **Only an app with an API key reads a secret's value**, with `getSecret`. People signed in,
+  owners included, get the name only, `listSecrets` returns no values, and nobody reads a vendor
+  key (`provider-key/…`) back. Apps that read secrets with an API key keep working. See
+  [Secrets](/workspace/secrets).
+- **Secrets no longer changes or deletes vendor keys.** Use **Vendor keys**,
+  `fonoster providers:keys:set` or `fonoster providers:keys:delete`.
+- `updateSecret` and `fonoster secrets:update` keep the stored value when you leave it empty, and
+  check a new name like `createSecret` does.
+
 ## Webhooks
 
 - **See the event a delivery sent.** The SDK (`WebhookDelivery.event`, `getWebhookDelivery`) and

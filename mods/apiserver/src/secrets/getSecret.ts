@@ -21,6 +21,7 @@ import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, Secret } from "@fonoster/types";
 import { Prisma } from "../core/db";
 import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
+import { isApiKeyCall, isVendorKey, withoutValue } from "./access";
 import { createGetFnUtil } from "./createGetFnUtil";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -33,7 +34,12 @@ function getSecret(prisma: Prisma) {
 
     logger.verbose("call to getSecret", { ref });
 
-    return await getFn(ref);
+    const secret = await getFn(ref);
+
+    // Only apps, through an API key, read a value, and never a vendor key's.
+    return isApiKeyCall(call) && !isVendorKey(secret.name)
+      ? secret
+      : withoutValue(secret);
   };
 
   return withErrorHandlingAndValidationAndAccess(

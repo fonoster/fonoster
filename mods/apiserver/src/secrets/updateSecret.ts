@@ -22,6 +22,7 @@ import { UpdateSecretRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../core/db";
 import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
+import { isVendorKey, vendorKeyError } from "./access";
 import { createGetFnUtil } from "./createGetFnUtil";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -40,11 +41,15 @@ function updateSecret(prisma: Prisma) {
       accessKeyId
     });
 
+    if (isVendorKey((await getFn(call.request.ref)).name)) {
+      throw vendorKeyError();
+    }
+
     await prisma.secret.update({
       where: { ref: call.request.ref },
       data: {
-        name,
-        secret
+        ...(name ? { name } : {}),
+        ...(secret ? { secret } : {})
       }
     });
 
@@ -54,7 +59,7 @@ function updateSecret(prisma: Prisma) {
   return withErrorHandlingAndValidationAndAccess(
     fn,
     (ref: string) => getFn(ref),
-    V.listRequestSchema
+    V.updateSecretRequestSchema
   );
 }
 

@@ -364,8 +364,8 @@ See [Read and verify call records](/observe/call-records).
 | --- | --- |
 | `secrets:create` | Adds a secret. Asks for a name and the value. |
 | `secrets:list` | Lists the secrets. Flag: `--page-size`, `-s` (default `1000`). |
-| `secrets:get <ref>` | Shows a secret. |
-| `secrets:update <ref>` | Changes a secret's name or value. |
+| `secrets:get <ref>` | Shows a secret's name and dates, never its value. |
+| `secrets:update <ref>` | Changes a secret's name or value. Leave the value empty to keep it. Not for vendor keys: use `providers:keys:set`. |
 | `secrets:delete <ref>` | Deletes a secret. |
 
 See [Secrets](/workspace/secrets).

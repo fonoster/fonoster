@@ -23,11 +23,11 @@ import {
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
-import {} from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ListSecretsRequest, ListSecretsResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../core/db";
+import { withoutValue } from "./access";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -44,7 +44,7 @@ function listSecrets(prisma: Prisma) {
       call as unknown as ServerInterceptingCall
     );
 
-    logger.verbose("call to getSecret", {
+    logger.verbose("call to listSecrets", {
       accessKeyId,
       pageSize,
       pageToken
@@ -57,7 +57,10 @@ function listSecrets(prisma: Prisma) {
         skip: pageToken ? 1 : 0,
         cursor: pageToken ? { ref: pageToken } : undefined
       })
-    ).map(datesMapper);
+    )
+      .map(datesMapper)
+      // A list never carries values; an app reads one with getSecret.
+      .map(withoutValue);
 
     callback(null, {
       items: result,
