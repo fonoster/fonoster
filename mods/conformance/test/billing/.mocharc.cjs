@@ -18,6 +18,7 @@ const spec = [
   "mods/billing/test/operator.test.ts",
   "mods/billing/test/stripe.test.ts",
   "mods/billing/test/api.test.ts",
+  "mods/billing/test/closeAccount.test.ts",
   "mods/apiserver/test/usage/ingest.test.ts",
   "mods/apiserver/test/usage/getUsage.test.ts",
   "mods/apiserver/test/usage/consumer.test.ts",
