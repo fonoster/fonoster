@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 1d957bd..85fef66 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1258,7 +1258,7 @@ export class AppSession {
+         },
+         // The app owns interruption (B22): AppBridge only reports turn.user_started.
+         interruption: () => this.labeler.interruption(Date.now()),
+-        finalize: () => this.stt?.finalize?.(),
++        finalize: () => undefined,
+         patience: (change) =>
+           this.call.record("event", { type: "turn.patience", ...change })
+       },

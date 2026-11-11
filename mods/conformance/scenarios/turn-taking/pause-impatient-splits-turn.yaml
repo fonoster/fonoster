@@ -1,0 +1,36 @@
+format: fonoster.scenario.v1
+name: pause-impatient-splits-turn
+contract: turn-taking
+role: app
+spec: "A turn ends on silence even when the recognizer holds its final / A pause longer than the impatient timeout splits the turn"
+description: >
+  With patience low (0.6 x 600 ms = 360 ms), the final asked for 200 ms into a 700 ms pause
+  starts a 360 ms silence count, so "one, two" ends during the pause (200 + fake delay 0 + 360 <
+  700 ms) and "three" starts a second turn.
+  Caller audio reaches the recognizer about 60 ms into the stream: "one, two" is 60-660 ms, the
+  pause 660-1360 ms and "three" 1360-1960 ms, so each held final is asked for about 200 ms
+  (voice debounce) into its silence, with a partial pending.
+setup:
+  app: { speech: { patience: low } }
+  providers:
+    stt:
+      script:
+        - { atMs: 400, text: "one, two", final: false }
+        - { atMs: 600, text: "one, two", onFinalize: true }
+        - { atMs: 1700, text: "three", final: false }
+        - { atMs: 1900, text: "three", onFinalize: true }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+    label: spoke
+  - wait: { ms: 700 }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+  - expect: { type: turn.ended, text: "one, two" }
+    from: spoke
+    within_ms: 700
+  - expect: { type: turn.user_started }
+  - expect: { type: turn.ended, text: "three" }
+    within_ms: 2000

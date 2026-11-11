@@ -1,0 +1,24 @@
+format: fonoster.scenario.v1
+name: final-on-request
+contract: turn-taking
+role: app
+spec: "A turn ends on silence even when the recognizer holds its final / The recognizer is asked for its final"
+description: >
+  The recognizer sends a partial and holds its final until asked, as Deepgram does. When the
+  caller goes silent with the partial pending, AppBridge asks for the final once, and the turn
+  ends about the silence timeout after it (200 ms voice debounce + 600 ms), within 2 s.
+setup:
+  providers:
+    stt:
+      script:
+        - { atMs: 400, text: "I want to pay my bill", final: false }
+        - { atMs: 600, text: "I want to pay my bill", onFinalize: true }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+    label: spoke
+  - expect: { type: turn.ended, text: "I want to pay my bill" }
+    from: spoke
+    within_ms: 2000

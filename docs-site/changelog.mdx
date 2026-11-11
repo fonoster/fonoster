@@ -29,6 +29,9 @@ New releases are listed newest first. For releases up to 0.27, see the
 - **Voice IDs that aren't in the catalog** work when `speech.ttsModel` names a model of the same
   vendor. Fonoster doesn't check them. See
   [Providers and models](/reference/providers#where-catalog-ids-go).
+- With Deepgram speech-to-text, a caller's turn now ends about 0.6 to 1.5 seconds after they stop
+  talking (it used to be 2 to 6 seconds), so `patience` now has the effect `docs/turn-taking.md`
+  describes. Apps and the session protocol don't change.
 
 ## Telephony
 

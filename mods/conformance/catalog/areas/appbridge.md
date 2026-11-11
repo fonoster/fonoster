@@ -785,3 +785,26 @@ The Applications API's create and update handlers on a throwaway Postgres, as in
 **Pass.** A create at speed 1.3 and an update to 0.6 fail with `INVALID_ARGUMENT` naming
 `speech.speed`, and neither is stored; a create at 1.1 is stored at 1.1. **Fail.** A speed outside
 0.7 to 1.2 is stored, or the error does not name the field.
+
+### APB-047 A turn ends on silence when the recognizer holds its final
+
+- **Spec:** turn-taking / A turn ends on silence even when the recognizer holds its final / The recognizer is asked for its final
+- **Spec:** turn-taking / A turn ends on silence even when the recognizer holds its final / A pause longer than the impatient timeout splits the turn
+- **Spec:** turn-taking / A turn ends on silence even when the recognizer holds its final / A pause shorter than the default timeout keeps one turn
+- **Spec:** turn-taking / A turn ends on silence even when the recognizer holds its final / A pause shorter than the patient timeout keeps one turn
+- **Priority:** P1
+- **Proof:** never call stt.finalize (Pacing.ts / Call.ts); the tests must go red on final-on-request and pause-impatient-splits-turn
+- **Fault:** faults/APB-047.patch
+- **Test:** mods/appbridge/test/conformance.test.ts
+- **Runs:** scenarios/turn-taking/final-on-request.yaml
+- **Runs:** scenarios/turn-taking/pause-impatient-splits-turn.yaml
+- **Runs:** scenarios/turn-taking/pause-normal-keeps-turn.yaml
+- **Runs:** scenarios/turn-taking/pause-patient-keeps-turn.yaml
+
+The fake recognizer sends a partial and holds the final until asked (`onFinalize`), as Deepgram
+does for seconds after the caller stops. AppBridge asks once per silence while a partial is pending,
+and the final starts the silence count.
+
+**Pass.** The held final is asked for and the turn ends within 2 s of the caller stopping; a 700 ms
+pause splits the turn at patience low and keeps one turn at normal and high. **Fail.** A turn that
+waits for a final nobody asked for, or a short pause that splits the turn at normal or high patience.

@@ -252,6 +252,19 @@ export class DeepgramSttStream extends EventEmitter implements SttStream {
   }
 
   /**
+   * Asks Deepgram for the final of the audio heard so far; it answers with Results is_final. Sent
+   * only on an open socket, never queued: Finalize alone keeps the stream open (no CloseStream).
+   */
+  finalize() {
+    if (
+      !this.closed &&
+      !this.finishing &&
+      this.socket.readyState === WebSocket.OPEN
+    )
+      this.socket.send(JSON.stringify({ type: "Finalize" }));
+  }
+
+  /**
    * Deepgram cannot change language or keyterms mid-stream, so the stream reconnects. The old
    * socket is finalized and drained, so words spoken just before the change are not lost.
    */

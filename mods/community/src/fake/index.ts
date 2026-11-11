@@ -214,6 +214,12 @@ class FakeSttStream extends EventEmitter implements SttStream {
     this.send(JSON.stringify({ type: "config", ...options }));
   }
 
+  /** Asks the fake for its held finals; only on an open socket, never queued. */
+  finalize() {
+    if (this.open && this.socket.readyState === WebSocket.OPEN)
+      this.socket.send(JSON.stringify({ type: "finalize" }));
+  }
+
   close() {
     this.removeAllListeners();
     this.socket.removeAllListeners();
