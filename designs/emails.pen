@@ -2137,6 +2137,1848 @@
       "width": 600,
       "gap": 24,
       "padding": 24
+    },
+    {
+      "type": "frame",
+      "id": "lgNQL",
+      "name": "Email / Activation 1: Your first call (Loops)",
+      "x": 3400,
+      "y": 0,
+      "width": 600,
+      "layout": "vertical",
+      "gap": 16,
+      "children": [
+        {
+          "type": "frame",
+          "id": "C0oqw",
+          "name": "Annotations",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            0,
+            0,
+            8,
+            0
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "h71E7",
+              "content": "LOOPS: workflow \"Activation (new sign-ups)\", email 1 (sent on the signup event)",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            },
+            {
+              "type": "text",
+              "id": "KZTtY",
+              "content": "From: Pedro from Fonoster <pedro@updates.fonoster.com> · Reply-to: owner",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            },
+            {
+              "type": "text",
+              "id": "JQrgR",
+              "content": "Hero: website hero (#181818 + 28px dot grid, mask at 75% / 42%); ships as one background image in Loops",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "JnnB9",
+          "name": "Email",
+          "layout": "vertical",
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container",
+          "children": [
+            {
+              "type": "frame",
+              "id": "TjIBm",
+              "name": "Email hero (website style)",
+              "layout": "none",
+              "width": "fill_container",
+              "height": 232,
+              "fill": "#181818",
+              "clip": true,
+              "theme": {
+                "ui:mode": "dark"
+              },
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Go4VS",
+                  "name": "Dots",
+                  "layout": "none",
+                  "width": 600,
+                  "height": 232,
+                  "x": 0,
+                  "y": 0,
+                  "children": [
+                    {
+                      "type": "ellipse",
+                      "id": "H6vMG",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 292.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF12"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "QaE5g",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 320.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF17"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Rfo29",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 348.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF1C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "rcRME",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 376.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF1F"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "f16cP",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 404.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF21"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "xheGN",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 432.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF23"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "aZYHQ",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 460.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF23"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "M5eTe",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 488.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF22"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "a9Ba3",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 516.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF1F"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "hmo6s",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 544.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF1C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "f8YrX",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 572.8,
+                      "y": 12.8,
+                      "fill": "#FFFFFF18"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "y9LdH",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 236.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF14"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "TMZ8U",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 264.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF1B"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "t8BhU",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 292.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF21"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Bq9T6",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 320.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF28"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Y2bM6",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 348.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF2D"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "bRzxy",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 376.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF32"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "NO2v0",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 404.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF35"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "nEYvd",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 432.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF37"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "5uASZ",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 460.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF37"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "sglFg",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 488.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF36"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Lgvg7",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 516.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF33"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "b53ar",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 544.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF2E"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "zwfxK",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 572.8,
+                      "y": 40.8,
+                      "fill": "#FFFFFF29"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "lWPeJ",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 208.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF14"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "uUImy",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 236.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF1C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Yf2to",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 264.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF24"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "nwtYV",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 292.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF2C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "XO0sp",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 320.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF34"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "FqV5P",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 348.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF3C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "bIAdx",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 376.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF42"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "zNW21",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 404.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF48"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "haNfE",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 432.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF4C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "qNdD1",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 460.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF4C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "MFYdQ",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 488.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF49"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "1ahFG",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 516.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF43"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "vRUeg",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 544.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF3D"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "A17fI",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 572.8,
+                      "y": 68.8,
+                      "fill": "#FFFFFF35"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "aXJVy",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 208.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF17"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "8A00i",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 236.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF1F"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "hdGIf",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 264.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF28"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "VQ9Tn",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 292.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF31"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "EvE3d",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 320.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF39"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "byCmK",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 348.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF42"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "a3mQv",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 376.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF4A"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "9IDep",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 404.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF53"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "xazJD",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 432.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF5B"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "4pbED",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 460.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF5D"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "qHdFt",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 488.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF54"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "uMHQM",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 516.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF4C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "znQbe",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 544.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF43"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Ephb4",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 572.8,
+                      "y": 96.8,
+                      "fill": "#FFFFFF3A"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "zNpkx",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 208.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF14"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "6orCk",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 236.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF1C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "OAo32",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 264.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF24"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "zO9lW",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 292.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF2C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Sy1Q2",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 320.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF34"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "iCHut",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 348.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF3B"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Xvb1v",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 376.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF42"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "F4zOP",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 404.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF47"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "sxtEV",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 432.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF4B"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "TzHkM",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 460.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF4B"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "nvcP2",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 488.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF48"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "OPiA3",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 516.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF43"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "yEupX",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 544.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF3C"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "L9Tpm",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 572.8,
+                      "y": 124.8,
+                      "fill": "#FFFFFF35"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "BiSMV",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 236.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF13"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Xt5JH",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 264.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF1A"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "D9CSu",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 292.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF21"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "y2S7A",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 320.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF27"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "IhChj",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 348.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF2D"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "feohF",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 376.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF31"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "aCDxq",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 404.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF35"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "ThpXb",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 432.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF36"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "R2L01",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 460.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF37"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "TB5ii",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 488.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF35"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "Hf2MO",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 516.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF32"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "zKXrU",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 544.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF2D"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "QFJdN",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 572.8,
+                      "y": 152.8,
+                      "fill": "#FFFFFF28"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "i4NOZ",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 320.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF17"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "36d3a",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 348.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF1B"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "9F448",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 376.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF1E"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "pgXX1",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 404.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF21"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "2uij9",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 432.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF22"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "wFerq",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 460.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF22"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "m9uy9",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 488.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF21"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "xWf9B",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 516.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF1F"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "v8pPb",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 544.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF1B"
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "tHlrB",
+                      "width": 2.8,
+                      "height": 2.8,
+                      "x": 572.8,
+                      "y": 180.8,
+                      "fill": "#FFFFFF17"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "twF7n",
+                  "name": "Hero copy",
+                  "layout": "vertical",
+                  "gap": 20,
+                  "x": 40,
+                  "y": 36,
+                  "width": 520,
+                  "children": [
+                    {
+                      "type": "ref",
+                      "id": "D0G0Y",
+                      "ref": "ui:S4FXr",
+                      "name": "Logo (logo-email.png, light on dark)",
+                      "width": 124,
+                      "height": 32
+                    },
+                    {
+                      "type": "frame",
+                      "id": "4uAKB",
+                      "layout": "vertical",
+                      "gap": 10,
+                      "width": "fill_container",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "FKd0E",
+                          "name": "Headline",
+                          "content": "Your first call in 5 minutes",
+                          "fill": "#FFFFFF",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 30,
+                          "fontWeight": "600",
+                          "letterSpacing": -0.6,
+                          "lineHeight": 1.2,
+                          "width": "fill_container",
+                          "textGrowth": "fixed-width"
+                        },
+                        {
+                          "type": "text",
+                          "id": "1wslP",
+                          "name": "Subline",
+                          "content": "Create an agent and talk to it from your browser.",
+                          "fill": "#C2C2C2",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 16,
+                          "lineHeight": 1.5,
+                          "width": "fill_container",
+                          "textGrowth": "fixed-width"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "reusable": true
+            },
+            {
+              "type": "frame",
+              "id": "v33me",
+              "name": "Body",
+              "layout": "vertical",
+              "gap": 18,
+              "padding": [
+                36,
+                40
+              ],
+              "width": "fill_container",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "QBzlH",
+                  "content": "Hi Ana,",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "94IVU",
+                  "content": "Thanks for signing up. I'm Pedro, founder of Fonoster.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "0jAL0",
+                  "content": "The fastest way to see what it does: create an agent and talk to it from your browser. You don't need a carrier or a phone number.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "fA1hG",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bvIDQ",
+                      "name": "Label",
+                      "content": "Make your first call",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "XAhyk",
+                  "content": "If anything gets in the way, reply to this email. It comes straight to me.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "7hQtc",
+                  "name": "Signature",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "5hqSM",
+                      "content": "Pedro",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    },
+                    {
+                      "type": "text",
+                      "id": "fx2p8",
+                      "content": "Founder, Fonoster",
+                      "fill": "$ui:--muted-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 14,
+                      "lineHeight": 1.5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "pmFKD",
+              "name": "Footer",
+              "layout": "vertical",
+              "gap": 4,
+              "width": "fill_container",
+              "padding": [
+                20,
+                40
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dkSuD",
+                  "content": "You're getting this because you signed up for Fonoster. Unsubscribe",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "G64zX",
+                  "content": "Fonoster Inc. · 2710 Alpine Blvd, Unit K #1232, Alpine, CA 91901, USA",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "tr3Ab",
+      "name": "Email / Activation 2: Build your first agent (Loops)",
+      "x": 4080,
+      "y": 0,
+      "width": 600,
+      "layout": "vertical",
+      "gap": 16,
+      "children": [
+        {
+          "type": "frame",
+          "id": "jx01X",
+          "name": "Annotations",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            0,
+            0,
+            8,
+            0
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "DdL1a",
+              "content": "LOOPS: workflow \"Activation (new sign-ups)\", email 2 (day 2, only if not activated)",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            },
+            {
+              "type": "text",
+              "id": "uBpbp",
+              "content": "From: Pedro from Fonoster <pedro@updates.fonoster.com> · Reply-to: owner",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "MDOZJ",
+          "name": "Email",
+          "layout": "vertical",
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container",
+          "children": [
+            {
+              "type": "ref",
+              "id": "ya6Sb",
+              "ref": "TjIBm",
+              "width": "fill_container",
+              "descendants": {
+                "FKd0E": {
+                  "content": "Build your first agent, step by step"
+                },
+                "1wslP": {
+                  "content": "A prompt, a voice, and the tools it can use."
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "ZnR10",
+              "name": "Body",
+              "layout": "vertical",
+              "gap": 18,
+              "padding": [
+                36,
+                40
+              ],
+              "width": "fill_container",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sZOl0",
+                  "content": "Hi Ana,",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "pNuiu",
+                  "content": "An agent is a prompt, a voice, and the tools and knowledge it answers from. This guide walks through each one and ends with a call.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "juyWj",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tkvZO",
+                      "content": "Build an agent",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "pASiY",
+                  "content": "When it works, give it a phone number so anyone can call it.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "I8sx7",
+                  "name": "Link",
+                  "content": "Get a number →",
+                  "fill": "#008751",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6
+                },
+                {
+                  "type": "text",
+                  "id": "PFK5N",
+                  "content": "Questions? Just reply.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "lRCJ1",
+                  "name": "Signature",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "O8Mr7",
+                      "content": "Pedro",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    },
+                    {
+                      "type": "text",
+                      "id": "k2lnt",
+                      "content": "Founder, Fonoster",
+                      "fill": "$ui:--muted-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 14,
+                      "lineHeight": 1.5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dGy4x",
+              "name": "Footer",
+              "layout": "vertical",
+              "gap": 4,
+              "width": "fill_container",
+              "padding": [
+                20,
+                40
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "uIK0a",
+                  "content": "You're getting this because you signed up for Fonoster. Unsubscribe",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "GOlDp",
+                  "content": "Fonoster Inc. · 2710 Alpine Blvd, Unit K #1232, Alpine, CA 91901, USA",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FEojx",
+      "name": "Email / Activation 3: Stuck? (Loops)",
+      "x": 4760,
+      "y": 0,
+      "width": 600,
+      "layout": "vertical",
+      "gap": 16,
+      "children": [
+        {
+          "type": "frame",
+          "id": "qnVu8",
+          "name": "Annotations",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            0,
+            0,
+            8,
+            0
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "II5xo",
+              "content": "LOOPS: workflow \"Activation (new sign-ups)\", email 3 (day 5, only if not activated)",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            },
+            {
+              "type": "text",
+              "id": "nYJWr",
+              "content": "From: Pedro from Fonoster <pedro@updates.fonoster.com> · Reply-to: owner",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "lAZbC",
+          "name": "Email",
+          "layout": "vertical",
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container",
+          "children": [
+            {
+              "type": "ref",
+              "id": "PsNkQ",
+              "ref": "TjIBm",
+              "width": "fill_container",
+              "descendants": {
+                "FKd0E": {
+                  "content": "Stuck?"
+                },
+                "1wslP": {
+                  "content": "Tell me where you stopped. I read every reply."
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "y9FL0",
+              "name": "Body",
+              "layout": "vertical",
+              "gap": 18,
+              "padding": [
+                36,
+                40
+              ],
+              "width": "fill_container",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "1XR8n",
+                  "content": "Hi Ana,",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "tAZs4",
+                  "content": "You signed up for Fonoster a few days ago but haven't made a call yet.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "yHUVq",
+                  "content": "Reply and tell me where you stopped. I read every reply, and we'll help you get your first call working.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "I6uWE",
+                  "content": "Or pick up where you left off:",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "0W4t4",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "0uz43",
+                      "content": "Open the quickstart",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "2x6yF",
+                  "name": "Signature",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "2W2Jf",
+                      "content": "Pedro",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    },
+                    {
+                      "type": "text",
+                      "id": "Fb8eD",
+                      "content": "Founder, Fonoster",
+                      "fill": "$ui:--muted-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 14,
+                      "lineHeight": 1.5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rFqks",
+              "name": "Footer",
+              "layout": "vertical",
+              "gap": 4,
+              "width": "fill_container",
+              "padding": [
+                20,
+                40
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "hzPqu",
+                  "content": "You're getting this because you signed up for Fonoster. Unsubscribe",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "jfdEb",
+                  "content": "Fonoster Inc. · 2710 Alpine Blvd, Unit K #1232, Alpine, CA 91901, USA",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "ahqcg",
+      "name": "Email / Campaign: Old platform shutdown (Loops)",
+      "x": 5440,
+      "y": 0,
+      "width": 600,
+      "layout": "vertical",
+      "gap": 16,
+      "children": [
+        {
+          "type": "frame",
+          "id": "iPfUd",
+          "name": "Annotations",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 6,
+          "padding": [
+            0,
+            0,
+            8,
+            0
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "T5kPG",
+              "content": "LOOPS: campaign \"Old platform shutdown (Dec 31)\", audience userGroup = old-platform (500)",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            },
+            {
+              "type": "text",
+              "id": "EbnRc",
+              "content": "From: Fonoster <news@updates.fonoster.com> · Reply-to: team@fonoster.com",
+              "fill": "$ui:--muted-foreground",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 11,
+              "width": "fill_container",
+              "textGrowth": "fixed-width"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "uhIhW",
+          "name": "Email",
+          "layout": "vertical",
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container",
+          "children": [
+            {
+              "type": "ref",
+              "id": "V9iSM",
+              "ref": "TjIBm",
+              "width": "fill_container",
+              "descendants": {
+                "FKd0E": {
+                  "content": "The old Fonoster shuts down on December 31"
+                },
+                "1wslP": {
+                  "content": "Move your agents, numbers and apps to app.fonoster.ai before then."
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "deJe2",
+              "name": "Body",
+              "layout": "vertical",
+              "gap": 18,
+              "padding": [
+                36,
+                40
+              ],
+              "width": "fill_container",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Miw8i",
+                  "content": "Hi Ana,",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "ghdp2",
+                  "content": "The old version of Fonoster (app.fonoster.com and api.fonoster.com) shuts down on December 31, 2026. After that date, its calls, numbers and apps stop working.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "juHQj",
+                  "content": "Your account doesn't move over on its own. To keep things running:",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "2hsmu",
+                  "name": "Steps",
+                  "layout": "vertical",
+                  "gap": 10,
+                  "width": "fill_container",
+                  "padding": [
+                    0,
+                    0,
+                    0,
+                    4
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "vDUWl",
+                      "content": "1.  Sign up at app.fonoster.ai.",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "lineHeight": 1.6,
+                      "width": "fill_container",
+                      "textGrowth": "fixed-width"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZFdrV",
+                      "content": "2.  Set up your agents, numbers and apps there. Prompts and Voice apps look very similar.",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "lineHeight": 1.6,
+                      "width": "fill_container",
+                      "textGrowth": "fixed-width"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lvgFg",
+                      "content": "3.  Point your code at the new version. Packages 0.30 and later only work with it.",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "lineHeight": 1.6,
+                      "width": "fill_container",
+                      "textGrowth": "fixed-width"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "EJCDI",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "CWwr7",
+                      "content": "Read the upgrade plan",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "uf3Vg",
+                  "content": "Questions? Reply to this email.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "uuUfL",
+                  "content": "From now on we'll also send you short product updates, once or twice a month. You can unsubscribe at any time with the link below.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 14,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "cox9n",
+                  "content": "The Fonoster team",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "W4546",
+              "name": "Footer",
+              "layout": "vertical",
+              "gap": 4,
+              "width": "fill_container",
+              "padding": [
+                20,
+                40
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "1plCp",
+                  "content": "You're getting this because you have an account on the old version of Fonoster. Unsubscribe",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "UGzM2",
+                  "content": "Fonoster Inc. · 2710 Alpine Blvd, Unit K #1232, Alpine, CA 91901, USA",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
