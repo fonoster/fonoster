@@ -17,12 +17,12 @@
     link: "https://docs.fonoster.com/upgrade",
     en: {
       lead: "The biggest update in Fonoster history.",
-      text: "The old version shuts down by early January.",
+      text: "The old version shuts down on December 31, 2026.",
       cta: "Read the upgrade plan"
     },
     es: {
       lead: "La mayor actualización en la historia de Fonoster.",
-      text: "La versión anterior se apaga a más tardar a inicios de enero.",
+      text: "La versión anterior se apaga el 31 de diciembre de 2026.",
       cta: "Ver el plan de migración"
     }
   };
