@@ -361,5 +361,6 @@
   "API-074": "Deleting a workspace erases its call records after 30 days",
   "APB-048": "Calls to a deleted workspace are refused",
   "BIL-057": "Deleting a user cancels their plan, or is refused while they owe",
-  "API-075": "Deleting a workspace removes its apps, secrets, webhooks, numbers and trunks"
+  "API-075": "Deleting a workspace removes its apps, secrets, webhooks, numbers and trunks",
+  "DSH-068": "Test call from a Number: status to the end, refusals, unroutable numbers"
 }

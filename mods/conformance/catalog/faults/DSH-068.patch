@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/numbers/test-call-drawer.tsx b/mods/dashboard/src/numbers/test-call-drawer.tsx
+--- a/mods/dashboard/src/numbers/test-call-drawer.tsx
++++ b/mods/dashboard/src/numbers/test-call-drawer.tsx
+@@ -94,7 +94,7 @@
+     setInvalid(!e164);
+     if (!e164 || !number.appRef) return;
+     void call.start({
+-      from: fromNumber(number.telUrl),
++      from: number.telUrl,
+       to: e164,
+       appRef: number.appRef
+     });

@@ -21,7 +21,9 @@
  * page.route. Messages are built with the SDK's own generated protobuf
  * classes, so the dashboard decodes them exactly as it would real responses.
  */
+import { createServer } from "node:http";
 import { createRequire } from "node:module";
+import type { AddressInfo } from "node:net";
 import { dirname, join } from "node:path";
 import type { Page, Route } from "@playwright/test";
 
@@ -59,7 +61,15 @@ const empty: any = require(
 export const API_URL = "http://localhost:8449";
 
 type Message = { serializeBinary(): Uint8Array };
-type Reply = Message | { error: { code: number; message: string } };
+type GrpcErrorReply = { error: { code: number; message: string } };
+/**
+ * One step of a server stream, taken once `after` settles (a test opens a gate to move on): a
+ * message, an error that ends the stream, or the end. Without an end step it ends after the last.
+ */
+export type StreamStep = { after?: Promise<unknown> } & (
+  { message: Message } | GrpcErrorReply | { end: true }
+);
+type Reply = Message | GrpcErrorReply | { stream: StreamStep[] };
 type Handler = (request: Uint8Array) => Reply | Promise<Reply>;
 export type RestReply =
   | { status?: number; json?: unknown }
@@ -76,6 +86,17 @@ function frame(flag: number, payload: Uint8Array) {
   out.set(payload, 5);
   return out;
 }
+
+function trailer(code: number, message = "") {
+  return frame(
+    0x80,
+    new TextEncoder().encode(
+      `grpc-status:${code}\r\ngrpc-message:${encodeURIComponent(message)}\r\n`
+    )
+  );
+}
+
+const base64 = (bytes: Uint8Array) => Buffer.from(bytes).toString("base64");
 
 function decodeRequest(body: string | null): Uint8Array {
   if (!body) return new Uint8Array();
@@ -245,6 +266,7 @@ export class GrpcWebMock {
       ...CORS,
       "content-type": "application/grpc-web-text+proto"
     };
+    if ("stream" in reply) return this.stream(route, headers, reply.stream);
     if ("error" in reply) {
       return route.fulfill({
         status: 200,
@@ -256,12 +278,9 @@ export class GrpcWebMock {
         body: ""
       });
     }
-    const trailer = new TextEncoder().encode(
-      "grpc-status:0\r\ngrpc-message:\r\n"
-    );
     const data = Buffer.concat([
       frame(0x00, reply.serializeBinary()),
-      frame(0x80, trailer)
+      trailer(0)
     ]);
     return route.fulfill({
       status: 200,
@@ -269,6 +288,44 @@ export class GrpcWebMock {
       body: data.toString("base64")
     });
   }
+
+  /**
+   * A server stream, message by message: route.fulfill() can only send a whole body, so the
+   * request goes to a one-shot local server that writes each frame when its step is due.
+   */
+  private async stream(
+    route: Route,
+    headers: Record<string, string>,
+    steps: StreamStep[]
+  ) {
+    const server = createServer(async (_req, res) => {
+      res.writeHead(200, headers);
+      let status = trailer(0);
+      for (const step of steps) {
+        await step.after;
+        if ("end" in step) break;
+        if ("error" in step) {
+          status = trailer(step.error.code, step.error.message);
+          break;
+        }
+        res.write(base64(frame(0x00, step.message.serializeBinary())));
+      }
+      res.end(base64(status));
+      server.close();
+    });
+    await new Promise<void>((resolve) =>
+      server.listen(0, "127.0.0.1", resolve)
+    );
+    const { port } = server.address() as AddressInfo;
+    return route.continue({ url: `http://127.0.0.1:${port}/` });
+  }
+}
+
+/** A step a test releases by hand: `const ring = gate(); …; ring.open();`. */
+export function gate() {
+  let open!: () => void;
+  const promise = new Promise<void>((resolve) => (open = resolve));
+  return { promise, open };
 }
 
 export const emptyReply = () => new empty.Empty();

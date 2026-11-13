@@ -182,6 +182,16 @@ fonoster sipnet:numbers:list
 Then call the number from any phone. Your agent or stream answers, or the SIP agent's phone
 rings. The call shows up under **Calls** in the dashboard.
 
+To check the outbound path from the dashboard, go to **Numbers**, open the number's menu and choose
+**Test call**. Enter your phone number in E.164 format, such as `+18095550100`, and choose **Call**.
+Fonoster calls you from this number through its trunk, and the drawer shows each status: calling,
+ringing, answered, ended. When you answer, the number's agent or app takes the call. Hang up your
+phone to end it; closing the drawer doesn't.
+
+Only numbers routed to an agent or an app can be tested this way. For a number routed to a SIP agent,
+call the number from a phone. A test call is an outbound call, so the trunk must send calls out, and
+your carrier charges it.
+
 If the number doesn't ring:
 
 - Check that the number matches what your carrier sends, `+` included.

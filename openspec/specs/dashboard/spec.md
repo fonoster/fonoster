@@ -441,3 +441,37 @@ say so. Neither SHALL show a raw API error or keep loading.
 
 - **WHEN** the user opens a call ref the workspace doesn't have
 - **THEN** the page says the call record wasn't found
+
+### Requirement: Numbers have a test call
+
+A Number's row menu SHALL offer Test call between Edit and Delete. It SHALL be enabled when the
+Number has an `appRef` (it routes to an Agent or app), and otherwise disabled with "Route this number
+to an Agent or app to test it" as visible text. Test call SHALL open a drawer titled with the Number
+that takes one E.164 number to call and places the call with `CreateCall` from the Number's E.164
+(no `tel:`), to that number, with the Number's `appRef`. The drawer SHALL show each TrackCall status
+in a polite live region: Calling…, Ringing…, Answered with a timer, then Call ended when the stream of
+an answered call closes, or Busy, No answer or Call failed. While the call is live the field SHALL
+be read-only, there SHALL be no button, and the drawer SHALL say that closing it doesn't end the call.
+A refused `CreateCall` SHALL show its reason in plain words, never a raw code. Closing the drawer
+SHALL only stop reading the status stream: it sends nothing, and focus returns to the row's actions.
+
+#### Scenario: Call from a routed number
+
+- **WHEN** the user picks Test call on a Number routed to an Agent, enters `+15551234567` and presses Call
+- **THEN** `CreateCall` is sent once with the Number's E.164 as `from`, `+15551234567` as `to` and the Number's `appRef`
+- **AND** as TrackCall streams TRYING, PROGRESS and ANSWER and then closes, the drawer shows Calling…, Ringing…, Answered with a timer, then Call ended and Call again
+
+#### Scenario: The server refuses the call
+
+- **WHEN** `CreateCall` fails with FAILED_PRECONDITION "The call was refused: insufficient_balance", or with RESOURCE_EXHAUSTED
+- **THEN** the drawer shows "Your balance is too low to make calls. Add credit in Billing." or "No line is free to place the call. Try again in a minute." in an error alert, keeps the number typed, and opens no TrackCall
+
+#### Scenario: The call is not answered
+
+- **WHEN** TrackCall streams TRYING then BUSY, NOANSWER or FAILED and closes
+- **THEN** the drawer shows Busy, No answer or Call failed with what to do next, never Answered, and offers Call again
+
+#### Scenario: A number not routed to an Agent or app
+
+- **WHEN** the user opens the row menu of a Number routed to a SIP agent, or not routed
+- **THEN** Test call is disabled with "Route this number to an Agent or app to test it", and no `CreateCall` is sent

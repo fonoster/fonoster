@@ -51,6 +51,7 @@ import {
   routeLabel,
   type LinkFlow
 } from "./routing";
+import { TestCallDrawer } from "./test-call-drawer";
 
 export default function NumbersScreen() {
   const list = useNumbers();
@@ -62,6 +63,7 @@ export default function NumbersScreen() {
   const [search] = useSearchParams();
   const [drawerOpen, setDrawerOpen] = useState(search.get("new") === "1");
   const [deleting, setDeleting] = useState<INumber | undefined>();
+  const [testing, setTesting] = useState<INumber | undefined>();
   // ?link=twilio (the Overview checklist) opens that flow's drawer.
   const [linking, setLinking] = useState<LinkFlow | undefined>(
     asLinkFlow(search.get("link"))
@@ -149,7 +151,21 @@ export default function NumbersScreen() {
           label={formatNumber(n.telUrl)}
           onEdit={() => openDrawer(n)}
           onDelete={() => setDeleting(n)}
-        />
+        >
+          {/* Only an Agent or app can answer a test call; decide on appRef, not the app list. */}
+          <DropdownMenuItem
+            disabled={!n.appRef}
+            onSelect={() => setTesting(n)}
+            className="flex-wrap"
+          >
+            <Phone /> Test call
+            {!n.appRef && (
+              <span className="w-full pl-6 text-xs text-muted-foreground">
+                Route this number to an Agent or app to test it
+              </span>
+            )}
+          </DropdownMenuItem>
+        </RowActions>
       )
     }
   ];
@@ -202,6 +218,21 @@ export default function NumbersScreen() {
         open={linking === "whatsapp"}
         onOpenChange={(open) => !open && setLinking(undefined)}
         returnFocusTo={linkTrigger}
+      />
+      <TestCallDrawer
+        number={testing}
+        appName={
+          testing
+            ? (routeLabel(testing, apps.data ?? [], sipAgents.data ?? [])
+                ?.label ?? "")
+            : ""
+        }
+        onOpenChange={(open) => !open && setTesting(undefined)}
+        returnFocusTo={(number) =>
+          document.querySelector<HTMLElement>(
+            `[aria-label="Actions for ${formatNumber(number.telUrl)}"]`
+          )
+        }
       />
       <ConfirmDialog
         open={Boolean(deleting)}

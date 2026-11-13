@@ -280,6 +280,22 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 
 **Pass.** A non-E.164 number is refused with nothing sent; `+1 (809) 555-0100` routed to the Receptionist agent is sent as `tel:+18095550100` with the trunk and the agent's `appRef`; the saved number and location are locked; rerouting sends `sip:maria@acme.sip.fonoster.local` and no `appRef`; Remove needs `DELETE` and empties the list. **Fail.** A wrong request, an editable number, or a delete without `DELETE`.
 
+### DSH-068 Test call from a Number: status to the end, refusals, unroutable numbers
+
+- **Spec:** dashboard / Numbers have a test call / Call from a routed number
+- **Spec:** dashboard / Numbers have a test call / The server refuses the call
+- **Spec:** dashboard / Numbers have a test call / The call is not answered
+- **Spec:** dashboard / Numbers have a test call / A number not routed to an Agent or app
+- **Priority:** P1
+- **Tier:** pr
+- **Proof:** Send the Number's `telUrl` (with `tel:`) as `from`; the test must go red on the CreateCall request.
+- **Fault:** faults/DSH-068.patch
+- **Test:** mods/dashboard/e2e/numbers.community.spec.ts
+
+The SDK's `calls.createCall` against mocked gRPC-Web: CreateCall answers a ref, TrackCall streams statuses and closes. The stack has no carrier that answers an outbound call, so this case is mocked.
+
+**Pass.** Test call to +15551234567 sends CreateCall with the Number's E.164, that destination and its appRef; the drawer shows Calling, Ringing, Answered, then Call ended when the stream closes; a refused CreateCall shows its mapped message; a BUSY stream shows Busy; a SIP agent Number's Test call is disabled with its note. **Fail.** A wrong from/to/appRef, a drawer stuck on a status, Answered on an unanswered call, a raw error code, or an enabled Test call on a SIP agent Number.
+
 ### DSH-018 Create a trunk, refuse a taken inbound URI, and say what deleting it stops
 
 - **Spec:** dashboard / Trunks connect a carrier / Create a trunk
