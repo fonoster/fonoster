@@ -1,5 +1,27 @@
 [
   {
+    "name": "didlogic",
+    "label": "DID Logic SIP Trunking",
+    "hosts": ["sip.*.didlogic.net"],
+    "addresses": [
+      "89.149.192.7",
+      "23.19.63.1",
+      "192.248.181.52",
+      "217.69.12.65",
+      "188.42.84.76",
+      "23.106.241.2",
+      "102.130.116.205",
+      "23.83.156.0",
+      "45.63.7.150",
+      "216.238.114.81"
+    ],
+    "sources": [
+      "https://docs.didlogic.com/docs/guides/getting-started/outbound-calling",
+      "https://docs.didlogic.com/docs/guides/faq"
+    ],
+    "checked": "2026-11-13"
+  },
+  {
     "name": "plivo",
     "label": "Plivo Zentrunk SIP Trunking",
     "hosts": ["*.zt.plivo.com"],
