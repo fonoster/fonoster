@@ -22,6 +22,7 @@ import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
 import { knownFarEnds, mergeFarEnds } from "../../src/interop";
+import { matchesAddress, matchesHost } from "../../src/interop/farEnds";
 import { run } from "../../src/interop/cli";
 
 const FILE = path.join(__dirname, "../../src/interop/far-ends.known.json");
@@ -30,6 +31,7 @@ const RAW: Record<string, unknown>[] = JSON.parse(
 );
 const PROVIDERS = [
   "bandwidth",
+  "didlogic",
   "plivo",
   "signalwire",
   "telnyx",
@@ -87,6 +89,15 @@ describe("@common/interop curated far ends", function () {
           expect(RESERVED.check(ip, "ipv4"), a).to.equal(false);
       }
     );
+  });
+
+  it("knows DID Logic by its gateway address inbound and its host outbound", function () {
+    const didlogic = knownFarEnds().find((f) => f.name === "didlogic")!;
+    // Inbound INVITEs arrive at the Trunk's own host, so only the sender tells.
+    expect(matchesAddress(didlogic, "217.69.12.65")).to.equal(true);
+    expect(matchesAddress(didlogic, "217.69.12.66")).to.equal(false);
+    expect(matchesHost(didlogic, "sip.fr.didlogic.net")).to.equal(true);
+    expect(matchesHost(didlogic, "acme.pstn.fonoster.ai")).to.equal(false);
   });
 
   it("lets --far-ends replace or add entries by name", function () {
