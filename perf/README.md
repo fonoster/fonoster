@@ -13,13 +13,16 @@ comparable across releases.
 
 ## The benchmarks
 
+The full run takes about 2 hours, a baseline: a 90-minute soak catches fast leaks, not the slow
+ones a six-hour soak would.
+
 | Id | Kind | What it measures | Passes when |
 | --- | --- | --- | --- |
-| `speech-turns` | capacity | Speech calls/s at a 30 s hold. Every call runs the turn loop below, so about 30 times the rate is talking at once. SIPp adds 1 call/s every 3 minutes, from 1 to 20. | Each step's p99 INVITE-to-200 stays under 200 ms and failed calls under 0.1%. The limit is the last step that passed. |
-| `speech-soak` | soak | About 100 concurrent speech calls for six hours (1.67 calls/s, 60 s each). | After a 30-minute warm-up, AppBridge's memory grows less than 5 MB/h, under 0.1% of calls fail, and AppBridge never restarts. |
+| `speech-turns` | capacity | Speech calls/s at a 30 s hold. Every call runs the turn loop below, so about 30 times the rate is talking at once. SIPp adds 5 calls/s every minute, from 5 to 40. | Each step's p99 INVITE-to-200 stays under 200 ms and failed calls under 0.1%. The limit is the last step that passed. |
+| `speech-soak` | soak | About 100 concurrent speech calls for 90 minutes (1.67 calls/s, 60 s each). | After a 20-minute warm-up, AppBridge's memory grows less than 5 MB/h, under 0.1% of calls fail, and AppBridge never restarts. |
 
-`perfkit.smoke.yaml` runs the same benchmarks, shortened: the ramp stops at 3 calls/s, and the
-soak holds about 30 calls for 5 minutes after a 5-minute warm-up, with a memory limit of
+`perfkit.smoke.yaml` runs the same benchmarks, shortened: the ramp goes from 1 to 3 calls/s, one
+step a minute, and the soak holds about 30 calls for 5 minutes after a 3-minute warm-up, with a memory limit of
 200 MB/h instead of 5: over 5 minutes, garbage-collector noise alone measures tens of MB/h, so
 only runaway growth fails it. It checks the harness, not AppBridge's limits or leaks.
 
@@ -63,7 +66,7 @@ Not measured, so the limit is not production capacity:
 | Path | What it is |
 | --- | --- |
 | `perfkit.yaml` | The full run: the project, the servers, the image and both benchmarks (`apiVersion: perfkit/v1`). |
-| `perfkit.smoke.yaml` | The same benchmarks, shortened, to check the harness in about 30 minutes. |
+| `perfkit.smoke.yaml` | The same benchmarks, shortened, to check the harness in about 15 minutes. |
 | `compose.yaml` | What runs on the server under test, all with host networking, each on its own cores of a `c-16`: `appbridge` on 0 and 1, `roomr` on 2 to 5, `nats` on 6, `app` on 7 to 11. |
 | `appbridge.yaml` | AppBridge's config: the speech path only, the keyless `fake` provider pointed at the app, and one app with no numbers, so it takes every call. AppBridge has no healthcheck in its image; the compose file adds one on its session port, 50071. |
 | `roomr.yaml` | The Roomr node's config: `sessionEndpoint` is AppBridge, and its RTP ports (10000 to 30000) stay below AppBridge's (ephemeral, from 32768). `${PERFKIT_UUT_IP}` is expanded by the node. `maxRooms` is high so the ramp, not the room cap, finds the limit. |
@@ -109,7 +112,7 @@ npx -y npm@11 exec --yes --package=github:fonoster/perfkit#v0.1.12 -- perfkit ru
 ```
 
 `npx -y npm@11` is there because Node 22 ships npm 10, which can't install perfkit from a git
-tag. The run takes about 30 minutes on Apple silicon (SIPp is amd64 only and runs emulated).
+tag. The run takes about 15 minutes on Apple silicon (SIPp is amd64 only and runs emulated).
 It exits 0 when every benchmark passed and 1 when one didn't, and writes
 `.perfkit/<run id>/report.json`. Running on your machine checks the harness: it can't pin real
 cores, so its numbers aren't AppBridge's limits. Add `--out <dir>` to write the run elsewhere.
@@ -126,7 +129,7 @@ Actions → **Benchmarks** → Run workflow (`.github/workflows/benchmarks.yaml`
 | Input | Meaning |
 | --- | --- |
 | `target-version` | The AppBridge release to benchmark, like `0.57.0`. The run stops before creating any server when the tag `v0.57.0` or the image `fonoster/appbridge:0.57.0` doesn't exist. |
-| `config` | `perf/perfkit.smoke.yaml` (the default) takes about 40 minutes; `perf/perfkit.yaml` takes about 8 hours. |
+| `config` | `perf/perfkit.smoke.yaml` (the default) takes about 15 minutes; `perf/perfkit.yaml` takes about 2 hours. |
 | `benchmarks` | Ids, comma-separated, like `speech-soak`; empty runs both. |
 
 perfkit creates a `c-16` server for AppBridge and the rest, and a `c-8` load generator, and
