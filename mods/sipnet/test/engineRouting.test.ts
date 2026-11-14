@@ -77,7 +77,7 @@ describe("@sipnet[numbers/engineRouting]", function () {
         metadata,
         request: {
           name: "Rebuild number",
-          telUrl: "+1234567890",
+          telUrl: "tel:+1234567890",
           city: "New York",
           country: "USA",
           countryIsoCode: "US",

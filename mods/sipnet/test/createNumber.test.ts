@@ -30,7 +30,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-const TELEPHONE_NUMBER = "+1234567890";
+const TELEPHONE_NUMBER = "tel:+1234567890";
 
 describe("@sipnet[sipnet/createNumber]", function () {
   afterEach(function () {
@@ -123,6 +123,45 @@ describe("@sipnet[sipnet/createNumber]", function () {
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.INVALID_ARGUMENT,
       message: 'Invalid country ISO code at "countryIsoCode"'
+    });
+    expect(numbers.createNumber).to.not.have.been.called;
+  });
+
+  it("should throw a validation error if the telUrl is not E.164", async function () {
+    // Arrange
+    const { createNumber } = await import("../src/numbers/createNumber");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const numbers = {
+      createNumber: sandbox.stub().resolves({ ref: "123" })
+    } as unknown as NumbersApi;
+
+    const call = {
+      metadata,
+      request: {
+        name: "My Number",
+        telUrl: "tel:442036705880",
+        city: "London",
+        country: "United Kingdom",
+        countryIsoCode: "GB",
+        appRef: "123"
+      }
+    };
+
+    const callback = sandbox.stub();
+    const checkNumberPreconditions = sandbox.stub();
+
+    const create = createNumber(numbers, checkNumberPreconditions);
+
+    // Act
+    await create(call, callback);
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly({
+      code: grpc.status.INVALID_ARGUMENT,
+      message:
+        'Must be tel: and an E.164 number, such as tel:+18095550123 at "telUrl"'
     });
     expect(numbers.createNumber).to.not.have.been.called;
   });

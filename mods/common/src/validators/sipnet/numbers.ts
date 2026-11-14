@@ -34,7 +34,12 @@ const aliasesSchema = z
 const createNumberRequestSchema = z
   .object({
     name: nameSchema,
-    telUrl: z.string(),
+    telUrl: z
+      .string()
+      .regex(
+        /^tel:\+[1-9]\d{1,14}$/,
+        "Must be tel: and an E.164 number, such as tel:+18095550123"
+      ),
     city: z.string(),
     country: z.string(),
     agentAor: sipUriSchema.optional(),

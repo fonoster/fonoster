@@ -17,6 +17,9 @@ spec:
       nats:
         enabled: true
         url: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
+  apiServer:
+    # Refuse a Number whose telUrl isn't tel:+ and an E.164 number (the API checks it too).
+    enforceE164Numbers: true
   connect:
     verifier:
       # Browser calls: the API server's test tokens are signed with Identity's key.
