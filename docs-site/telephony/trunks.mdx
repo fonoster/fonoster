@@ -148,7 +148,7 @@ addresses are under **Settings** → **Region**, in **Connection details**.
               {
                 host: "sip.acme.com",
                 port: 5060,
-                transport: "UDP",
+                transport: SDK.Transport.UDP,
                 priority: 1,
                 weight: 10,
                 enabled: true
@@ -235,20 +235,20 @@ digits, `*` or `#`, added in front (for example `9`). Change these only if your 
     ```javascript
     await trunks.updateTrunk({
       ref: "3f9a1c7e-2b4d-4e8f-a1c3-5d7e9b2f4a60",
-      calledNumberFormat: "NATIONAL",
+      calledNumberFormat: SDK.NumberFormat.NATIONAL,
       calledNumberPrefix: "9",
-      callerNumberFormat: "E164_WITHOUT_PLUS"
+      callerNumberFormat: SDK.NumberFormat.E164_WITHOUT_PLUS
     });
     ```
 
-    The formats are `NUMBER_FORMAT_UNSPECIFIED` (leave as is), `E164`, `E164_WITHOUT_PLUS`,
-    `NATIONAL` and `INTERNATIONAL`. An update that leaves a field out keeps it. To go back to
-    leave as is, send `NUMBER_FORMAT_UNSPECIFIED` with an empty prefix:
+    The formats are `SDK.NumberFormat` values: `NUMBER_FORMAT_UNSPECIFIED` (leave as is), `E164`,
+    `E164_WITHOUT_PLUS`, `NATIONAL` and `INTERNATIONAL`. An update that leaves a field out keeps it.
+    To go back to leave as is, send `NUMBER_FORMAT_UNSPECIFIED` with an empty prefix:
 
     ```javascript
     await trunks.updateTrunk({
       ref: "3f9a1c7e-2b4d-4e8f-a1c3-5d7e9b2f4a60",
-      calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      calledNumberFormat: SDK.NumberFormat.NUMBER_FORMAT_UNSPECIFIED,
       calledNumberPrefix: ""
     });
     ```

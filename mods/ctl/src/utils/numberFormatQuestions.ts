@@ -23,7 +23,7 @@ type Prompts = {
   select: (config: {
     message: string;
     choices: { name: string; value: NumberFormat }[];
-    default?: `${NumberFormat}`;
+    default?: NumberFormat;
   }) => Promise<NumberFormat>;
   input: (config: { message: string; default?: string }) => Promise<string>;
 };

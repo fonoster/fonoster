@@ -46,16 +46,16 @@ enum NumberFormat {
 
 /** A Trunk's outbound number formats; a prefix (digits, * and #) needs E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL. */
 type TrunkNumberFormats = {
-  calledNumberFormat?: `${NumberFormat}`;
+  calledNumberFormat?: NumberFormat;
   calledNumberPrefix?: string;
-  callerNumberFormat?: `${NumberFormat}`;
+  callerNumberFormat?: NumberFormat;
   callerNumberPrefix?: string;
 };
 
 type TrunkURI = {
   host: string;
   port: number;
-  transport: `${Transport}`;
+  transport: Transport;
   user?: string;
   weight: number;
   priority: number;

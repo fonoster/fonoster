@@ -20,15 +20,16 @@ import { expect } from "chai";
 import { FonosterClient } from "../src/client/types";
 import * as Node from "../src/generated/node/trunks_pb";
 import * as Web from "../src/generated/web/trunks_pb";
+import { NumberFormat } from "../src/node";
 import { Trunks } from "../src/Trunks";
 
 const NAMES = [
-  "NUMBER_FORMAT_UNSPECIFIED",
-  "E164",
-  "E164_WITHOUT_PLUS",
-  "NATIONAL",
-  "INTERNATIONAL"
-] as const;
+  NumberFormat.NUMBER_FORMAT_UNSPECIFIED,
+  NumberFormat.E164,
+  NumberFormat.E164_WITHOUT_PLUS,
+  NumberFormat.NATIONAL,
+  NumberFormat.INTERNATIONAL
+];
 
 type Sent = { update?: Node.UpdateTrunkRequest };
 
@@ -104,7 +105,7 @@ describe("@sdk[trunks/numberFormats]", function () {
     const sent: Sent = {};
     await new Trunks(fakeClient(sent)).updateTrunk({
       ref: "trunk-1",
-      calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      calledNumberFormat: NumberFormat.NUMBER_FORMAT_UNSPECIFIED,
       calledNumberPrefix: ""
     });
     const request = sent.update!;

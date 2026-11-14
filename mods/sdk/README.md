@@ -2331,9 +2331,9 @@ Creates a new Trunk in the Workspace.
 | request.uris[].weight | <code>number</code> | Optional weight of the Trunk |
 | request.uris[].priority | <code>number</code> | Optional priority of the Trunk |
 | request.uris[].enabled | <code>boolean</code> | Optional enabled of the Trunk |
-| request.calledNumberFormat | <code>string</code> | Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
+| request.calledNumberFormat | <code>NumberFormat</code> | Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
 | request.calledNumberPrefix | <code>string</code> | Optional: 1 to 20 digits, * or #, with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
-| request.callerNumberFormat | <code>string</code> | Optional: as calledNumberFormat, for the caller number |
+| request.callerNumberFormat | <code>NumberFormat</code> | Optional: as calledNumberFormat, for the caller number |
 | request.callerNumberPrefix | <code>string</code> | Optional: as calledNumberPrefix, for the caller number |
 
 **Example**  
@@ -2347,7 +2347,7 @@ const request = {
   uris: [{
     host: "sip.company.fonoster.io",
     port: 5060,
-    transport: "UDP",
+    transport: SDK.Transport.UDP,
     user: "user",
     weight: 0,
     priority: 0,
@@ -2408,9 +2408,9 @@ Updates an existing Trunk in the Workspace.
 | request.uris[].weight | <code>number</code> | Optional weight of the Trunk |
 | request.uris[].priority | <code>number</code> | Optional priority of the Trunk |
 | request.uris[].enabled | <code>boolean</code> | Optional enabled of the Trunk |
-| request.calledNumberFormat | <code>string</code> | Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
+| request.calledNumberFormat | <code>NumberFormat</code> | Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
 | request.calledNumberPrefix | <code>string</code> | Optional: 1 to 20 digits, * or #, with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
-| request.callerNumberFormat | <code>string</code> | Optional: as calledNumberFormat, for the caller number |
+| request.callerNumberFormat | <code>NumberFormat</code> | Optional: as calledNumberFormat, for the caller number |
 | request.callerNumberPrefix | <code>string</code> | Optional: as calledNumberPrefix, for the caller number |
 
 **Example**  
@@ -2424,7 +2424,7 @@ const request = {
   uris: [{
     host: "sip.company.fonoster.io",
     port: 5060,
-    transport: "UDP",
+    transport: SDK.Transport.UDP,
     user: "user",
     weight: 0,
     priority: 0,
