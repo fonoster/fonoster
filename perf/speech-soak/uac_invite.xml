@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE scenario SYSTEM "sipp.dtd">
+<!-- speech-soak: INVITE (PCMU offer) to Roomr, which opens a session to AppBridge. The caller
+     streams PCMU RTP (20 ms, looped silence) for the whole hold, so AppBridge hears it. A BYE
+     from AppBridge before the hold ends (the app hung up) fails the call. Hold is -d. -->
+<scenario name="speech-soak">
+  <send retrans="500" start_rtd="1">
+    <![CDATA[
+      INVITE sip:bench@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: <sip:caller@[local_ip]:[local_port]>;tag=[call_number]
+      To: <sip:bench@[remote_ip]:[remote_port]>
+      Call-ID: [call_id]
+      CSeq: 1 INVITE
+      Contact: <sip:caller@[local_ip]:[local_port]>
+      Max-Forwards: 70
+      Content-Type: application/sdp
+      Content-Length: [len]
+
+      v=0
+      o=- [call_number] 1 IN IP[local_ip_type] [local_ip]
+      s=-
+      c=IN IP[media_ip_type] [media_ip]
+      t=0 0
+      m=audio [rtpstream_audio_port] RTP/AVP 0
+      a=rtpmap:0 PCMU/8000
+      a=sendrecv
+    ]]>
+  </send>
+  <recv response="100" optional="true"/>
+  <recv response="180" optional="true"/>
+  <recv response="200" rtd="1"/>
+  <send>
+    <![CDATA[
+      ACK sip:bench@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: <sip:caller@[local_ip]:[local_port]>;tag=[call_number]
+      [last_To:]
+      Call-ID: [call_id]
+      CSeq: 1 ACK
+      Max-Forwards: 70
+      Content-Length: 0
+    ]]>
+  </send>
+  <nop><action><exec rtp_stream="/project/audio/silence.ulaw,-1,0"/></action></nop>
+  <pause/>
+  <nop><action><exec rtp_stream="pause"/></action></nop>
+  <send retrans="500">
+    <![CDATA[
+      BYE sip:bench@[remote_ip]:[remote_port] SIP/2.0
+      Via: SIP/2.0/[transport] [local_ip]:[local_port];branch=[branch]
+      From: <sip:caller@[local_ip]:[local_port]>;tag=[call_number]
+      [last_To:]
+      Call-ID: [call_id]
+      CSeq: 2 BYE
+      Max-Forwards: 70
+      Content-Length: 0
+    ]]>
+  </send>
+  <recv response="200"/>
+</scenario>

@@ -1,0 +1,18 @@
+# AppBridge on the UUT: the speech path only. No database, registry, webhooks, call records,
+# AMD or audio filters, so the benchmark measures sessions, STT, TTS and turn-taking.
+nats: { url: "nats://127.0.0.1:14222" }
+session: { listen: "127.0.0.1:50071" }   # roomr.yaml sessionEndpoint
+mediaTimeout: 15s
+rtp: { host: 127.0.0.1, advertiseHost: 127.0.0.1 }   # Roomr is on the same host
+providers:
+  # The keyless fake adapter (mods/conformance/PROVIDERS.md), served by the perf app.
+  fake: { adapter: fake, capabilities: [tts, stt], tts: { url: "http://127.0.0.1:7001" }, stt: { url: "ws://127.0.0.1:7002" } }
+stt: { provider: fake }
+appStore: { source: yaml }
+apps:
+  # No numbers: it takes every call.
+  - ref: perf
+    url: "ws://127.0.0.1:7080/session"
+    protocol: fonoster
+    signingSecret: perf-not-a-secret
+    speech: { voice: fake/default, language: en-US }

@@ -1,0 +1,58 @@
+apiVersion: perfkit/v1
+project:
+  name: Fonoster AppBridge
+  repo: fonoster/fonoster
+  siteUrl: https://github.com/fonoster/fonoster/tree/main/perf/runs
+  accent: "#39E19E"   # Fonoster green (dashboard --fn-accent)
+  title: How many speech calls one AppBridge handles.
+  lead: AppBridge on two dedicated vCPUs, answering every call with a speech turn loop behind a pinned Roomr node, driven by SIPp from a second server.
+infra:
+  provider: digitalocean
+  region: nyc3
+  uut: { size: c-16 }       # appbridge 0-1, roomr 2-5, nats 6, perf app 7-11
+  loadgen: { size: c-8 }
+  maxLifetime: 9h
+images:
+  appbridge: fonoster/appbridge   # the only image tagged --target-version; Roomr is pinned in compose.yaml
+benchmarks:
+  - id: speech-turns
+    kind: capacity
+    title: Speech calls at a 30 s hold
+    narrative:
+      what: Inbound calls answered over the fonoster protocol; the app speaks a line every turn and AppBridge transcribes the caller and ends each turn.
+      why: Every call pays for STT, TTS and turn-taking in AppBridge; when its event loop saturates, callers wait or conversations stall.
+      how: "SIPp ramps from 1 to 20 calls/s, 1 more every 3 minutes, each held 30 s with PCMU audio, so about 30 times the rate is talking at once. The app hangs up a call when caller audio stalls over 200 ms, a line starts playing over 200 ms after it was asked for, or a turn is stuck for 10 s. The ramp stops at the first step where p99 INVITE-to-200 reaches 200 ms or failed calls reach 0.1%."
+    uut:
+      compose: compose.yaml
+      processes:                  # the sampler's command line starts with a space
+        - { name: appbridge, match: "appbridge/dist/main\\.js" }
+        - { name: roomr, match: "(^| )/roomr( |$)" }
+        - { name: app, match: "/src/app\\.ts" }   # its CPU shows when the app, not AppBridge, is the limit
+    load:
+      tool: sipp
+      transport: udp
+      uac: { scenario: speech-turns/uac_invite.xml }
+      hold: 30s
+      rate: { start: 1, step: 1, every: 180s, max: 20 }
+    warmup: 30s
+    thresholds: { p99LatencyMs: 200, failedCallsPct: 0.1 }
+  - id: speech-soak
+    kind: soak
+    title: Speech calls, six hours
+    narrative:
+      what: About 100 concurrent speech calls with the same turn loop.
+      why: Leaks only show after hours.
+      how: "SIPp holds 1.67 calls/s, 60 s each, PCMU audio, for six hours. After a 30-minute warm-up, AppBridge's memory may grow at most 5 MB/h."
+    duration: 6h
+    warmup: 30m
+    uut:
+      compose: compose.yaml
+      processes:
+        - { name: appbridge, match: "appbridge/dist/main\\.js" }   # only the unit under test is judged
+    load:
+      tool: sipp
+      transport: udp
+      uac: { scenario: speech-soak/uac_invite.xml }
+      hold: 60s
+      rate: { cps: 1.67 }
+    thresholds: { memoryGrowthMBPerHour: 5, failedCallsPct: 0.1, restarts: 0 }
