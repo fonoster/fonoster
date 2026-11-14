@@ -28,7 +28,7 @@ const NAMES = [
   "E164_WITHOUT_PLUS",
   "NATIONAL",
   "INTERNATIONAL"
-];
+] as const;
 
 type Sent = { update?: Node.UpdateTrunkRequest };
 
@@ -77,7 +77,7 @@ describe("@sdk[trunks/numberFormats]", function () {
       const trunks = new Trunks(fakeClient(sent, trunkPB(value, "")));
       await trunks.updateTrunk({
         ref: "trunk-1",
-        calledNumberFormat: name as never
+        calledNumberFormat: name
       });
       expect(sent.update!.getCalledNumberFormat()).to.equal(value);
       expect((await trunks.getTrunk("trunk-1")).calledNumberFormat).to.equal(
@@ -104,7 +104,7 @@ describe("@sdk[trunks/numberFormats]", function () {
     const sent: Sent = {};
     await new Trunks(fakeClient(sent)).updateTrunk({
       ref: "trunk-1",
-      calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED" as never,
+      calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
       calledNumberPrefix: ""
     });
     const request = sent.update!;
