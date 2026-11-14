@@ -33,6 +33,8 @@ type INumber = {
     ref: string;
     name: string;
   };
+  /** What the carrier may send instead of the number (e.g. 01234), matched only on its Trunk. */
+  aliases?: string[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -46,6 +48,7 @@ type CreateNumberRequest = {
   trunkRef?: string;
   appRef?: string;
   agentAor?: string;
+  aliases?: string[];
 };
 
 type UpdateNumberRequest = Flatten<
@@ -53,7 +56,10 @@ type UpdateNumberRequest = Flatten<
     Omit<
       Partial<CreateNumberRequest>,
       "telUrl" | "city" | "country" | "countryIsoCode"
-    >
+    > & {
+      /** Removes every alias; wins over aliases. An empty aliases list keeps them. */
+      clearAliases?: boolean;
+    }
 >;
 
 type INumberExtended = RenameAndConvertToTimestamp<

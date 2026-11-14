@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { NumberPreconditionsCheck } from "@fonoster/common";
+import { NumbersApi, TrunkApi } from "@fonoster/types";
 import SDK from "@routr/sdk";
 import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
 import { ClientOptions } from "../types";
@@ -49,7 +50,9 @@ function buildService(
   }
 ) {
   const { sipEndpoints = [], ...twilioLink } = carrierLinks;
-  const client = new SDK.Numbers(clientOptions);
+  // Routr's types carry its own NumberFormat names on a Number's Trunk; Fonoster's mapping is
+  // in trunks/operations.ts, and a Number's Trunk here is read for its ref and name only
+  const client = new SDK.Numbers(clientOptions) as unknown as NumbersApi;
   const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
   return {
@@ -77,7 +80,7 @@ function buildService(
       deleteNumber: deleteNumber(client),
       linkTwilio: linkTwilio({
         numbers: client,
-        trunks: new SDK.Trunks(clientOptions),
+        trunks: new SDK.Trunks(clientOptions) as unknown as TrunkApi,
         credentials: new SDK.Credentials(clientOptions),
         checkNumberPreconditions,
         routing,
@@ -86,7 +89,7 @@ function buildService(
       }),
       linkWhatsApp: linkWhatsApp({
         numbers: client,
-        trunks: new SDK.Trunks(clientOptions),
+        trunks: new SDK.Trunks(clientOptions) as unknown as TrunkApi,
         credentials: new SDK.Credentials(clientOptions),
         checkNumberPreconditions,
         routing,

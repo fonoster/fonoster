@@ -72,6 +72,8 @@ message Number {
     // The call will be forward to this application
     string app_ref = 11;
   }
+  // What the carrier may send instead of the number (e.g. 01234), matched only on its Trunk
+  repeated string aliases = 12;
 }
 
 // The request message for Numbers.CreateNumber
@@ -95,6 +97,8 @@ message CreateNumberRequest {
     // The call will be forward to this application
     string app_ref = 8;
   }
+  // What the carrier may send instead of the number (e.g. 01234), matched only on its Trunk
+  repeated string aliases = 9;
 }
 
 // The response message for Numbers.CreateNumber
@@ -118,6 +122,10 @@ message UpdateNumberRequest {
     // The call will be forward to this application
     string app_ref = 5;
   }
+  // Replaces the Number's aliases; an empty list keeps them
+  repeated string aliases = 6;
+  // Removes every alias; wins over aliases
+  bool clear_aliases = 7;
 }
 
 // The response message for Numbers.UpdateNumber

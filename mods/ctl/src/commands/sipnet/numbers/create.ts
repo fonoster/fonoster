@@ -22,6 +22,7 @@ import { CreateNumberRequest } from "@fonoster/types";
 import { confirm, input, search, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
+import { parseAliases } from "../../../utils/parseAliases";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description = "add a new Number to the SIP network";
@@ -59,6 +60,9 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
         message: "Tel URL (E.164 format)",
         required: true
       }),
+      aliases: parseAliases(
+        await input({ message: "Aliases (comma-separated, optional)" })
+      ),
       trunkRef: await select({
         message: "Trunk",
         choices: [{ name: "None", value: null }].concat(trunksList)

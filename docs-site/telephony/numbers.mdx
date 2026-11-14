@@ -56,21 +56,27 @@ You need:
 
 ## Add a number
 
-Add the number exactly as your carrier sends it, in E.164 format (`+` then country code and
-number, no spaces), such as `+18095550123`. Fonoster matches incoming calls to the number by this
-value, so a number in another format never rings.
+Add the number in E.164 format (`+` then country code and number, no spaces), such as
+`+18095550123`, and set its country correctly. Fonoster matches an incoming call to the number when
+your carrier sends it that way, without the `+`, in the country's national form (`8095550123`) or
+in its international form (`0118095550123`, the country's international prefix first). Fonoster
+works out the national and international forms from the number's country.
+
+If your carrier sends something else for the number, such as a label like `01234`, add it to the
+number as an alias. Fonoster matches only the numbers of the trunk the call arrives on, and turns
+down a call that matches none of them.
 
 <Tabs>
   <Tab title="Dashboard">
     <img
       className="block dark:hidden rounded-xl"
       src="/images/numbers/add-number-light.png"
-      alt="The New number drawer in the dashboard: Name Support desk, Agent selected under When this number is called, send it to, the Front desk agent checked, Trunk Claro, number +1 809 555 0123 in Santo Domingo, and the note that routing lives on the number."
+      alt="The New number drawer in the dashboard: Name Support desk, Agent selected under When this number is called, send it to, the Front desk agent checked, Trunk Claro, Aliases 01234, 5678, number +1 809 555 0123 in Santo Domingo, and the note that routing lives on the number."
     />
     <img
       className="hidden dark:block rounded-xl"
       src="/images/numbers/add-number-dark.png"
-      alt="The New number drawer in the dashboard: Name Support desk, Agent selected under When this number is called, send it to, the Front desk agent checked, Trunk Claro, number +1 809 555 0123 in Santo Domingo, and the note that routing lives on the number."
+      alt="The New number drawer in the dashboard: Name Support desk, Agent selected under When this number is called, send it to, the Front desk agent checked, Trunk Claro, Aliases 01234, 5678, number +1 809 555 0123 in Santo Domingo, and the note that routing lives on the number."
     />
 
     1. Go to **Numbers** and choose **Add number**.
@@ -79,8 +85,10 @@ value, so a number in another format never rings.
     4. Under **When this number is called, send it to**, choose **Autopilot agent**, **Stream** or
        **SIP agent**, then pick one from the list.
     5. Under **Trunk**, choose the trunk the number belongs to.
-    6. Enter the **City** and choose the **Country**.
-    7. Choose **Save**.
+    6. Optional: under **Aliases**, enter what your carrier sends instead of the number, such as
+       `01234`. Separate several with commas.
+    7. Enter the **City** and choose the **Country**.
+    8. Choose **Save**.
 
     The number shows up in the list with its destination under **Routes to**.
   </Tab>
@@ -107,7 +115,8 @@ value, so a number in another format never rings.
         country: "Dominican Republic",
         countryIsoCode: "DO",
         trunkRef: "3f9a1c7e-2b4d-4e8f-a1c3-5d7e9b2f4a60",
-        appRef: "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31"
+        appRef: "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
+        aliases: ["01234"]
       });
 
       console.log(`Number created: ${ref}`);
@@ -117,10 +126,12 @@ value, so a number in another format never rings.
     ```
 
     `telUrl` is the number with a `tel:` prefix. `countryIsoCode` is the two-letter ISO code.
+    `aliases` is optional: what your carrier sends instead of the number, if anything (up to 20). Each alias
+    is 1 to 60 letters, digits or `+ * . _ -`, and is used by one number per trunk.
   </Tab>
   <Tab title="CLI">
-    The command asks for each value in turn: the name, the number in E.164 format, the trunk, the
-    application, the city, the country and its ISO code.
+    The command asks for each value in turn: the name, the number in E.164 format, its aliases
+    (comma-separated, optional), the trunk, the application, the city, the country and its ISO code.
 
     ```bash
     fonoster sipnet:numbers:create
@@ -168,7 +179,8 @@ destination, change it on the number:
   </Tab>
 </Tabs>
 
-You can change a number's name, trunk and destination. To change the number itself, its city or
+You can change a number's name, trunk, aliases and destination. With the SDK, `aliases` replaces
+the number's aliases and `clearAliases: true` removes them all; an update without either keeps them. To change the number itself, its city or
 its country, remove it and add it again.
 
 ## Check it
@@ -194,7 +206,10 @@ your carrier charges it.
 
 If the number doesn't ring:
 
-- Check that the number matches what your carrier sends, `+` included.
+- Check what your carrier sends for the number. Fonoster matches it in E.164, without the `+`, or
+  in the national or international form of the number's country; for anything else, add an alias.
+- Check that the number is on the trunk your carrier sends the call to. A number on another trunk
+  doesn't ring.
 - Check that the trunk's inbound settings match your carrier. See
   [Connect a SIP trunk](/telephony/trunks).
 

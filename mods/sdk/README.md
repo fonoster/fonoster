@@ -1699,6 +1699,7 @@ Creates a new Number in the Workspace.
 | request.city | <code>string</code> | The city of the Number |
 | request.country | <code>string</code> | The country of the Number |
 | request.countryIsoCode | <code>string</code> | The countryIsoCode of the Number |
+| request.aliases | <code>Array.&lt;string&gt;</code> | Optional: what the carrier sends instead of the number (e.g. 01234), unique on the Trunk |
 
 **Example**  
 ```js
@@ -1753,6 +1754,8 @@ Updates an existing Number in the Workspace.
 | request | <code>UpdateNumberRequest</code> | The request object that contains the necessary information to update an existing Number |
 | request.ref | <code>string</code> | The reference of the Number to update |
 | request.name | <code>string</code> | The name of the Number |
+| request.aliases | <code>Array.&lt;string&gt;</code> | Replaces the Number's aliases; an empty list keeps them |
+| request.clearAliases | <code>boolean</code> | Removes every alias; wins over aliases |
 
 **Example**  
 ```js
@@ -2328,6 +2331,10 @@ Creates a new Trunk in the Workspace.
 | request.uris[].weight | <code>number</code> | Optional weight of the Trunk |
 | request.uris[].priority | <code>number</code> | Optional priority of the Trunk |
 | request.uris[].enabled | <code>boolean</code> | Optional enabled of the Trunk |
+| request.calledNumberFormat | <code>NumberFormat</code> | Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
+| request.calledNumberPrefix | <code>string</code> | Optional: 1 to 20 digits, * or #, with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
+| request.callerNumberFormat | <code>NumberFormat</code> | Optional: as calledNumberFormat, for the caller number |
+| request.callerNumberPrefix | <code>string</code> | Optional: as calledNumberPrefix, for the caller number |
 
 **Example**  
 ```js
@@ -2340,7 +2347,7 @@ const request = {
   uris: [{
     host: "sip.company.fonoster.io",
     port: 5060,
-    transport: "UDP",
+    transport: SDK.Transport.UDP,
     user: "user",
     weight: 0,
     priority: 0,
@@ -2401,6 +2408,10 @@ Updates an existing Trunk in the Workspace.
 | request.uris[].weight | <code>number</code> | Optional weight of the Trunk |
 | request.uris[].priority | <code>number</code> | Optional priority of the Trunk |
 | request.uris[].enabled | <code>boolean</code> | Optional enabled of the Trunk |
+| request.calledNumberFormat | <code>NumberFormat</code> | Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
+| request.calledNumberPrefix | <code>string</code> | Optional: 1 to 20 digits, * or #, with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL |
+| request.callerNumberFormat | <code>NumberFormat</code> | Optional: as calledNumberFormat, for the caller number |
+| request.callerNumberPrefix | <code>string</code> | Optional: as calledNumberPrefix, for the caller number |
 
 **Example**  
 ```js
@@ -2413,7 +2424,7 @@ const request = {
   uris: [{
     host: "sip.company.fonoster.io",
     port: 5060,
-    transport: "UDP",
+    transport: SDK.Transport.UDP,
     user: "user",
     weight: 0,
     priority: 0,

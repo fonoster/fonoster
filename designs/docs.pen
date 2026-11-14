@@ -34061,6 +34061,79 @@
                 },
                 {
                   "type": "frame",
+                  "name": "Field Aliases",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "name": "Label row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "name": "Aliases",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Aliases",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 12,
+                          "fontWeight": "normal",
+                          "id": "lEjbID"
+                        }
+                      ],
+                      "id": "8szqdJ"
+                    },
+                    {
+                      "type": "frame",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "fill": "$ui:--background",
+                      "cornerRadius": "$ui:--radius-control",
+                      "stroke": "$ui:--input",
+                      "strokeWidth": 1,
+                      "strokeAlignment": "inner",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "name": "01234, 5678",
+                          "fill": "$ui:--foreground",
+                          "content": "01234, 5678",
+                          "fontFamily": "$ui:--font-primary",
+                          "fontSize": 13,
+                          "fontWeight": "normal",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "id": "FlZ3Dp"
+                        }
+                      ],
+                      "id": "lsyNDU"
+                    },
+                    {
+                      "type": "text",
+                      "name": "Hint",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "What your carrier sends instead of this number, such as 01234. Separate several with commas.",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 12,
+                      "fontWeight": "normal",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "lineHeight": 1.5,
+                      "id": "tK0MHX"
+                    }
+                  ],
+                  "id": "q4BOFD"
+                },
+                {
+                  "type": "frame",
                   "id": "wvnLW",
                   "name": "Read-only row",
                   "width": "fill_container",
@@ -34184,7 +34257,8 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "layout": "vertical"
                 },
                 {
                   "type": "frame",
@@ -34935,6 +35009,79 @@
                 },
                 {
                   "type": "frame",
+                  "name": "Field Aliases",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "name": "Label row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "name": "Aliases",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Aliases",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 12,
+                          "fontWeight": "normal",
+                          "id": "Bw2ESg"
+                        }
+                      ],
+                      "id": "5Jy9j7"
+                    },
+                    {
+                      "type": "frame",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "fill": "$ui:--background",
+                      "cornerRadius": "$ui:--radius-control",
+                      "stroke": "$ui:--input",
+                      "strokeWidth": 1,
+                      "strokeAlignment": "inner",
+                      "gap": 10,
+                      "padding": [
+                        10,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "name": "01234, 5678",
+                          "fill": "$ui:--foreground",
+                          "content": "01234, 5678",
+                          "fontFamily": "$ui:--font-primary",
+                          "fontSize": 13,
+                          "fontWeight": "normal",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "id": "IFjcCQ"
+                        }
+                      ],
+                      "id": "NuqIca"
+                    },
+                    {
+                      "type": "text",
+                      "name": "Hint",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "What your carrier sends instead of this number, such as 01234. Separate several with commas.",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 12,
+                      "fontWeight": "normal",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "lineHeight": 1.5,
+                      "id": "geGorZ"
+                    }
+                  ],
+                  "id": "FkfzGW"
+                },
+                {
+                  "type": "frame",
                   "id": "GHJm4",
                   "name": "Read-only row",
                   "width": "fill_container",
@@ -35058,7 +35205,8 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "layout": "vertical"
                 },
                 {
                   "type": "frame",
@@ -35720,7 +35868,7 @@
       "type": "frame",
       "id": "V31RI",
       "x": 0,
-      "y": 7338,
+      "y": 7578,
       "name": "Docs / Build an agent / Screen · Configure tab / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -37094,7 +37242,7 @@
       "type": "frame",
       "id": "S2xGj",
       "x": 1292,
-      "y": 7338,
+      "y": 7578,
       "name": "Docs / Build an agent / Screen · Configure tab / Light",
       "theme": {
         "ui:mode": "light"
@@ -38468,7 +38616,7 @@
       "type": "frame",
       "id": "Xdcfv",
       "x": 0,
-      "y": 8298,
+      "y": 8538,
       "name": "Docs / Tools / Screen · Tool editor / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -39971,7 +40119,7 @@
       "type": "frame",
       "id": "y0Yw3",
       "x": 1292,
-      "y": 8298,
+      "y": 8538,
       "name": "Docs / Tools / Screen · Tool editor / Light",
       "theme": {
         "ui:mode": "light"
@@ -41474,7 +41622,7 @@
       "type": "frame",
       "id": "yI2R5",
       "x": 0,
-      "y": 9098,
+      "y": 9338,
       "name": "Docs / Webhooks / Screen · Webhooks page / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -42187,7 +42335,7 @@
       "type": "frame",
       "id": "NVTva",
       "x": 1292,
-      "y": 9098,
+      "y": 9338,
       "name": "Docs / Webhooks / Screen · Webhooks page / Light",
       "theme": {
         "ui:mode": "light"
@@ -42900,7 +43048,7 @@
       "type": "frame",
       "id": "iVtdo",
       "x": 0,
-      "y": 9645,
+      "y": 9885,
       "name": "Docs / Reference API / Banner / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -43144,7 +43292,7 @@
       "type": "frame",
       "id": "Wg51M",
       "x": 1700,
-      "y": 9645,
+      "y": 9885,
       "name": "Docs / Reference API / Banner / Light",
       "theme": {
         "ui:mode": "light"
@@ -43388,7 +43536,7 @@
       "type": "frame",
       "id": "dZS5U",
       "x": 0,
-      "y": 10345,
+      "y": 10585,
       "name": "Docs / Access / Credentials / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -43904,7 +44052,7 @@
       "type": "frame",
       "id": "PlZ9P",
       "x": 1700,
-      "y": 10345,
+      "y": 10585,
       "name": "Docs / Access / Credentials / Light",
       "theme": {
         "ui:mode": "light"
@@ -44420,7 +44568,7 @@
       "type": "frame",
       "id": "XiyhK",
       "x": 0,
-      "y": 11345,
+      "y": 11585,
       "name": "Docs / MCP / Flow / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -44834,7 +44982,7 @@
       "type": "frame",
       "id": "aI9jA",
       "x": 1700,
-      "y": 11345,
+      "y": 11585,
       "name": "Docs / MCP / Flow / Light",
       "theme": {
         "ui:mode": "light"
@@ -45248,7 +45396,7 @@
       "type": "frame",
       "id": "baC6U",
       "x": 0,
-      "y": 12345,
+      "y": 12585,
       "name": "Docs / Provider catalog / Lifecycle / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -45822,7 +45970,7 @@
       "type": "frame",
       "id": "EuqNs",
       "x": 1700,
-      "y": 12345,
+      "y": 12585,
       "name": "Docs / Provider catalog / Lifecycle / Light",
       "theme": {
         "ui:mode": "light"
@@ -46396,7 +46544,7 @@
       "type": "frame",
       "id": "RL0nj",
       "x": 0,
-      "y": 13345,
+      "y": 13585,
       "name": "Docs / Call record keys / Rotation / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -47447,7 +47595,7 @@
       "type": "frame",
       "id": "hbHpH",
       "x": 1700,
-      "y": 13345,
+      "y": 13585,
       "name": "Docs / Call record keys / Rotation / Light",
       "theme": {
         "ui:mode": "light"
@@ -49964,7 +50112,7 @@
       "type": "frame",
       "id": "R9dgNx",
       "x": 0,
-      "y": 15345,
+      "y": 15585,
       "name": "Docs / HTTPS / Renewal / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -50327,7 +50475,7 @@
       "type": "frame",
       "id": "H4G1ug",
       "x": 1700,
-      "y": 15345,
+      "y": 15585,
       "name": "Docs / HTTPS / Renewal / Light",
       "theme": {
         "ui:mode": "light"
@@ -50690,7 +50838,7 @@
       "type": "frame",
       "id": "y7Br8U",
       "x": 0,
-      "y": 16345,
+      "y": 16585,
       "name": "Docs / Carriers and phones / SIP names / Dark",
       "theme": {
         "ui:mode": "dark"
@@ -51072,7 +51220,7 @@
       "type": "frame",
       "id": "ZW8QA",
       "x": 1700,
-      "y": 16345,
+      "y": 16585,
       "name": "Docs / Carriers and phones / SIP names / Light",
       "theme": {
         "ui:mode": "light"

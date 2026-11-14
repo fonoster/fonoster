@@ -362,5 +362,10 @@
   "APB-048": "Calls to a deleted workspace are refused",
   "BIL-057": "Deleting a user cancels their plan, or is refused while they owe",
   "API-075": "Deleting a workspace removes its apps, secrets, webhooks, numbers and trunks",
-  "DSH-068": "Test call from a Number: status to the end, refusals, unroutable numbers"
+  "DSH-068": "Test call from a Number: status to the end, refusals, unroutable numbers",
+  "APB-049": "The called number of a call from a Trunk is the matched Number",
+  "API-076": "A Number's aliases are stored, kept and cleared",
+  "API-077": "An alias already used on the Trunk is refused",
+  "API-078": "A Trunk's number formats are stored and kept",
+  "API-079": "A reset clears a Trunk's number format with its prefix"
 }

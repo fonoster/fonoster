@@ -38,6 +38,11 @@ export class Number extends jspb.Message {
   getAppRef(): string;
   setAppRef(value: string): Number;
 
+  getAliasesList(): Array<string>;
+  setAliasesList(value: Array<string>): Number;
+  clearAliasesList(): Number;
+  addAliases(value: string, index?: number): Number;
+
   getIngressHandlerCase(): Number.IngressHandlerCase;
 
   serializeBinary(): Uint8Array;
@@ -61,6 +66,7 @@ export namespace Number {
     trunk?: Number.Trunk.AsObject,
     agentAor: string,
     appRef: string,
+    aliasesList: Array<string>,
   }
 
   export class Trunk extends jspb.Message {
@@ -118,6 +124,11 @@ export class CreateNumberRequest extends jspb.Message {
   getAppRef(): string;
   setAppRef(value: string): CreateNumberRequest;
 
+  getAliasesList(): Array<string>;
+  setAliasesList(value: Array<string>): CreateNumberRequest;
+  clearAliasesList(): CreateNumberRequest;
+  addAliases(value: string, index?: number): CreateNumberRequest;
+
   getIngressHandlerCase(): CreateNumberRequest.IngressHandlerCase;
 
   serializeBinary(): Uint8Array;
@@ -138,6 +149,7 @@ export namespace CreateNumberRequest {
     trunkRef: string,
     agentAor: string,
     appRef: string,
+    aliasesList: Array<string>,
   }
 
   export enum IngressHandlerCase { 
@@ -181,6 +193,14 @@ export class UpdateNumberRequest extends jspb.Message {
   getAppRef(): string;
   setAppRef(value: string): UpdateNumberRequest;
 
+  getAliasesList(): Array<string>;
+  setAliasesList(value: Array<string>): UpdateNumberRequest;
+  clearAliasesList(): UpdateNumberRequest;
+  addAliases(value: string, index?: number): UpdateNumberRequest;
+
+  getClearAliases(): boolean;
+  setClearAliases(value: boolean): UpdateNumberRequest;
+
   getIngressHandlerCase(): UpdateNumberRequest.IngressHandlerCase;
 
   serializeBinary(): Uint8Array;
@@ -198,6 +218,8 @@ export namespace UpdateNumberRequest {
     trunkRef: string,
     agentAor: string,
     appRef: string,
+    aliasesList: Array<string>,
+    clearAliases: boolean,
   }
 
   export enum IngressHandlerCase { 

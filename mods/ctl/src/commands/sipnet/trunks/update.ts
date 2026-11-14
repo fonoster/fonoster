@@ -22,6 +22,7 @@ import { confirm, input, number, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
+import { askNumberFormats } from "../../../utils/numberFormatQuestions";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "modify the configuration of a Trunk";
@@ -122,6 +123,14 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       };
     }
 
+    const numberFormats = await askNumberFormats(
+      {
+        select: (config) => select(config),
+        input: (config) => input(config)
+      },
+      trunkFromDB
+    );
+
     const confirmAnswers = await confirm({
       message: "Ready?"
     });
@@ -137,7 +146,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
         name,
         sendRegister: true,
         ...inboundAnswers,
-        ...outboundAnswers
+        ...outboundAnswers,
+        ...numberFormats
       } as unknown as UpdateTrunkRequest);
 
       this.log("Done!");

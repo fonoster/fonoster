@@ -1,0 +1,11 @@
+--- a/mods/sipnet/src/trunks/numberFormats.ts
++++ b/mods/sipnet/src/trunks/numberFormats.ts
+@@ -41,7 +41,7 @@
+   if (!trunk) return trunk;
+   const out = { ...trunk } as Record<string, unknown>;
+   for (const field of FORMAT_FIELDS) {
+-    if (out[field] === undefined || out[field] === ROUTR_UNSPECIFIED)
++    if (out[field] !== null)
+       out[field] = NumberFormat.NUMBER_FORMAT_UNSPECIFIED;
+   }
+   return out as T;

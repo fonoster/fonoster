@@ -92,3 +92,37 @@ SHALL fail with `NOT_FOUND`.
 
 - **WHEN** a caller deletes a resource
 - **THEN** a get of its ref fails with `NOT_FOUND`, the list no longer contains it, and deleting it again fails with `NOT_FOUND`
+
+### Requirement: A Number carries the aliases its carrier sends
+
+A Number SHALL accept `aliases`, the identifiers a carrier may send instead of the number (such as
+`01234`), stored by Routr and matched only on the Number's Trunk. Create and update with a non-empty
+list SHALL store it; an update without aliases SHALL keep them; `clearAliases` SHALL remove them.
+Routr's refusals (an alias already used on the Trunk, an alias that isn't 1 to 60 letters, digits
+or `+ * . _ -`) SHALL reach the caller as INVALID_ARGUMENT with Routr's text.
+
+#### Scenario: Aliases are stored, kept and cleared
+- **WHEN** a Number is created on a Trunk with `aliases: ["01234"]`, then updated with only a new name, then with `clearAliases: true`
+- **THEN** get returns `["01234"]` after the create and after the name-only update, and no aliases after the clear
+
+#### Scenario: An alias already used on the Trunk is refused
+- **WHEN** a second Number on the same Trunk is created with an alias the first one has
+- **THEN** the call fails with INVALID_ARGUMENT whose message contains `alias "<a>" is already used by Number <ref> on this Trunk`, and no Number is created
+
+### Requirement: A Trunk carries its outbound number formats
+
+A Trunk SHALL accept `calledNumberFormat` and `callerNumberFormat` (NUMBER_FORMAT_UNSPECIFIED,
+E164, E164_WITHOUT_PLUS, NATIONAL, INTERNATIONAL) and `calledNumberPrefix` and
+`callerNumberPrefix`, stored by Routr. An update that leaves one out SHALL keep it;
+NUMBER_FORMAT_UNSPECIFIED SHALL reset a format and `""` SHALL clear a prefix. Routr checks the
+Trunk as it would be stored, so resetting a format while its prefix is stored SHALL fail with
+INVALID_ARGUMENT and Routr's text unless the prefix is cleared in the same update.
+
+#### Scenario: Formats are stored and kept
+- **WHEN** a Trunk is created with `calledNumberFormat: INTERNATIONAL` and `calledNumberPrefix: "9#"`, then updated with only a new name
+- **THEN** get returns both after the create and after the update
+
+#### Scenario: A reset clears the format with its prefix
+- **WHEN** that Trunk is updated with `calledNumberFormat: NUMBER_FORMAT_UNSPECIFIED` without `calledNumberPrefix: ""`
+- **THEN** the call fails with INVALID_ARGUMENT whose message contains `calledNumberPrefix needs calledNumberFormat e164-without-plus, national or international`, and the Trunk is unchanged
+- **AND** the same update with `calledNumberPrefix: ""` succeeds and get returns NUMBER_FORMAT_UNSPECIFIED and no prefix

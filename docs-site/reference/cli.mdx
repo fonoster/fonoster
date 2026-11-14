@@ -186,12 +186,12 @@ See [Providers and models](/reference/providers) and
 
 | Command | What it does |
 | --- | --- |
-| `sipnet:numbers:create` | Adds a number. Asks for a friendly name, the number (E.164), its trunk, its application, city and country. |
+| `sipnet:numbers:create` | Adds a number. Asks for a friendly name, the number (E.164), its aliases (comma-separated, optional), its trunk, its application, city and country. |
 | `sipnet:numbers:linkTwilio <phoneNumber>` | Links a number from your Twilio account to the workspace. Asks for what the flags below leave out. The old name, `sipnet:numbers:linkTwilioNumber`, still works until the next minor release. |
 | `sipnet:numbers:linkWhatsApp [phoneNumber]` | Links a WhatsApp Business number to the workspace. With `--phone-number-id`, Fonoster sets up SIP calling in Meta with a token; with the number alone, you set up Meta yourself. Asks for what the flags below leave out. |
 | `sipnet:numbers:list` | Lists the workspace's numbers. Flag: `--page-size`, `-s` (default `1000`). |
 | `sipnet:numbers:get <ref>` | Shows a number. |
-| `sipnet:numbers:update <ref>` | Changes a number's friendly name, trunk or application. Asks for each. |
+| `sipnet:numbers:update <ref>` | Changes a number's friendly name, trunk, aliases or application. Asks for each; an empty aliases answer keeps them, and when the number has aliases it asks whether to remove them all. |
 | `sipnet:numbers:delete <ref>` | Deletes a number. |
 
 `sipnet:numbers:linkTwilio` signs in to Twilio with a Standard API key (recommended) or your Auth
@@ -234,7 +234,7 @@ See [Numbers and routing](/telephony/numbers), [Link a Twilio number](/telephony
 
 | Command | What it does |
 | --- | --- |
-| `sipnet:trunks:create` | Adds a trunk. Asks for a friendly name, the inbound URI, an access control list and, if you need one, the outbound URI (credentials, host, port, transport, user). |
+| `sipnet:trunks:create` | Adds a trunk. Asks for a friendly name, the inbound URI, an access control list and, if you need one, the outbound URI (credentials, host, port, transport, user), then the called and caller number formats and, after E.164 without +, National or International, a prefix (digits, `*` and `#`). |
 | `sipnet:trunks:list` | Lists the trunks. Flag: `--page-size`, `-s` (default `1000`). |
 | `sipnet:trunks:get <ref>` | Shows a trunk. |
 | `sipnet:trunks:update <ref>` | Changes a trunk. Asks for the same values as create, plus inbound credentials. |

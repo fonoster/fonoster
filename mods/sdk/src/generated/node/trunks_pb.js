@@ -28,6 +28,7 @@ goog.exportSymbol('proto.fonoster.trunks.v1beta2.DeleteTrunkResponse', null, glo
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.GetTrunkRequest', null, global);
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.ListTrunksRequest', null, global);
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.ListTrunksResponse', null, global);
+goog.exportSymbol('proto.fonoster.trunks.v1beta2.NumberFormat', null, global);
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.Trunk', null, global);
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.Trunk.Acl', null, global);
 goog.exportSymbol('proto.fonoster.trunks.v1beta2.Trunk.Credentials', null, global);
@@ -666,7 +667,11 @@ accessControlList: (f = msg.getAccessControlList()) && proto.fonoster.trunks.v1b
 inboundCredentials: (f = msg.getInboundCredentials()) && proto.fonoster.trunks.v1beta2.Trunk.Credentials.toObject(includeInstance, f),
 outboundCredentials: (f = msg.getOutboundCredentials()) && proto.fonoster.trunks.v1beta2.Trunk.Credentials.toObject(includeInstance, f),
 urisList: jspb.Message.toObjectList(msg.getUrisList(),
-    proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance)
+    proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance),
+calledNumberFormat: jspb.Message.getFieldWithDefault(msg, 11, 0),
+calledNumberPrefix: jspb.Message.getFieldWithDefault(msg, 12, ""),
+callerNumberFormat: jspb.Message.getFieldWithDefault(msg, 13, 0),
+callerNumberPrefix: jspb.Message.getFieldWithDefault(msg, 14, "")
   };
 
   if (includeInstance) {
@@ -746,6 +751,22 @@ proto.fonoster.trunks.v1beta2.Trunk.deserializeBinaryFromReader = function(msg, 
       var value = new proto.fonoster.trunks.v1beta2.TrunkURI;
       reader.readMessage(value,proto.fonoster.trunks.v1beta2.TrunkURI.deserializeBinaryFromReader);
       msg.addUris(value);
+      break;
+    case 11:
+      var value = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (reader.readEnum());
+      msg.setCalledNumberFormat(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCalledNumberPrefix(value);
+      break;
+    case 13:
+      var value = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (reader.readEnum());
+      msg.setCallerNumberFormat(value);
+      break;
+    case 14:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCallerNumberPrefix(value);
       break;
     default:
       reader.skipField();
@@ -848,6 +869,34 @@ proto.fonoster.trunks.v1beta2.Trunk.serializeBinaryToWriter = function(message, 
       10,
       f,
       proto.fonoster.trunks.v1beta2.TrunkURI.serializeBinaryToWriter
+    );
+  }
+  f = message.getCalledNumberFormat();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      11,
+      f
+    );
+  }
+  f = message.getCalledNumberPrefix();
+  if (f.length > 0) {
+    writer.writeString(
+      12,
+      f
+    );
+  }
+  f = message.getCallerNumberFormat();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      13,
+      f
+    );
+  }
+  f = message.getCallerNumberPrefix();
+  if (f.length > 0) {
+    writer.writeString(
+      14,
+      f
     );
   }
 };
@@ -1565,6 +1614,78 @@ proto.fonoster.trunks.v1beta2.Trunk.prototype.clearUrisList = function() {
 };
 
 
+/**
+ * optional NumberFormat called_number_format = 11;
+ * @return {!proto.fonoster.trunks.v1beta2.NumberFormat}
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.getCalledNumberFormat = function() {
+  return /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getFieldWithDefault(this, 11, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.trunks.v1beta2.NumberFormat} value
+ * @return {!proto.fonoster.trunks.v1beta2.Trunk} returns this
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.setCalledNumberFormat = function(value) {
+  return jspb.Message.setProto3EnumField(this, 11, value);
+};
+
+
+/**
+ * optional string called_number_prefix = 12;
+ * @return {string}
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.getCalledNumberPrefix = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.trunks.v1beta2.Trunk} returns this
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.setCalledNumberPrefix = function(value) {
+  return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional NumberFormat caller_number_format = 13;
+ * @return {!proto.fonoster.trunks.v1beta2.NumberFormat}
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.getCallerNumberFormat = function() {
+  return /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getFieldWithDefault(this, 13, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.trunks.v1beta2.NumberFormat} value
+ * @return {!proto.fonoster.trunks.v1beta2.Trunk} returns this
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.setCallerNumberFormat = function(value) {
+  return jspb.Message.setProto3EnumField(this, 13, value);
+};
+
+
+/**
+ * optional string caller_number_prefix = 14;
+ * @return {string}
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.getCallerNumberPrefix = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.trunks.v1beta2.Trunk} returns this
+ */
+proto.fonoster.trunks.v1beta2.Trunk.prototype.setCallerNumberPrefix = function(value) {
+  return jspb.Message.setProto3StringField(this, 14, value);
+};
+
+
 
 /**
  * List of repeated fields within this message type.
@@ -1611,7 +1732,11 @@ accessControlListRef: jspb.Message.getFieldWithDefault(msg, 4, ""),
 inboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
 outboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
 urisList: jspb.Message.toObjectList(msg.getUrisList(),
-    proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance)
+    proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance),
+calledNumberFormat: jspb.Message.getFieldWithDefault(msg, 8, 0),
+calledNumberPrefix: jspb.Message.getFieldWithDefault(msg, 9, ""),
+callerNumberFormat: jspb.Message.getFieldWithDefault(msg, 10, 0),
+callerNumberPrefix: jspb.Message.getFieldWithDefault(msg, 11, "")
   };
 
   if (includeInstance) {
@@ -1676,6 +1801,22 @@ proto.fonoster.trunks.v1beta2.CreateTrunkRequest.deserializeBinaryFromReader = f
       var value = new proto.fonoster.trunks.v1beta2.TrunkURI;
       reader.readMessage(value,proto.fonoster.trunks.v1beta2.TrunkURI.deserializeBinaryFromReader);
       msg.addUris(value);
+      break;
+    case 8:
+      var value = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (reader.readEnum());
+      msg.setCalledNumberFormat(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCalledNumberPrefix(value);
+      break;
+    case 10:
+      var value = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (reader.readEnum());
+      msg.setCallerNumberFormat(value);
+      break;
+    case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCallerNumberPrefix(value);
       break;
     default:
       reader.skipField();
@@ -1754,6 +1895,34 @@ proto.fonoster.trunks.v1beta2.CreateTrunkRequest.serializeBinaryToWriter = funct
       7,
       f,
       proto.fonoster.trunks.v1beta2.TrunkURI.serializeBinaryToWriter
+    );
+  }
+  f = message.getCalledNumberFormat();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      8,
+      f
+    );
+  }
+  f = message.getCalledNumberPrefix();
+  if (f.length > 0) {
+    writer.writeString(
+      9,
+      f
+    );
+  }
+  f = message.getCallerNumberFormat();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      10,
+      f
+    );
+  }
+  f = message.getCallerNumberPrefix();
+  if (f.length > 0) {
+    writer.writeString(
+      11,
+      f
     );
   }
 };
@@ -1902,6 +2071,78 @@ proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.addUris = function(op
  */
 proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.clearUrisList = function() {
   return this.setUrisList([]);
+};
+
+
+/**
+ * optional NumberFormat called_number_format = 8;
+ * @return {!proto.fonoster.trunks.v1beta2.NumberFormat}
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.getCalledNumberFormat = function() {
+  return /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.trunks.v1beta2.NumberFormat} value
+ * @return {!proto.fonoster.trunks.v1beta2.CreateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.setCalledNumberFormat = function(value) {
+  return jspb.Message.setProto3EnumField(this, 8, value);
+};
+
+
+/**
+ * optional string called_number_prefix = 9;
+ * @return {string}
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.getCalledNumberPrefix = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.trunks.v1beta2.CreateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.setCalledNumberPrefix = function(value) {
+  return jspb.Message.setProto3StringField(this, 9, value);
+};
+
+
+/**
+ * optional NumberFormat caller_number_format = 10;
+ * @return {!proto.fonoster.trunks.v1beta2.NumberFormat}
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.getCallerNumberFormat = function() {
+  return /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getFieldWithDefault(this, 10, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.trunks.v1beta2.NumberFormat} value
+ * @return {!proto.fonoster.trunks.v1beta2.CreateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.setCallerNumberFormat = function(value) {
+  return jspb.Message.setProto3EnumField(this, 10, value);
+};
+
+
+/**
+ * optional string caller_number_prefix = 11;
+ * @return {string}
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.getCallerNumberPrefix = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.trunks.v1beta2.CreateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.CreateTrunkRequest.prototype.setCallerNumberPrefix = function(value) {
+  return jspb.Message.setProto3StringField(this, 11, value);
 };
 
 
@@ -2082,7 +2323,11 @@ accessControlListRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
 inboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
 outboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 7, ""),
 urisList: jspb.Message.toObjectList(msg.getUrisList(),
-    proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance)
+    proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance),
+calledNumberFormat: (f = jspb.Message.getField(msg, 9)) == null ? undefined : f,
+calledNumberPrefix: (f = jspb.Message.getField(msg, 10)) == null ? undefined : f,
+callerNumberFormat: (f = jspb.Message.getField(msg, 11)) == null ? undefined : f,
+callerNumberPrefix: (f = jspb.Message.getField(msg, 12)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -2151,6 +2396,22 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.deserializeBinaryFromReader = f
       var value = new proto.fonoster.trunks.v1beta2.TrunkURI;
       reader.readMessage(value,proto.fonoster.trunks.v1beta2.TrunkURI.deserializeBinaryFromReader);
       msg.addUris(value);
+      break;
+    case 9:
+      var value = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (reader.readEnum());
+      msg.setCalledNumberFormat(value);
+      break;
+    case 10:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCalledNumberPrefix(value);
+      break;
+    case 11:
+      var value = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (reader.readEnum());
+      msg.setCallerNumberFormat(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCallerNumberPrefix(value);
       break;
     default:
       reader.skipField();
@@ -2236,6 +2497,34 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.serializeBinaryToWriter = funct
       8,
       f,
       proto.fonoster.trunks.v1beta2.TrunkURI.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getField(message, 9));
+  if (f != null) {
+    writer.writeEnum(
+      9,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 10));
+  if (f != null) {
+    writer.writeString(
+      10,
+      f
+    );
+  }
+  f = /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getField(message, 11));
+  if (f != null) {
+    writer.writeEnum(
+      11,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 12));
+  if (f != null) {
+    writer.writeString(
+      12,
+      f
     );
   }
 };
@@ -2402,6 +2691,150 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.addUris = function(op
  */
 proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearUrisList = function() {
   return this.setUrisList([]);
+};
+
+
+/**
+ * optional NumberFormat called_number_format = 9;
+ * @return {!proto.fonoster.trunks.v1beta2.NumberFormat}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.getCalledNumberFormat = function() {
+  return /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.trunks.v1beta2.NumberFormat} value
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.setCalledNumberFormat = function(value) {
+  return jspb.Message.setField(this, 9, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearCalledNumberFormat = function() {
+  return jspb.Message.setField(this, 9, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.hasCalledNumberFormat = function() {
+  return jspb.Message.getField(this, 9) != null;
+};
+
+
+/**
+ * optional string called_number_prefix = 10;
+ * @return {string}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.getCalledNumberPrefix = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.setCalledNumberPrefix = function(value) {
+  return jspb.Message.setField(this, 10, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearCalledNumberPrefix = function() {
+  return jspb.Message.setField(this, 10, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.hasCalledNumberPrefix = function() {
+  return jspb.Message.getField(this, 10) != null;
+};
+
+
+/**
+ * optional NumberFormat caller_number_format = 11;
+ * @return {!proto.fonoster.trunks.v1beta2.NumberFormat}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.getCallerNumberFormat = function() {
+  return /** @type {!proto.fonoster.trunks.v1beta2.NumberFormat} */ (jspb.Message.getFieldWithDefault(this, 11, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.trunks.v1beta2.NumberFormat} value
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.setCallerNumberFormat = function(value) {
+  return jspb.Message.setField(this, 11, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearCallerNumberFormat = function() {
+  return jspb.Message.setField(this, 11, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.hasCallerNumberFormat = function() {
+  return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * optional string caller_number_prefix = 12;
+ * @return {string}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.getCallerNumberPrefix = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.setCallerNumberPrefix = function(value) {
+  return jspb.Message.setField(this, 12, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearCallerNumberPrefix = function() {
+  return jspb.Message.setField(this, 12, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.hasCallerNumberPrefix = function() {
+  return jspb.Message.getField(this, 12) != null;
 };
 
 
@@ -3274,5 +3707,16 @@ proto.fonoster.trunks.v1beta2.ListTrunksResponse.prototype.setNextPageToken = fu
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.fonoster.trunks.v1beta2.NumberFormat = {
+  NUMBER_FORMAT_UNSPECIFIED: 0,
+  E164: 1,
+  E164_WITHOUT_PLUS: 2,
+  NATIONAL: 3,
+  INTERNATIONAL: 4
+};
 
 goog.object.extend(exports, proto.fonoster.trunks.v1beta2);

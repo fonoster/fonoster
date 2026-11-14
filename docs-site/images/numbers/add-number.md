@@ -19,6 +19,8 @@ The New number drawer only. In the design, Number and Location are read-only fie
 
 Sample data swapped in: Name Support desk, Front desk checked, Trunk Claro, +1 809 555 0123, Santo Domingo, DO.
 
+Since #1388: the **Aliases** field under Trunk (`01234, 5678`, with its hint), copied from "Numbers / Edit / Drawer · Aliases" (`EkUMGY`), and Number and Location one per row. The frames below moved down 240 px to make room.
+
 Colors and fonts are `$ui:` tokens from the `ui` library (fonoster.lib.pen), so the frame's
 `theme: { "ui:mode": … }` gives light and dark. The dashboard design is dark; light is the same frame
 with the theme switched (the design system defines both modes, and dashboard.pen has a light-mode screen).

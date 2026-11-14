@@ -83,6 +83,18 @@ export class Trunk extends jspb.Message {
   clearUrisList(): Trunk;
   addUris(value?: TrunkURI, index?: number): TrunkURI;
 
+  getCalledNumberFormat(): NumberFormat;
+  setCalledNumberFormat(value: NumberFormat): Trunk;
+
+  getCalledNumberPrefix(): string;
+  setCalledNumberPrefix(value: string): Trunk;
+
+  getCallerNumberFormat(): NumberFormat;
+  setCallerNumberFormat(value: NumberFormat): Trunk;
+
+  getCallerNumberPrefix(): string;
+  setCallerNumberPrefix(value: string): Trunk;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Trunk.AsObject;
   static toObject(includeInstance: boolean, msg: Trunk): Trunk.AsObject;
@@ -103,6 +115,10 @@ export namespace Trunk {
     inboundCredentials?: Trunk.Credentials.AsObject,
     outboundCredentials?: Trunk.Credentials.AsObject,
     urisList: Array<TrunkURI.AsObject>,
+    calledNumberFormat: NumberFormat,
+    calledNumberPrefix: string,
+    callerNumberFormat: NumberFormat,
+    callerNumberPrefix: string,
   }
 
   export class Acl extends jspb.Message {
@@ -192,6 +208,18 @@ export class CreateTrunkRequest extends jspb.Message {
   clearUrisList(): CreateTrunkRequest;
   addUris(value?: TrunkURI, index?: number): TrunkURI;
 
+  getCalledNumberFormat(): NumberFormat;
+  setCalledNumberFormat(value: NumberFormat): CreateTrunkRequest;
+
+  getCalledNumberPrefix(): string;
+  setCalledNumberPrefix(value: string): CreateTrunkRequest;
+
+  getCallerNumberFormat(): NumberFormat;
+  setCallerNumberFormat(value: NumberFormat): CreateTrunkRequest;
+
+  getCallerNumberPrefix(): string;
+  setCallerNumberPrefix(value: string): CreateTrunkRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateTrunkRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateTrunkRequest): CreateTrunkRequest.AsObject;
@@ -209,6 +237,10 @@ export namespace CreateTrunkRequest {
     inboundCredentialsRef: string,
     outboundCredentialsRef: string,
     urisList: Array<TrunkURI.AsObject>,
+    calledNumberFormat: NumberFormat,
+    calledNumberPrefix: string,
+    callerNumberFormat: NumberFormat,
+    callerNumberPrefix: string,
   }
 }
 
@@ -257,6 +289,26 @@ export class UpdateTrunkRequest extends jspb.Message {
   clearUrisList(): UpdateTrunkRequest;
   addUris(value?: TrunkURI, index?: number): TrunkURI;
 
+  getCalledNumberFormat(): NumberFormat;
+  setCalledNumberFormat(value: NumberFormat): UpdateTrunkRequest;
+  hasCalledNumberFormat(): boolean;
+  clearCalledNumberFormat(): UpdateTrunkRequest;
+
+  getCalledNumberPrefix(): string;
+  setCalledNumberPrefix(value: string): UpdateTrunkRequest;
+  hasCalledNumberPrefix(): boolean;
+  clearCalledNumberPrefix(): UpdateTrunkRequest;
+
+  getCallerNumberFormat(): NumberFormat;
+  setCallerNumberFormat(value: NumberFormat): UpdateTrunkRequest;
+  hasCallerNumberFormat(): boolean;
+  clearCallerNumberFormat(): UpdateTrunkRequest;
+
+  getCallerNumberPrefix(): string;
+  setCallerNumberPrefix(value: string): UpdateTrunkRequest;
+  hasCallerNumberPrefix(): boolean;
+  clearCallerNumberPrefix(): UpdateTrunkRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateTrunkRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateTrunkRequest): UpdateTrunkRequest.AsObject;
@@ -275,6 +327,30 @@ export namespace UpdateTrunkRequest {
     inboundCredentialsRef: string,
     outboundCredentialsRef: string,
     urisList: Array<TrunkURI.AsObject>,
+    calledNumberFormat?: NumberFormat,
+    calledNumberPrefix?: string,
+    callerNumberFormat?: NumberFormat,
+    callerNumberPrefix?: string,
+  }
+
+  export enum CalledNumberFormatCase { 
+    _CALLED_NUMBER_FORMAT_NOT_SET = 0,
+    CALLED_NUMBER_FORMAT = 9,
+  }
+
+  export enum CalledNumberPrefixCase { 
+    _CALLED_NUMBER_PREFIX_NOT_SET = 0,
+    CALLED_NUMBER_PREFIX = 10,
+  }
+
+  export enum CallerNumberFormatCase { 
+    _CALLER_NUMBER_FORMAT_NOT_SET = 0,
+    CALLER_NUMBER_FORMAT = 11,
+  }
+
+  export enum CallerNumberPrefixCase { 
+    _CALLER_NUMBER_PREFIX_NOT_SET = 0,
+    CALLER_NUMBER_PREFIX = 12,
   }
 }
 
@@ -396,3 +472,10 @@ export namespace ListTrunksResponse {
   }
 }
 
+export enum NumberFormat { 
+  NUMBER_FORMAT_UNSPECIFIED = 0,
+  E164 = 1,
+  E164_WITHOUT_PLUS = 2,
+  NATIONAL = 3,
+  INTERNATIONAL = 4,
+}

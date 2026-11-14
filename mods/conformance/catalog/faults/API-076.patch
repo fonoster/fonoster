@@ -1,0 +1,11 @@
+--- a/mods/sipnet/src/numbers/convertToFonosterNumber.ts
++++ b/mods/sipnet/src/numbers/convertToFonosterNumber.ts
+@@ -34,7 +34,7 @@
+     country: number.country,
+     countryIsoCode: number.countryIsoCode,
+     trunk: number.trunk,
+-    aliases: number.aliases ?? [],
++    aliases: [],
+     createdAt: new Date(number.createdAt * 1000),
+     updatedAt: new Date(number.updatedAt * 1000)
+   };

@@ -49,6 +49,17 @@ import {
 } from "./generated/node/numbers_pb";
 
 /**
+ * protobuf names a repeated string "aliasesList" and objectToJson renames only lists of
+ * messages; the SDK's types say "aliases", and a Number without aliases reads [].
+ */
+function withAliases(number: INumber): INumber {
+  const { aliasesList, ...rest } = number as INumber & {
+    aliasesList?: string[];
+  };
+  return { ...rest, aliases: number.aliases ?? aliasesList ?? [] };
+}
+
+/**
  * @classdesc Fonoster Numbers, part of the Fonoster SIP Proxy subsystem,
  * allows you to create, update, retrieve, and delete SIP Number for your deployment.
  * Note that an active Fonoster deployment is required.
@@ -107,6 +118,7 @@ class Numbers {
    * @param {string} request.city - The city of the Number
    * @param {string} request.country - The country of the Number
    * @param {string} request.countryIsoCode - The countryIsoCode of the Number
+   * @param {string[]} request.aliases - Optional: what the carrier sends instead of the number (e.g. 01234), unique on the Trunk
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Number
    * @example
    * const numbers = new SDK.Numbers(client); // Existing client object
@@ -169,7 +181,7 @@ class Numbers {
     });
 
     // The trunk comes back as a plain object (objectToJson).
-    return response ?? null;
+    return response && withAliases(response);
   }
 
   /**
@@ -178,6 +190,8 @@ class Numbers {
    * @param {UpdateNumberRequest} request - The request object that contains the necessary information to update an existing Number
    * @param {string} request.ref - The reference of the Number to update
    * @param {string} request.name - The name of the Number
+   * @param {string[]} request.aliases - Replaces the Number's aliases; an empty list keeps them
+   * @param {boolean} request.clearAliases - Removes every alias; wins over aliases
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Number
    * @example
    * const numbers = new SDK.Numbers(client); // Existing client object
@@ -240,7 +254,10 @@ class Numbers {
       metadata: this.client.getMetadata(),
       request,
       repeatableObjectMapping: [["itemsList", NumberPB]]
-    });
+    }).then((response) => ({
+      ...response,
+      items: response.items?.map(withAliases)
+    }));
   }
 
   /**

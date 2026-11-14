@@ -32,6 +32,12 @@ import { errorMessage } from "~/lib/errors";
 import { cn } from "~/lib/utils";
 import { useAllTrunks } from "~/trunks/trunks.service";
 import { COUNTRY_OPTIONS, countryName } from "./countries";
+import {
+  ALIAS_RULE_MESSAGE,
+  aliasesRequest,
+  aliasesValid,
+  duplicateAliasMessage
+} from "./aliases";
 import { useApplicationOptions, useSipAgentOptions } from "./lookups";
 import {
   useAllNumbers,
@@ -58,6 +64,7 @@ const editSchema = z.object({
   city: z.string(),
   countryIsoCode: z.string(),
   trunkRef: z.string(),
+  aliases: z.string().refine(aliasesValid, ALIAS_RULE_MESSAGE),
   route: route.optional()
 });
 
@@ -81,6 +88,7 @@ const EMPTY: Values = {
   city: "",
   countryIsoCode: "",
   trunkRef: "",
+  aliases: "",
   route: undefined
 };
 
@@ -120,6 +128,7 @@ export function NumberDrawer({
             ...EMPTY,
             name: number.name,
             trunkRef: number.trunk?.ref ?? "",
+            aliases: number.aliases?.join(", ") ?? "",
             route: routeOf(number, appList)
           }
         : EMPTY
@@ -152,24 +161,44 @@ export function NumberDrawer({
         : { appRef: value.to }
       : {};
 
+  // Aliases belong to a Trunk: the field shows, and is sent, only once one is chosen.
+  const trunkRef = form.watch("trunkRef");
+  const aliases = (values: Values) =>
+    values.trunkRef ? aliasesRequest(values.aliases, number?.aliases) : {};
+
+  // Routr refuses an alias another Number of the Trunk has: say so under Aliases, not on top.
+  const duplicateAlias = duplicateAliasMessage(
+    mutation.error,
+    numbers.data ?? []
+  );
+
   const onSubmit = form.handleSubmit(async (values) => {
-    if (number) {
-      await update.mutateAsync({
-        ref: number.ref,
-        name: values.name,
-        ...(values.trunkRef ? { trunkRef: values.trunkRef } : {}),
-        ...routing(values.route)
-      });
-    } else {
-      await create.mutateAsync({
-        name: values.name,
-        telUrl: toTelUrl(values.telUrl),
-        city: values.city,
-        country: countryName(values.countryIsoCode),
-        countryIsoCode: values.countryIsoCode,
-        ...(values.trunkRef ? { trunkRef: values.trunkRef } : {}),
-        ...routing(values.route)
-      });
+    try {
+      if (number) {
+        await update.mutateAsync({
+          ref: number.ref,
+          name: values.name,
+          ...(values.trunkRef ? { trunkRef: values.trunkRef } : {}),
+          ...routing(values.route),
+          ...aliases(values)
+        });
+      } else {
+        await create.mutateAsync({
+          name: values.name,
+          telUrl: toTelUrl(values.telUrl),
+          city: values.city,
+          country: countryName(values.countryIsoCode),
+          countryIsoCode: values.countryIsoCode,
+          ...(values.trunkRef ? { trunkRef: values.trunkRef } : {}),
+          ...routing(values.route),
+          ...aliases(values)
+        });
+      }
+    } catch (error) {
+      const message = duplicateAliasMessage(error, numbers.data ?? []);
+      if (message) form.setError("aliases", { message }, { shouldFocus: true });
+      // Other errors show in the box at the top; the drawer stays open either way.
+      return;
     }
     onOpenChange(false);
   });
@@ -223,14 +252,14 @@ export function NumberDrawer({
           className="flex flex-col gap-[22px]"
           noValidate
         >
-          {mutation.error && (
+          {mutation.error && !duplicateAlias && (
             <Alert variant="error">{errorMessage(mutation.error)}</Alert>
           )}
           {!number && (
             <Field
               label="Number"
               error={errors.telUrl?.message}
-              hint="In E.164 format, as your carrier sends it."
+              hint="In E.164 format. If your carrier sends something else, add it as an alias."
             >
               {(a11y) => (
                 <Input
@@ -297,8 +326,24 @@ export function NumberDrawer({
               />
             )}
           </Field>
+          {trunkRef && (
+            <Field
+              label="Aliases"
+              error={errors.aliases?.message}
+              hint="What your carrier sends instead of this number, such as 01234. Separate several with commas."
+            >
+              {(a11y) => (
+                <Input
+                  {...a11y}
+                  {...form.register("aliases")}
+                  placeholder="01234"
+                  autoComplete="off"
+                />
+              )}
+            </Field>
+          )}
           {number ? (
-            <div className="grid grid-cols-2 gap-3">
+            <>
               <Field label="Number">
                 {(a11y) => (
                   <LockedInput
@@ -313,9 +358,9 @@ export function NumberDrawer({
                   <LockedInput {...a11y} value={formatLocation(number)} />
                 )}
               </Field>
-            </div>
+            </>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <>
               <Field label="City" error={errors.city?.message}>
                 {(a11y) => (
                   <Input
@@ -343,7 +388,7 @@ export function NumberDrawer({
                   />
                 )}
               </Field>
-            </div>
+            </>
           )}
           <Alert variant="note">
             Routing lives on the number. An agent or app can answer any number

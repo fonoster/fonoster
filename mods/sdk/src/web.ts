@@ -49,6 +49,8 @@ export * from "./Webhooks";
 
 export * from "./Workspaces";
 
+export { NumberFormat, Transport } from "@fonoster/types";
+
 export type {
   AuthMethod,
   Capabilities,

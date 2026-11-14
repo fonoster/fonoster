@@ -39,6 +39,18 @@ New releases are listed newest first. For releases up to 0.27, see the
   and there is no workspace or install default. Applications left on **Workspace default** are no
   longer recorded: set recording to on for each application that needs it. See
   [Record calls](/telephony/recording).
+- **Numbers are matched the way carriers send them.** A call reaches a number when the carrier
+  writes it in E.164, without the `+`, or in the national or international form of the number's
+  country. For anything else, such as a label, add the label to the number as an **alias**. See
+  [Numbers and routing](/telephony/numbers#add-a-number).
+- **Apps get the matched number as the called number** in `call.started`, the call record and the
+  session, whatever the carrier wrote.
+- **Trunks can set how numbers are written on outbound calls**: the called and caller number
+  formats (+E.164, E.164 without +, national, international) and a prefix. See
+  [Number formats on outbound calls](/telephony/trunks#number-formats-on-outbound-calls).
+- A call that matches none of the trunk's numbers, or that is for a number on another trunk, is now
+  turned down with `404` instead of `403`, and a call from outside a trunk's ACL gets `401`.
+- Adding a number with a country that has no numbering plan is now refused.
 
 ## Usage
 

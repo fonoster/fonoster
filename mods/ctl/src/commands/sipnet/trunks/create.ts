@@ -21,6 +21,7 @@ import { CreateTrunkRequest } from "@fonoster/types";
 import { confirm, input, number, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
+import { askNumberFormats } from "../../../utils/numberFormatQuestions";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description = "add a new Trunk to the SIP network";
@@ -105,6 +106,11 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       };
     }
 
+    const numberFormats = await askNumberFormats({
+      select: (config) => select(config),
+      input: (config) => input(config)
+    });
+
     const confirmAnswers = await confirm({
       message: "Ready?"
     });
@@ -119,7 +125,8 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
         name,
         sendRegister: true,
         ...inboundAnswers,
-        ...outboundAnswers
+        ...outboundAnswers,
+        ...numberFormats
       } as unknown as CreateTrunkRequest);
 
       this.log("Done!");

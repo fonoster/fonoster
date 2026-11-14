@@ -206,4 +206,35 @@ describe("@sipnet[sipnet/createNumber]", function () {
     });
     expect(numbers.createNumber).to.not.have.been.called;
   });
+
+  it("sends the Number's aliases to Routr", async function () {
+    // Arrange
+    const { createNumber } = await import("../src/numbers/createNumber");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+    metadata.set("accesskeyid", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
+    const numbers = {
+      createNumber: sandbox.stub().resolves({ ref: "123" })
+    } as unknown as NumbersApi;
+    const call = {
+      metadata,
+      request: {
+        name: "Main line",
+        telUrl: "tel:+442079460018",
+        city: "London",
+        country: "United Kingdom",
+        countryIsoCode: "GB",
+        trunkRef: "456",
+        aliases: ["01234"]
+      }
+    };
+
+    // Act
+    await createNumber(numbers, sandbox.stub())(call, sandbox.stub());
+
+    // Assert
+    expect(numbers.createNumber).to.have.been.calledOnceWith(
+      sinon.match({ aliases: ["01234"] })
+    );
+  });
 });

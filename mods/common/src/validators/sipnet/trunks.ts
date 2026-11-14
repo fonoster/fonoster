@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Transport } from "@fonoster/types";
+import { NumberFormat, Transport } from "@fonoster/types";
 import * as Validator from "validator";
 import { z } from "zod";
 import { nameSchema } from "../common";
@@ -26,6 +26,19 @@ const hostOrIPSchema = z
   .refine((host) => Validator.isIP(host, 4) || Validator.isFQDN(host), {
     message: "Must be a valid IP or FQDN"
   });
+
+// Routr checks the prefixes (digits, * and #, and only with a format that takes one) on the
+// Trunk as it would be stored, so only the shapes are checked here.
+const numberFormatSchema = z
+  .nativeEnum(NumberFormat, { message: "Invalid number format" })
+  .optional();
+
+const numberFormatsSchema = {
+  calledNumberFormat: numberFormatSchema,
+  calledNumberPrefix: z.string().optional(),
+  callerNumberFormat: numberFormatSchema,
+  callerNumberPrefix: z.string().optional()
+};
 
 // Booleans are optional: the gRPC loader drops proto3 defaults, so `false`
 // arrives as a missing field.
@@ -45,9 +58,10 @@ const createTrunkRequestSchema = z.object({
         enabled: z.boolean().optional()
       })
     )
-    .max(10, { message: "At most 10 URIs" })
+    .max(10, { message: "At most 10 URIs" }),
+  ...numberFormatsSchema
 });
 
-const updateTrunkRequestSchema = z.object({});
+const updateTrunkRequestSchema = z.object(numberFormatsSchema);
 
 export { createTrunkRequestSchema, updateTrunkRequestSchema };

@@ -27,7 +27,8 @@ Ask your carrier for:
 - **How they authenticate you**: by IP address, by username and password, or both.
 - **Where to send outbound calls**: a host name or IP, a port and a transport (UDP, TCP or TLS).
 - **The addresses they send calls from**, if you want to accept calls from those addresses only.
-- **The format of your numbers** in the calls they send, so you can add them exactly as sent.
+- **The format of your numbers** in the calls they send, and the format they expect in the calls
+  you send them.
 
 ## Find your connection details
 
@@ -86,7 +87,7 @@ addresses are under **Settings** → **Region**, in **Connection details**.
   <Step title="Create the trunk">
     <Tabs>
       <Tab title="Dashboard">
-        Go to **Trunks** and choose **Add trunk**. The form has three parts.
+        Go to **Trunks** and choose **Add trunk**. The form has four parts.
 
         **Inbound · carrier → Fonoster**
 
@@ -102,6 +103,14 @@ addresses are under **Settings** → **Region**, in **Connection details**.
         **Transport**. Fill in **User** only if your carrier asks for one. Fonoster tries enabled
         URIs by **Priority**, then spreads calls by **Weight**. A trunk without outbound URIs
         takes calls in but can't send them out.
+
+        **Number format on outbound calls**
+
+        Change these only if your carrier asks. **Called number** (the number being dialed) and
+        **Caller number** (your number, shown as caller ID) each take **Leave as is**, **+E.164**,
+        **E.164 without +**, **National** or **International**. After the last three, a prefix
+        field takes digits, `*` or `#` to add in front. See
+        [Number formats on outbound calls](#number-formats-on-outbound-calls).
 
         **Security**
 
@@ -139,7 +148,7 @@ addresses are under **Settings** → **Region**, in **Connection details**.
               {
                 host: "sip.acme.com",
                 port: 5060,
-                transport: "UDP",
+                transport: SDK.Transport.UDP,
                 priority: 1,
                 weight: 10,
                 enabled: true
@@ -160,7 +169,8 @@ addresses are under **Settings** → **Region**, in **Connection details**.
         The command asks for the name, the inbound URI (one label under `pstn.<domain>`, such as
         `acme.pstn.fonoster.com`) and the ACL, then whether you need an
         outbound URI. If you do, it asks for the outbound credentials, host, port, transport (TCP
-        or UDP) and user:
+        or UDP) and user. Then it asks how to write the called and caller numbers on outbound
+        calls (see [Number formats on outbound calls](#number-formats-on-outbound-calls)):
 
         ```bash
         fonoster sipnet:trunks:create
@@ -176,9 +186,10 @@ addresses are under **Settings** → **Region**, in **Connection details**.
   </Step>
 
   <Step title="Add your numbers">
-    Add each of your carrier's numbers to the trunk, in E.164 format, exactly as the carrier sends
-    them. Point each one at an agent, a stream or a SIP agent. See
-    [Numbers and routing](/telephony/numbers).
+    Add each of your carrier's numbers to the trunk in E.164 format. Fonoster also matches a number
+    the carrier sends without the `+` or in the national or international form of its country; if
+    the carrier sends something else, such as a label, add it to the number as an alias. Point each
+    number at an agent, a stream or a SIP agent. See [Numbers and routing](/telephony/numbers).
 
   </Step>
 </Steps>
@@ -196,6 +207,59 @@ In your carrier's portal, set up:
 
 Use the transport your carrier prefers, and the same one on both sides.
 
+## Number formats on outbound calls
+
+By default Fonoster sends numbers to your carrier as they were dialed. If your carrier asks for
+another format, set it on the trunk, separately for the called number (the number being dialed)
+and the caller number (your number, shown as caller ID):
+
+| Format | The called number +442079460018, from a UK number |
+| --- | --- |
+| Leave as is | As dialed |
+| +E.164 | `+442079460018` |
+| E.164 without + | `442079460018` |
+| National | `02079460018`; a number of another country is written in international form |
+| International | `00442079460018`, with the international prefix of your number's country |
+
+With **E.164 without +**, **National** and **International** you can also set a prefix, 1 to 20
+digits, `*` or `#`, added in front (for example `9`). Change these only if your carrier asks.
+
+<Tabs>
+  <Tab title="Dashboard">
+    Go to **Trunks**, open the trunk, and under **Number format on outbound calls** choose the
+    **Called number** and **Caller number** formats. After **E.164 without +**, **National** or
+    **International**, enter a prefix if your carrier asks for one. Choose **Save**. Trunks made
+    with Link Twilio or Link WhatsApp don't show this section.
+  </Tab>
+  <Tab title="SDK">
+    ```javascript
+    await trunks.updateTrunk({
+      ref: "3f9a1c7e-2b4d-4e8f-a1c3-5d7e9b2f4a60",
+      calledNumberFormat: SDK.NumberFormat.NATIONAL,
+      calledNumberPrefix: "9",
+      callerNumberFormat: SDK.NumberFormat.E164_WITHOUT_PLUS
+    });
+    ```
+
+    The formats are `SDK.NumberFormat` values: `NUMBER_FORMAT_UNSPECIFIED` (leave as is), `E164`,
+    `E164_WITHOUT_PLUS`, `NATIONAL` and `INTERNATIONAL`. An update that leaves a field out keeps it.
+    To go back to leave as is, send `NUMBER_FORMAT_UNSPECIFIED` with an empty prefix:
+
+    ```javascript
+    await trunks.updateTrunk({
+      ref: "3f9a1c7e-2b4d-4e8f-a1c3-5d7e9b2f4a60",
+      calledNumberFormat: SDK.NumberFormat.NUMBER_FORMAT_UNSPECIFIED,
+      calledNumberPrefix: ""
+    });
+    ```
+  </Tab>
+  <Tab title="CLI">
+    `fonoster sipnet:trunks:create` and `fonoster sipnet:trunks:update <ref>` ask for the called
+    number format and the caller number format, and for a prefix after **E.164 without +**,
+    **National** or **International**. On update, the trunk's current values are the defaults.
+  </Tab>
+</Tabs>
+
 ## Check it
 
 1. Call one of the trunk's numbers from any phone. The agent, stream or SIP agent it points at
@@ -206,7 +270,9 @@ The trunk page lists the trunk's numbers under **Numbers on this trunk**.
 
 If calls don't arrive:
 
-- Check that the number in Fonoster matches what the carrier sends, `+` included.
+- Check what the carrier sends for the number. Fonoster matches it in E.164, without the `+`, or in
+  the national or international form of its country; for anything else, add an alias to the number.
+- Check that the number is on this trunk. A number on another trunk doesn't ring.
 - If the trunk has an ACL, check that it lists every address the carrier sends from.
 - Check that the carrier sends to your inbound URI, not to a different host.
 
