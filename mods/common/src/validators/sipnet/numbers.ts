@@ -27,6 +27,10 @@ const countryIsoCodeSchema = z.string().refine((val) => isISO31661Alpha2(val), {
   message: "Invalid country ISO code"
 });
 
+const aliasesSchema = z
+  .array(z.string())
+  .max(20, { message: "At most 20 aliases" });
+
 const createNumberRequestSchema = z
   .object({
     name: nameSchema,
@@ -37,7 +41,7 @@ const createNumberRequestSchema = z
     appRef: z.string().optional(),
     countryIsoCode: countryIsoCodeSchema,
     // Routr checks each alias and that it is unique on the Trunk
-    aliases: z.array(z.string()).optional()
+    aliases: aliasesSchema.optional()
   })
   .refine(
     ({ agentAor, appRef }) => !(agentAor !== undefined && appRef !== undefined),
@@ -52,7 +56,7 @@ const updateNumberRequestSchema = z
     name: nameSchema.optional(),
     agentAor: sipUriSchema.optional(),
     appRef: z.string().optional(),
-    aliases: z.array(z.string()).optional(),
+    aliases: aliasesSchema.optional(),
     clearAliases: z.boolean().optional()
   })
   .refine(

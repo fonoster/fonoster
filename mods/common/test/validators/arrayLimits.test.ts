@@ -29,6 +29,10 @@ import {
   createAclRequestSchema,
   updateAclRequestSchema
 } from "../../src/validators/sipnet/acls";
+import {
+  createNumberRequestSchema,
+  updateNumberRequestSchema
+} from "../../src/validators/sipnet/numbers";
 import { createTrunkRequestSchema } from "../../src/validators/sipnet/trunks";
 
 // #1220: every request array has a size limit (GHSA-mrhx-c7xc-m3w5). At the limit a request
@@ -101,6 +105,27 @@ const ROWS: Row[] = [
       uris: times(n, () => uri)
     }),
     message: 'At most 10 URIs at "uris"'
+  },
+  {
+    name: "create number aliases",
+    schema: createNumberRequestSchema,
+    limit: 20,
+    input: (n) => ({
+      name: "Main line",
+      telUrl: "tel:+442079460018",
+      city: "London",
+      country: "United Kingdom",
+      countryIsoCode: "GB",
+      aliases: times(n, (i) => `a${i}`)
+    }),
+    message: 'At most 20 aliases at "aliases"'
+  },
+  {
+    name: "update number aliases",
+    schema: updateNumberRequestSchema,
+    limit: 20,
+    input: (n) => ({ aliases: times(n, (i) => `a${i}`) }),
+    message: 'At most 20 aliases at "aliases"'
   },
   {
     name: "create ACL allow",
