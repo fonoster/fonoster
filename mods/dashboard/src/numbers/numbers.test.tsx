@@ -18,9 +18,11 @@
  */
 import { screen, within } from "@testing-library/react";
 import { WorkspaceProvider } from "~/lib/workspace";
+import { GrpcCode } from "~/lib/errors";
+import { grpcError } from "~/test/fake-auth";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
-import { fakeSdk } from "./fixtures";
+import { fakeSdk, numbers } from "./fixtures";
 import NumbersScreen from "./index";
 import { formatNumber, toTelUrl } from "./routing";
 
@@ -184,5 +186,112 @@ describe("number formatting", () => {
     expect(formatNumber("tel:+18095550177")).toBe("+1 809 555 0177");
     expect(formatNumber("tel:+34910555210")).toBe("+34 910 555 210");
     expect(toTelUrl("+1 (809) 555-0177")).toBe("tel:+18095550177");
+  });
+});
+
+describe("number aliases", () => {
+  // Spare (n5, on Altice) with two aliases; the other numbers have none.
+  const withAliases = {
+    numbers: numbers.map((n) =>
+      n.ref === "n5" ? { ...n, aliases: ["01234", "5678"] } : n
+    )
+  };
+
+  async function edit(name: string, data?: Parameters<typeof fakeSdk>[1]) {
+    const view = setup(data);
+    await view.user.click(await screen.findByText(name));
+    const drawer = within(await screen.findByRole("dialog"));
+    return { ...view, drawer };
+  }
+
+  it("shows Aliases under Trunk only once a Trunk is chosen", async () => {
+    const { user } = setup();
+    await user.click(
+      await screen.findByRole("button", { name: "Create number" })
+    );
+    const drawer = within(await screen.findByRole("dialog"));
+    expect(
+      drawer.getByText(
+        "In E.164 format. If your carrier sends something else, add it as an alias."
+      )
+    ).toBeInTheDocument();
+    expect(drawer.queryByLabelText("Aliases")).toBeNull();
+    await user.click(drawer.getByLabelText("Trunk"));
+    await user.click(await screen.findByRole("option", { name: "Claro" }));
+    expect(drawer.getByLabelText("Aliases")).toBeInTheDocument();
+  });
+
+  it("opens with the saved aliases", async () => {
+    const { drawer } = await edit("Spare", withAliases);
+    expect(drawer.getByLabelText("Aliases")).toHaveValue("01234, 5678");
+  });
+
+  it("sends the list trimmed, without empty parts or repeats", async () => {
+    const { user, sdk, drawer } = await edit("Spare");
+    await user.type(drawer.getByLabelText("Aliases"), " 01234 ,5678, ,01234");
+    await user.click(drawer.getByRole("button", { name: "Save" }));
+    expect(sdk.numbers.updateNumber).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: "n5", aliases: ["01234", "5678"] })
+    );
+  });
+
+  it("removes them all when emptied, and sends nothing for a rename", async () => {
+    const emptied = await edit("Spare", withAliases);
+    await emptied.user.clear(emptied.drawer.getByLabelText("Aliases"));
+    await emptied.user.click(
+      emptied.drawer.getByRole("button", { name: "Save" })
+    );
+    expect(emptied.sdk.numbers.updateNumber).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: "n5", clearAliases: true })
+    );
+    emptied.unmount();
+
+    const renamed = await edit("Spare", withAliases);
+    await renamed.user.clear(renamed.drawer.getByLabelText("Name"));
+    await renamed.user.type(renamed.drawer.getByLabelText("Name"), "Backup");
+    await renamed.user.click(
+      renamed.drawer.getByRole("button", { name: "Save" })
+    );
+    const sent = (
+      renamed.sdk.numbers.updateNumber as unknown as ReturnType<typeof vi.fn>
+    ).mock.calls[0][0];
+    expect(sent).not.toHaveProperty("clearAliases");
+    expect(sent.aliases).toEqual(["01234", "5678"]);
+  });
+
+  it("refuses an alias with a space and sends nothing", async () => {
+    const { user, sdk, drawer } = await edit("Spare");
+    await user.type(drawer.getByLabelText("Aliases"), "012 34");
+    await user.click(drawer.getByRole("button", { name: "Save" }));
+    expect(
+      await drawer.findByText(
+        "Each alias is 1 to 60 letters, digits or + * . _ -."
+      )
+    ).toBeInTheDocument();
+    expect(sdk.numbers.updateNumber).not.toHaveBeenCalled();
+  });
+
+  it("shows an alias another number of the trunk has under Aliases", async () => {
+    const view = await edit("Orders");
+    (
+      view.sdk.numbers.updateNumber as unknown as ReturnType<typeof vi.fn>
+    ).mockRejectedValue(
+      grpcError(
+        GrpcCode.INVALID_ARGUMENT,
+        '3 INVALID_ARGUMENT: alias "01234" is already used by Number n4 on this Trunk'
+      )
+    );
+    const aliases = view.drawer.getByLabelText("Aliases");
+    await view.user.type(aliases, "01234");
+    await view.user.click(view.drawer.getByRole("button", { name: "Save" }));
+    expect(
+      await view.drawer.findByText(
+        "01234 is already an alias of +1 809 555 0100 (Support desk) on this trunk. Remove it there or use another."
+      )
+    ).toBeInTheDocument();
+    expect(aliases).toHaveFocus();
+    expect(aliases).toHaveValue("01234");
+    expect(view.drawer.queryByText(/is already used by Number/)).toBeNull();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 });

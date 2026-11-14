@@ -20,7 +20,7 @@ import { screen, within } from "@testing-library/react";
 import type { Capabilities } from "~/lib/client";
 import { communityCapabilities, regionsCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
-import { fakeSdk } from "~/numbers/fixtures";
+import { fakeSdk, trunks } from "~/numbers/fixtures";
 import { fakeAuth, grpcError, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
 import TrunksScreen from "./index";
@@ -190,7 +190,11 @@ describe("trunk page", () => {
           weight: 10,
           enabled: true
         }
-      ]
+      ],
+      calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      calledNumberPrefix: "",
+      callerNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      callerNumberPrefix: ""
     });
   });
 
@@ -299,7 +303,11 @@ describe("trunk page", () => {
           weight: 10,
           enabled: true
         }
-      ]
+      ],
+      calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      calledNumberPrefix: "",
+      callerNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      callerNumberPrefix: ""
     });
     await vi.waitFor(() =>
       expect(sdk.trunks.getTrunk).toHaveBeenCalledWith("tk-new")
@@ -326,5 +334,168 @@ describe("trunk page", () => {
     expect(
       await screen.findByRole("heading", { name: "Trunks" })
     ).toBeInTheDocument();
+  });
+});
+
+describe("number format on outbound calls", () => {
+  const claro = trunks[0];
+  const withFormat = (formats: Record<string, string>) => ({
+    trunks: [{ ...claro, ...formats }, ...trunks.slice(1)]
+  });
+  const section = () =>
+    within(
+      screen.getByRole("region", { name: "Number format on outbound calls" })
+    );
+
+  async function open(data?: Parameters<typeof fakeSdk>[1]) {
+    const view = setup("/w/ws1/trunks/tk-31a0c2", data);
+    await screen.findByRole("heading", { name: "Claro" });
+    return view;
+  }
+
+  async function pick(
+    user: Awaited<ReturnType<typeof open>>["user"],
+    label: string,
+    option: RegExp
+  ) {
+    await user.click(section().getByLabelText(label));
+    await user.click(await screen.findByRole("option", { name: option }));
+  }
+
+  it("reads Leave as is with no prefix when nothing is set", async () => {
+    await open();
+    expect(section().getByLabelText("Called number")).toHaveTextContent(
+      "Leave as is"
+    );
+    expect(section().getByLabelText("Caller number")).toHaveTextContent(
+      "Leave as is"
+    );
+    expect(section().queryByLabelText(/prefix/)).toBeNull();
+  });
+
+  it("saves National with prefix 9, and the caller as leave as is", async () => {
+    const { user, sdk } = await open();
+    await pick(user, "Called number", /^National/);
+    await user.type(section().getByLabelText("Called number prefix"), "9");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(sdk.trunks.updateTrunk).toHaveBeenCalledWith(
+      expect.objectContaining({
+        calledNumberFormat: "NATIONAL",
+        calledNumberPrefix: "9",
+        callerNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+        callerNumberPrefix: ""
+      })
+    );
+  });
+
+  it("shows each option with its example, International included", async () => {
+    const { user } = await open();
+    await user.click(section().getByLabelText("Called number"));
+    for (const [name, example] of [
+      ["+E.164", "+442079460018"],
+      ["E.164 without +", "442079460018"],
+      ["National", "02079460018"],
+      ["International", "00442079460018"]
+    ]) {
+      const option = (await screen.findAllByRole("option")).find((o) =>
+        o.textContent?.startsWith(name)
+      );
+      expect(option).toHaveTextContent(example);
+    }
+  });
+
+  it("hides and clears the prefix with Leave as is or +E.164", async () => {
+    const stored = withFormat({
+      calledNumberFormat: "NATIONAL",
+      calledNumberPrefix: "9"
+    });
+    const { user, sdk } = await open(stored);
+    expect(section().getByLabelText("Called number prefix")).toHaveValue("9");
+    await pick(user, "Called number", /^Leave as is/);
+    expect(section().queryByLabelText("Called number prefix")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(sdk.trunks.updateTrunk).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+        calledNumberPrefix: ""
+      })
+    );
+    await pick(user, "Called number", /^\+E\.164/);
+    expect(section().queryByLabelText("Called number prefix")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(sdk.trunks.updateTrunk).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        calledNumberFormat: "E164",
+        calledNumberPrefix: ""
+      })
+    );
+  });
+
+  it("accepts International with 9#", async () => {
+    const { user, sdk } = await open();
+    await pick(user, "Called number", /^International/);
+    await user.type(section().getByLabelText("Called number prefix"), "9#");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(sdk.trunks.updateTrunk).toHaveBeenCalledWith(
+      expect.objectContaining({
+        calledNumberFormat: "INTERNATIONAL",
+        calledNumberPrefix: "9#"
+      })
+    );
+  });
+
+  it("flags a prefix with other characters, focuses it and sends nothing", async () => {
+    const { user, sdk } = await open();
+    await pick(user, "Called number", /^National/);
+    const prefix = section().getByLabelText("Called number prefix");
+    await user.type(prefix, "9a");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(
+      await section().findByText("Use only digits, * and #, up to 20.")
+    ).toBeInTheDocument();
+    expect(prefix).toHaveFocus();
+    expect(sdk.trunks.updateTrunk).not.toHaveBeenCalled();
+  });
+
+  it("puts each prefix right after its select, with distinct names", async () => {
+    const { user } = await open();
+    await pick(user, "Called number", /^National/);
+    await pick(user, "Caller number", /^E\.164 without/);
+    const order = [
+      section().getByLabelText("Called number"),
+      section().getByLabelText("Called number prefix"),
+      section().getByLabelText("Caller number"),
+      section().getByLabelText("Caller number prefix")
+    ];
+    order
+      .slice(1)
+      .forEach((el, i) =>
+        expect(
+          order[i].compareDocumentPosition(el) &
+            Node.DOCUMENT_POSITION_FOLLOWING
+        ).toBeTruthy()
+      );
+  });
+
+  it("isn't offered on a Trunk made by Link Twilio or Link WhatsApp", async () => {
+    for (const host of ["acme.pstn.twilio.com", "wa.meta.vc"]) {
+      const view = await open(
+        withFormat({ uris: [{ ...claro.uris[0], host }] } as never)
+      );
+      expect(
+        screen.queryByRole("region", {
+          name: "Number format on outbound calls"
+        })
+      ).toBeNull();
+      view.unmount();
+    }
+  });
+
+  it("shows on New trunk", async () => {
+    setup("/w/ws1/trunks/new");
+    await screen.findByRole("heading", { name: "New trunk" });
+    expect(section().getByLabelText("Called number")).toHaveTextContent(
+      "Leave as is"
+    );
   });
 });

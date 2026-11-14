@@ -87,7 +87,7 @@ addresses are under **Settings** → **Region**, in **Connection details**.
   <Step title="Create the trunk">
     <Tabs>
       <Tab title="Dashboard">
-        Go to **Trunks** and choose **Add trunk**. The form has three parts.
+        Go to **Trunks** and choose **Add trunk**. The form has four parts.
 
         **Inbound · carrier → Fonoster**
 
@@ -103,6 +103,14 @@ addresses are under **Settings** → **Region**, in **Connection details**.
         **Transport**. Fill in **User** only if your carrier asks for one. Fonoster tries enabled
         URIs by **Priority**, then spreads calls by **Weight**. A trunk without outbound URIs
         takes calls in but can't send them out.
+
+        **Number format on outbound calls**
+
+        Change these only if your carrier asks. **Called number** (the number being dialed) and
+        **Caller number** (your number, shown as caller ID) each take **Leave as is**, **+E.164**,
+        **E.164 without +**, **National** or **International**. After the last three, a prefix
+        field takes digits, `*` or `#` to add in front. See
+        [Number formats on outbound calls](#number-formats-on-outbound-calls).
 
         **Security**
 
@@ -217,6 +225,12 @@ With **E.164 without +**, **National** and **International** you can also set a 
 digits, `*` or `#`, added in front (for example `9`). Change these only if your carrier asks.
 
 <Tabs>
+  <Tab title="Dashboard">
+    Go to **Trunks**, open the trunk, and under **Number format on outbound calls** choose the
+    **Called number** and **Caller number** formats. After **E.164 without +**, **National** or
+    **International**, enter a prefix if your carrier asks for one. Choose **Save**. Trunks made
+    with Link Twilio or Link WhatsApp don't show this section.
+  </Tab>
   <Tab title="SDK">
     ```javascript
     await trunks.updateTrunk({

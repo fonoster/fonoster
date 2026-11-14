@@ -46,9 +46,11 @@ import { errorMessage, GrpcCode, grpcCode } from "~/lib/errors";
 import { useAllNumbers } from "~/numbers/numbers.service";
 import { CarrierHint } from "~/regions/connection";
 import { formatNumber } from "~/numbers/routing";
+import { NumberFormats } from "./number-formats";
 import { OutboundUris } from "./outbound-uris";
 import {
   NONE,
+  offersNumberFormats,
   toRequest,
   toValues,
   trunkSchema,
@@ -248,6 +250,8 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
     defaultValues: toValues(trunk)
   });
   const { errors } = form.formState;
+  // Trunks made by Link Twilio or Link WhatsApp keep the format their provider needs.
+  const uris = useWatch({ control: form.control, name: "uris" });
 
   const rule = useSipNameRule("pstn");
   // A trunk made before the inbound URI rule moves under the root on save.
@@ -392,6 +396,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
             <CarrierHint />
           </Section>
           <OutboundUris form={form} />
+          {offersNumberFormats(uris) && <NumberFormats form={form} />}
         </div>
         <div className="flex min-w-0 flex-col gap-5">
           <Section id="security-title" title="Security">

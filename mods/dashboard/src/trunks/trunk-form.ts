@@ -16,7 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { CreateTrunkRequest, Transport, Trunk } from "@fonoster/types";
+import type {
+  CreateTrunkRequest,
+  NumberFormat,
+  Transport,
+  Trunk
+} from "@fonoster/types";
 import { z } from "zod";
 
 type TrunkURI = NonNullable<CreateTrunkRequest["uris"]>[number];
@@ -37,11 +42,7 @@ const host = (what: string) =>
     .regex(HOST, "Use a domain like sip.carrier.com or an IP address");
 
 const integer = (min: number, max: number, message: string) =>
-  z
-    .number({ error: message })
-    .int(message)
-    .min(min, message)
-    .max(max, message);
+  z.number({ error: message }).int(message).min(min, message).max(max, message);
 
 export const uriSchema = z.object({
   host: host("host"),
@@ -53,6 +54,57 @@ export const uriSchema = z.object({
   enabled: z.boolean()
 });
 
+/** The outbound number formats, with a fixed example for a GB number. */
+export const NUMBER_FORMAT_OPTIONS = [
+  { value: "NUMBER_FORMAT_UNSPECIFIED", label: "Leave as is" },
+  { value: "E164", label: "+E.164", description: "+442079460018" },
+  {
+    value: "E164_WITHOUT_PLUS",
+    label: "E.164 without +",
+    description: "442079460018"
+  },
+  {
+    value: "NATIONAL",
+    label: "National",
+    description: "02079460018"
+  },
+  {
+    value: "INTERNATIONAL",
+    label: "International",
+    description: "00442079460018"
+  }
+];
+
+/** Routr takes a prefix only with these formats (fonoster/routr#704). */
+export function takesPrefix(format: string): boolean {
+  return (
+    format === "E164_WITHOUT_PLUS" ||
+    format === "NATIONAL" ||
+    format === "INTERNATIONAL"
+  );
+}
+
+const PREFIX = /^[0-9*#]{1,20}$/;
+const prefix = z
+  .string()
+  .trim()
+  .refine(
+    (value) => value === "" || PREFIX.test(value),
+    "Use only digits, * and #, up to 20."
+  );
+
+/**
+ * Trunks made by Link Twilio and Link WhatsApp: another number format would break their calls,
+ * so the page doesn't offer one.
+ */
+export function offersNumberFormats(uris: { host: string }[]): boolean {
+  return !uris.some(
+    ({ host }) =>
+      host.toLowerCase().endsWith(".pstn.twilio.com") ||
+      host.toLowerCase() === "wa.meta.vc"
+  );
+}
+
 export const trunkSchema = z.object({
   name: z.string().trim().min(1, "Enter a name"),
   inboundUri: host("inbound URI"),
@@ -60,7 +112,11 @@ export const trunkSchema = z.object({
   accessControlListRef: z.string(),
   inboundCredentialsRef: z.string(),
   outboundCredentialsRef: z.string(),
-  uris: z.array(uriSchema)
+  uris: z.array(uriSchema),
+  calledNumberFormat: z.string(),
+  calledNumberPrefix: prefix,
+  callerNumberFormat: z.string(),
+  callerNumberPrefix: prefix
 });
 
 export type TrunkValues = z.infer<typeof trunkSchema>;
@@ -112,7 +168,11 @@ export function toValues(trunk?: Trunk): TrunkValues {
       accessControlListRef: NONE,
       inboundCredentialsRef: NONE,
       outboundCredentialsRef: NONE,
-      uris: [{ ...NEW_URI }]
+      uris: [{ ...NEW_URI }],
+      calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      calledNumberPrefix: "",
+      callerNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+      callerNumberPrefix: ""
     };
   }
   const refs = trunkRefs(trunk);
@@ -133,7 +193,11 @@ export function toValues(trunk?: Trunk): TrunkValues {
       priority: uri.priority,
       weight: uri.weight,
       enabled: Boolean(uri.enabled)
-    }))
+    })),
+    calledNumberFormat: trunk.calledNumberFormat ?? "NUMBER_FORMAT_UNSPECIFIED",
+    calledNumberPrefix: trunk.calledNumberPrefix ?? "",
+    callerNumberFormat: trunk.callerNumberFormat ?? "NUMBER_FORMAT_UNSPECIFIED",
+    callerNumberPrefix: trunk.callerNumberPrefix ?? ""
   };
 }
 
@@ -147,16 +211,24 @@ export function toRequest(values: TrunkValues): CreateTrunkRequest {
     accessControlListRef: ref(values.accessControlListRef),
     inboundCredentialsRef: ref(values.inboundCredentialsRef),
     outboundCredentialsRef: ref(values.outboundCredentialsRef),
-    uris: values.uris.map(
-      (uri): TrunkURI => ({
-        host: uri.host,
-        port: uri.port,
-        transport: uri.transport as Transport,
-        ...(uri.user ? { user: uri.user } : {}),
-        priority: uri.priority,
-        weight: uri.weight,
-        enabled: uri.enabled
-      })
-    )
+    uris: values.uris.map((uri): TrunkURI => ({
+      host: uri.host,
+      port: uri.port,
+      transport: uri.transport as Transport,
+      ...(uri.user ? { user: uri.user } : {}),
+      priority: uri.priority,
+      weight: uri.weight,
+      enabled: uri.enabled
+    })),
+    // All four, always: an absent field keeps the stored value, and Routr checks the Trunk as it
+    // would be stored, so "Leave as is" goes with an empty prefix.
+    calledNumberFormat: values.calledNumberFormat as NumberFormat,
+    calledNumberPrefix: takesPrefix(values.calledNumberFormat)
+      ? values.calledNumberPrefix.trim()
+      : "",
+    callerNumberFormat: values.callerNumberFormat as NumberFormat,
+    callerNumberPrefix: takesPrefix(values.callerNumberFormat)
+      ? values.callerNumberPrefix.trim()
+      : ""
   };
 }
