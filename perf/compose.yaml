@@ -1,0 +1,64 @@
+# AppBridge under test, with what it needs around it, on the UUT. perfkit sets the PERFKIT_*
+# variables. Host networking only: perfkit refuses a service without it. Each service has its
+# own cores (infra.uut.size c-16), so only AppBridge is held to 2 vCPUs.
+services:
+  nats:
+    image: nats:2.11.8-alpine            # same line as ops/bundle/compose.yaml
+    network_mode: host
+    restart: "no"
+    cpuset: "6"
+    command: ["-js", "-p", "14222"]      # JetStream: AppBridge's session registry; 14222 avoids the dev container's 4222
+
+  app:
+    image: node:24-slim
+    network_mode: host
+    restart: "no"
+    cpuset: "7-11"
+    # The app's source, read-only. It is copied to /work and its one dependency (ws, pinned by
+    # the lockfile) installed there, so nothing is written into perf/.
+    volumes: ["./app:/src:ro"]
+    command:
+      - sh
+      - -c
+      - cp -R /src /work && cd /work && npm ci --omit=dev --no-audit --no-fund && exec node /work/src/app.ts
+    environment:
+      APP_PORT: "7080"
+      TTS_PORT: "7001"
+      STT_PORT: "7002"
+      STT_FINAL_EVERY_MS: "4000"         # a final transcript every 4 s of caller audio, for the whole call
+      CALLER_AUDIO_GAP_MAX_MS: "200"     # two caller-audio frames (one per 20 ms) further apart than this: hang up
+      SPEAK_START_MAX_MS: "200"          # output.started later than this after a speak on an empty queue: hang up
+      TURN_TIMEOUT_MS: "10000"           # no turn.ended this long after output.done: hang up (a stuck call, not a capacity signal)
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:7001/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 2s
+      retries: 3
+      start_period: 120s
+
+  appbridge:
+    image: ${PERFKIT_IMAGE_APPBRIDGE:?set PERFKIT_IMAGE_APPBRIDGE}
+    network_mode: host
+    restart: "no"
+    cpuset: "0,1"                        # 2 vCPUs, the unit under test
+    depends_on:
+      nats: { condition: service_started }
+      app: { condition: service_healthy }
+    volumes: ["./appbridge.yaml:/config/appbridge.yaml:ro"]
+    # The image has no healthcheck: healthy once the session endpoint (roomr.yaml
+    # sessionEndpoint) accepts connections.
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').connect(50071,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 2s
+      retries: 3
+      start_period: 60s
+
+  roomr:
+    image: fonoster/roomr:0.4.0@sha256:86a4034b06c6de8cd4f6a668042231afa11e8e1140b0db301e371f645bb4eb52   # ops/bundle/compose.yaml
+    network_mode: host
+    restart: "no"
+    cpuset: "2-5"
+    depends_on:
+      appbridge: { condition: service_healthy }
+    environment:
+      PERFKIT_UUT_IP: ${PERFKIT_UUT_IP:?set PERFKIT_UUT_IP}
+    volumes: ["./roomr.yaml:/config/roomr.yaml:ro"]

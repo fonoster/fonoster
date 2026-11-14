@@ -1,0 +1,125 @@
+name: Benchmarks
+
+# Runs AppBridge's perfkit benchmarks (perf/perfkit.yaml) on DigitalOcean for a released version,
+# then opens a pull request that adds the run's report.json and the updated runs.json under
+# perf/runs/. Manual only, plus a sweep that deletes droplets a cancelled run may have left.
+# perfkit installs from a git tag through npx, which needs npm 11 (Node 22 ships npm 10).
+# Guide: perf/README.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target-version: { description: "AppBridge release to benchmark, e.g. 0.57.0", required: true, type: string }
+      config:         { description: "perf/perfkit.smoke.yaml is the short check", required: true, type: choice, options: [perf/perfkit.smoke.yaml, perf/perfkit.yaml], default: perf/perfkit.smoke.yaml }
+      benchmarks:     { description: "Ids, comma-separated (empty = all): speech-turns, speech-soak", required: false, type: string, default: "" }
+  schedule:
+    - cron: "17 */6 * * *"           # sweep only
+
+permissions: { contents: read }
+
+jobs:
+  sweep:
+    if: github.event_name == 'schedule' && github.repository == 'fonoster/fonoster'
+    runs-on: ubuntu-latest
+    env: { DIGITALOCEAN_TOKEN: "${{ secrets.DIGITALOCEAN_TOKEN }}" }
+    steps:
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm install -g npm@11
+      # perfkit sweep deletes every perfkit-tagged droplet in the account, roomr's and routr's too:
+      # 11h is longer than any run of theirs or ours (the full config finishes in under 9h).
+      # Until the secret exists the schedule has nothing to sweep; don't fail four times a day.
+      - run: |
+          if [ -z "$DIGITALOCEAN_TOKEN" ]; then
+            echo "::notice::DIGITALOCEAN_TOKEN is not set; nothing to sweep"
+            exit 0
+          fi
+          npx -y github:fonoster/perfkit#v0.1.12 sweep --older-than 11h
+
+  resolve:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    outputs: { commit: "${{ steps.c.outputs.commit }}" }
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      # Fails here, before any droplet exists, when the release is missing.
+      - id: c
+        env: { V: "${{ inputs.target-version }}" }
+        run: |
+          commit=$(git rev-list -n1 "v$V" 2>/dev/null) || { echo "::error::no tag v$V"; exit 1; }
+          docker manifest inspect "fonoster/appbridge:$V" >/dev/null 2>&1 || { echo "::error::no image fonoster/appbridge:$V on Docker Hub"; exit 1; }
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+
+  run:
+    needs: resolve
+    uses: fonoster/perfkit/.github/workflows/run.yaml@v0.1.12
+    with:
+      perfkit-ref: v0.1.12
+      target-version: ${{ inputs.target-version }}
+      config: ${{ inputs.config }}
+      commit: ${{ needs.resolve.outputs.commit }}
+      benchmarks: ${{ inputs.benchmarks }}
+    secrets:
+      DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+      PERFKIT_SSH_KEY: ${{ secrets.PERFKIT_SSH_KEY }}
+
+  publish:
+    needs: run
+    if: ${{ !cancelled() && needs.run.outputs.verdict != '' }}
+    runs-on: ubuntu-latest
+    permissions: { contents: write, pull-requests: write }
+    # Two publishes never race on runs.json; a rerun re-renders against the current main.
+    concurrency: { group: perf-publish, cancel-in-progress: false }
+    env:
+      RUN_ID: ${{ needs.run.outputs.run-id }}
+      VERDICT: ${{ needs.run.outputs.verdict }}
+      ARTIFACT: ${{ needs.run.outputs.artifact }}
+      VERSION: ${{ inputs.target-version }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with: { ref: main }
+      - uses: actions/download-artifact@v8
+        with: { name: "${{ needs.run.outputs.artifact }}", path: report }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm install -g npm@11
+      - name: Render runs.json
+        run: |
+          history=()
+          [ -f perf/runs/runs.json ] && history=(--history perf/runs/runs.json)
+          npx -y github:fonoster/perfkit#v0.1.12 render --report report/report.json "${history[@]}" --out "$RUNNER_TEMP/site"
+          # Only the data is kept in the repo, never the HTML.
+          mkdir -p "perf/runs/$RUN_ID"
+          cp "$RUNNER_TEMP/site/runs.json" perf/runs/runs.json
+          cp "$RUNNER_TEMP/site/runs/$RUN_ID/report.json" "perf/runs/$RUN_ID/report.json"
+      - name: Open or update the pull request
+        run: |
+          branch="perf/run-$RUN_ID"
+          title="chore(perf): add benchmark run $RUN_ID (v$VERSION)"
+          # The backticks are JavaScript template literals, not shell.
+          # shellcheck disable=SC2016
+          headlines=$(node -e '
+            const r = require("./report/report.json");
+            for (const b of r.benchmarks) console.log(`- \`${b.id}\`: ${b.verdict}${b.headline ? ", " + JSON.stringify(b.headline) : ""}`);
+          ')
+          printf '%s\n' \
+            "Benchmark run \`$RUN_ID\` of AppBridge v$VERSION: **$VERDICT**." "" \
+            "$headlines" "" \
+            "Workflow run: $RUN_URL (raw results in the artifact \`$ARTIFACT\`)." "" \
+            "Merged with the ruleset bypass: GITHUB_TOKEN PRs get no status checks (perf/README.md)." \
+            > "$RUNNER_TEMP/body.md"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add perf/runs/runs.json "perf/runs/$RUN_ID/report.json"
+          git commit -s -m "$title"
+          git push --force origin "$branch"
+          pr=$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --base main --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          fi

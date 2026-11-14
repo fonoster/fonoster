@@ -1,0 +1,10 @@
+{
+  "name": "appbridge-perf-app",
+  "private": true,
+  "description": "The app, fake TTS and fake STT behind AppBridge in its perfkit benchmarks (perf/README.md)",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "dependencies": {
+    "ws": "8.23.0"
+  }
+}

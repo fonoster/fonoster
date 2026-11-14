@@ -1,0 +1,17 @@
+# Roomr on the UUT, pinned in compose.yaml (fonoster/roomr's perf/roomr.yaml, pointed at
+# AppBridge). ${PERFKIT_UUT_IP} is expanded by the node's config loader. The node does not use
+# NATS here; it keeps calls going without it (best effort).
+nodeId: bench
+sip:
+  listen: 0.0.0.0:5060
+  advertise: ${PERFKIT_UUT_IP}
+rtp:
+  host: 0.0.0.0
+  advertise: ${PERFKIT_UUT_IP}
+  portMin: 10000   # below 32768, where AppBridge's RTP ports (ephemeral) start
+  portMax: 30000
+control:
+  grpc:
+    listen: 127.0.0.1:50061
+sessionEndpoint: 127.0.0.1:50071   # appbridge.yaml session.listen
+maxRooms: 10000   # the ramp, not a room cap, finds the limit
