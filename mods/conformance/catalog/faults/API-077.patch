@@ -1,0 +1,10 @@
+--- a/mods/sipnet/src/numbers/convertToRoutrNumber.ts
++++ b/mods/sipnet/src/numbers/convertToRoutrNumber.ts
+@@ -47,7 +47,6 @@
+       : [],
+     trunkRef: number.trunkRef,
+     // Routr keeps the aliases unique per Trunk and answers INVALID_ARGUMENT otherwise
+-    ...(number.aliases?.length ? { aliases: number.aliases } : {}),
+     extended: { accessKeyId } as Record<string, unknown>
+   };
+ }

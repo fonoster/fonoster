@@ -730,3 +730,20 @@ SHALL be admitted and the missing check logged.
 #### Scenario: An app without a workspace
 - **WHEN** an inbound call arrives for an app with no workspace (configured from a file)
 - **THEN** no workspace check is made and the call runs as before
+
+### Requirement: The called number of a call from a Trunk is the matched Number
+
+Routr forwards the To header of a call from a Trunk as the carrier wrote it (a label, a national form)
+and names the Number it matched in `X-DID-Number`, setting `X-Call-Direction: from-pstn`; it
+replaces a copy of either header the caller sent. On a `from-pstn` call with `X-DID-Number`,
+AppBridge SHALL use that header as the called number in the call record, the `call.started`
+webhook, admission and the app's session. Otherwise it SHALL use the To user, since an Agent or
+Peer keeps the headers it sends.
+
+#### Scenario: A carrier writes the number another way
+- **WHEN** an inbound call has `X-Call-Direction: from-pstn`, `X-DID-Number: +442079460018` and the To user `02079460018` or `sales`
+- **THEN** the call record's `call.started`, the `call.started` webhook, admission's called number and the session's `to` are `+442079460018`
+
+#### Scenario: No matched Number in the headers
+- **WHEN** an inbound call has no `X-DID-Number`, or has one on a call whose `X-Call-Direction` isn't `from-pstn`
+- **THEN** the called number is the To user, as before

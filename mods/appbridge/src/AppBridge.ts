@@ -50,6 +50,7 @@ import {
 } from "./admission";
 import { AmdClassifier, loadAmdClassifier } from "./amd/AmdListener";
 import { AppStore, YamlAppStore } from "./apps/AppStore";
+import { calledNumber } from "./calledNumber";
 import {
   AppBridgeConfig,
   AppConfig,
@@ -479,7 +480,7 @@ export class AppBridge {
   private async onIncoming(start: Roomr.SessionStart, control: ControlStream) {
     const headers = start.headers ?? {};
     const roomRef = start.roomRef;
-    const to = start.to ?? "";
+    const to = calledNumber(start);
     const appRef = headerValue(headers, "X-App-Ref");
     // A callRef that names a live call never joins it, here or on another replica (the session
     // registry): the new call gets its own ref, its room's (RV-B7).

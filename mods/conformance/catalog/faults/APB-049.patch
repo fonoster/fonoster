@@ -1,0 +1,11 @@
+--- a/mods/appbridge/src/AppBridge.ts
++++ b/mods/appbridge/src/AppBridge.ts
+@@ -480,7 +480,7 @@
+   private async onIncoming(start: Roomr.SessionStart, control: ControlStream) {
+     const headers = start.headers ?? {};
+     const roomRef = start.roomRef;
+-    const to = calledNumber(start);
++    const to = start.to ?? "";
+     const appRef = headerValue(headers, "X-App-Ref");
+     // A callRef that names a live call never joins it, here or on another replica (the session
+     // registry): the new call gets its own ref, its room's (RV-B7).

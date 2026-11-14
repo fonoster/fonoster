@@ -53,7 +53,7 @@ goog.exportSymbol('proto.fonoster.numbers.v1beta2.UpdateNumberResponse', null, g
  * @constructor
  */
 proto.fonoster.numbers.v1beta2.Number = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.fonoster.numbers.v1beta2.Number.oneofGroups_);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonoster.numbers.v1beta2.Number.repeatedFields_, proto.fonoster.numbers.v1beta2.Number.oneofGroups_);
 };
 goog.inherits(proto.fonoster.numbers.v1beta2.Number, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -95,7 +95,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.fonoster.numbers.v1beta2.CreateNumberRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.fonoster.numbers.v1beta2.CreateNumberRequest.oneofGroups_);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonoster.numbers.v1beta2.CreateNumberRequest.repeatedFields_, proto.fonoster.numbers.v1beta2.CreateNumberRequest.oneofGroups_);
 };
 goog.inherits(proto.fonoster.numbers.v1beta2.CreateNumberRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -137,7 +137,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.fonoster.numbers.v1beta2.UpdateNumberRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.fonoster.numbers.v1beta2.UpdateNumberRequest.oneofGroups_);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonoster.numbers.v1beta2.UpdateNumberRequest.repeatedFields_, proto.fonoster.numbers.v1beta2.UpdateNumberRequest.oneofGroups_);
 };
 goog.inherits(proto.fonoster.numbers.v1beta2.UpdateNumberRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -380,6 +380,13 @@ if (goog.DEBUG && !COMPILED) {
 }
 
 /**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonoster.numbers.v1beta2.Number.repeatedFields_ = [12];
+
+/**
  * Oneof group definitions for this message. Each group defines the field
  * numbers belonging to that group. When of these fields' value is set, all
  * other fields in the group are cleared. During deserialization, if multiple
@@ -446,7 +453,8 @@ createdAt: jspb.Message.getFieldWithDefault(msg, 7, 0),
 updatedAt: jspb.Message.getFieldWithDefault(msg, 8, 0),
 trunk: (f = msg.getTrunk()) && proto.fonoster.numbers.v1beta2.Number.Trunk.toObject(includeInstance, f),
 agentAor: (f = jspb.Message.getField(msg, 10)) == null ? undefined : f,
-appRef: (f = jspb.Message.getField(msg, 11)) == null ? undefined : f
+appRef: (f = jspb.Message.getField(msg, 11)) == null ? undefined : f,
+aliasesList: (f = jspb.Message.getRepeatedField(msg, 12)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -527,6 +535,10 @@ proto.fonoster.numbers.v1beta2.Number.deserializeBinaryFromReader = function(msg
     case 11:
       var value = /** @type {string} */ (reader.readString());
       msg.setAppRef(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addAliases(value);
       break;
     default:
       reader.skipField();
@@ -632,6 +644,13 @@ proto.fonoster.numbers.v1beta2.Number.serializeBinaryToWriter = function(message
   if (f != null) {
     writer.writeString(
       11,
+      f
+    );
+  }
+  f = message.getAliasesList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      12,
       f
     );
   }
@@ -1051,6 +1070,50 @@ proto.fonoster.numbers.v1beta2.Number.prototype.hasAppRef = function() {
 };
 
 
+/**
+ * repeated string aliases = 12;
+ * @return {!Array<string>}
+ */
+proto.fonoster.numbers.v1beta2.Number.prototype.getAliasesList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 12));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonoster.numbers.v1beta2.Number} returns this
+ */
+proto.fonoster.numbers.v1beta2.Number.prototype.setAliasesList = function(value) {
+  return jspb.Message.setField(this, 12, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonoster.numbers.v1beta2.Number} returns this
+ */
+proto.fonoster.numbers.v1beta2.Number.prototype.addAliases = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 12, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonoster.numbers.v1beta2.Number} returns this
+ */
+proto.fonoster.numbers.v1beta2.Number.prototype.clearAliasesList = function() {
+  return this.setAliasesList([]);
+};
+
+
+
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonoster.numbers.v1beta2.CreateNumberRequest.repeatedFields_ = [9];
 
 /**
  * Oneof group definitions for this message. Each group defines the field
@@ -1116,7 +1179,8 @@ country: jspb.Message.getFieldWithDefault(msg, 4, ""),
 countryIsoCode: jspb.Message.getFieldWithDefault(msg, 5, ""),
 trunkRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
 agentAor: (f = jspb.Message.getField(msg, 7)) == null ? undefined : f,
-appRef: (f = jspb.Message.getField(msg, 8)) == null ? undefined : f
+appRef: (f = jspb.Message.getField(msg, 8)) == null ? undefined : f,
+aliasesList: (f = jspb.Message.getRepeatedField(msg, 9)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1184,6 +1248,10 @@ proto.fonoster.numbers.v1beta2.CreateNumberRequest.deserializeBinaryFromReader =
     case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.setAppRef(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addAliases(value);
       break;
     default:
       reader.skipField();
@@ -1267,6 +1335,13 @@ proto.fonoster.numbers.v1beta2.CreateNumberRequest.serializeBinaryToWriter = fun
   if (f != null) {
     writer.writeString(
       8,
+      f
+    );
+  }
+  f = message.getAliasesList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      9,
       f
     );
   }
@@ -1453,6 +1528,43 @@ proto.fonoster.numbers.v1beta2.CreateNumberRequest.prototype.hasAppRef = functio
 };
 
 
+/**
+ * repeated string aliases = 9;
+ * @return {!Array<string>}
+ */
+proto.fonoster.numbers.v1beta2.CreateNumberRequest.prototype.getAliasesList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 9));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonoster.numbers.v1beta2.CreateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.CreateNumberRequest.prototype.setAliasesList = function(value) {
+  return jspb.Message.setField(this, 9, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonoster.numbers.v1beta2.CreateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.CreateNumberRequest.prototype.addAliases = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 9, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonoster.numbers.v1beta2.CreateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.CreateNumberRequest.prototype.clearAliasesList = function() {
+  return this.setAliasesList([]);
+};
+
+
 
 
 
@@ -1585,6 +1697,13 @@ proto.fonoster.numbers.v1beta2.CreateNumberResponse.prototype.setRef = function(
 
 
 /**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.repeatedFields_ = [6];
+
+/**
  * Oneof group definitions for this message. Each group defines the field
  * numbers belonging to that group. When of these fields' value is set, all
  * other fields in the group are cleared. During deserialization, if multiple
@@ -1645,7 +1764,9 @@ ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 name: jspb.Message.getFieldWithDefault(msg, 2, ""),
 trunkRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
 agentAor: (f = jspb.Message.getField(msg, 4)) == null ? undefined : f,
-appRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f
+appRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f,
+aliasesList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f,
+clearAliases: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -1701,6 +1822,14 @@ proto.fonoster.numbers.v1beta2.UpdateNumberRequest.deserializeBinaryFromReader =
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setAppRef(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addAliases(value);
+      break;
+    case 7:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setClearAliases(value);
       break;
     default:
       reader.skipField();
@@ -1763,6 +1892,20 @@ proto.fonoster.numbers.v1beta2.UpdateNumberRequest.serializeBinaryToWriter = fun
   if (f != null) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getAliasesList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      6,
+      f
+    );
+  }
+  f = message.getClearAliases();
+  if (f) {
+    writer.writeBool(
+      7,
       f
     );
   }
@@ -1892,6 +2035,61 @@ proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.clearAppRef = funct
  */
 proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.hasAppRef = function() {
   return jspb.Message.getField(this, 5) != null;
+};
+
+
+/**
+ * repeated string aliases = 6;
+ * @return {!Array<string>}
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.getAliasesList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 6));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonoster.numbers.v1beta2.UpdateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.setAliasesList = function(value) {
+  return jspb.Message.setField(this, 6, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonoster.numbers.v1beta2.UpdateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.addAliases = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 6, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonoster.numbers.v1beta2.UpdateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.clearAliasesList = function() {
+  return this.setAliasesList([]);
+};
+
+
+/**
+ * optional bool clear_aliases = 7;
+ * @return {boolean}
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.getClearAliases = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.fonoster.numbers.v1beta2.UpdateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.setClearAliases = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 

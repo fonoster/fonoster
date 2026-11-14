@@ -53,6 +53,20 @@ message TrunkURI {
 } 
 
 // The message for the Trunk resource
+// How a number is written on outbound calls to the carrier
+enum NumberFormat {
+  // As routed (leave as is)
+  NUMBER_FORMAT_UNSPECIFIED = 0;
+  // +442079460018
+  E164 = 1;
+  // 442079460018
+  E164_WITHOUT_PLUS = 2;
+  // 02079460018; a number of another country in international form
+  NATIONAL = 3;
+  // 00442079460018: the international prefix of the Number's country
+  INTERNATIONAL = 4;
+}
+
 message Trunk {
   message Acl {
     // The reference of the AccessControlList
@@ -92,6 +106,14 @@ message Trunk {
   Credentials outbound_credentials = 9;
   // The list of URIs for the Trunk
   repeated TrunkURI uris = 10;
+  // How the called number is written on outbound calls to the carrier
+  NumberFormat called_number_format = 11;
+  // Digits, * or # added in front of the called number (only with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL)
+  string called_number_prefix = 12;
+  // How the caller number is written on outbound calls to the carrier
+  NumberFormat caller_number_format = 13;
+  // Digits, * or # added in front of the caller number (only with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL)
+  string caller_number_prefix = 14;
 }
 
 // The message for the Trunk.Create
@@ -110,6 +132,14 @@ message CreateTrunkRequest {
   string outbound_credentials_ref = 6;
   // The list of URIs for the Trunk
   repeated TrunkURI uris = 7;
+  // How the called number is written on outbound calls to the carrier
+  NumberFormat called_number_format = 8;
+  // Digits, * or # added in front of the called number (only with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL)
+  string called_number_prefix = 9;
+  // How the caller number is written on outbound calls to the carrier
+  NumberFormat caller_number_format = 10;
+  // Digits, * or # added in front of the caller number (only with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL)
+  string caller_number_prefix = 11;
 }
 
 // The message for the Trunk.CreateTrunk response
@@ -136,6 +166,14 @@ message UpdateTrunkRequest {
   string outbound_credentials_ref = 7;
   // The list of URIs for the Trunk
   repeated TrunkURI uris = 8;
+  // How the called number is written on outbound calls to the carrier
+  optional NumberFormat called_number_format = 9;
+  // Digits, * or # added in front of the called number (only with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL)
+  optional string called_number_prefix = 10;
+  // How the caller number is written on outbound calls to the carrier
+  optional NumberFormat caller_number_format = 11;
+  // Digits, * or # added in front of the caller number (only with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL)
+  optional string caller_number_prefix = 12;
 }
 
 // The message for the Trunk.UpdateTrunk response

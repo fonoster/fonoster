@@ -34,6 +34,7 @@ function convertToFonosterNumber(number: INumberExtended): INumber {
     country: number.country,
     countryIsoCode: number.countryIsoCode,
     trunk: number.trunk,
+    aliases: number.aliases ?? [],
     createdAt: new Date(number.createdAt * 1000),
     updatedAt: new Date(number.updatedAt * 1000)
   };

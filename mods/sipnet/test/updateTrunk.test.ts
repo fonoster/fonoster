@@ -16,8 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { TrunkApi } from "@fonoster/types";
+import * as grpc from "@grpc/grpc-js";
 import { expect } from "chai";
-import { mergeTrunkUpdate } from "../src/trunks/operations";
+import { createSandbox, SinonStub } from "sinon";
+import {
+  getTrunk,
+  mergeTrunkUpdate,
+  updateTrunk
+} from "../src/trunks/operations";
+import { TEST_TOKEN } from "./testToken";
+
+const sandbox = createSandbox();
+const ACCESS_KEY_ID = "GRahn02s8tgdfghz72vb0fz538qpb5z35p";
 
 describe("@sipnet[trunks/updateTrunk]", function () {
   const current = {
@@ -64,6 +75,98 @@ describe("@sipnet[trunks/updateTrunk]", function () {
       name: "Carrier",
       inboundUri: "new.example.com",
       sendRegister: false
+    });
+  });
+
+  describe("number formats", function () {
+    afterEach(() => sandbox.restore());
+
+    // Routr's Trunk API, as @routr/sdk returns it: Routr's format names
+    function routr(stored: Record<string, unknown> = {}) {
+      return {
+        getTrunk: sandbox.stub().resolves({
+          ...current,
+          extended: { accessKeyId: ACCESS_KEY_ID },
+          ...stored
+        }),
+        updateTrunk: sandbox.stub().resolves({ ref: "t-1" })
+      } as unknown as TrunkApi;
+    }
+
+    async function update(trunks: TrunkApi, request: Record<string, unknown>) {
+      const metadata = new grpc.Metadata();
+      metadata.set("token", TEST_TOKEN);
+      metadata.set("accessKeyId", ACCESS_KEY_ID);
+      const callback = sandbox.stub();
+      await updateTrunk(trunks)(
+        { metadata, request: { ref: "t-1", ...request } } as never,
+        callback
+      );
+      return (trunks.updateTrunk as SinonStub).firstCall?.args[0];
+    }
+
+    it("sends every format by name, Routr's UNSPECIFIED for leave as is", async function () {
+      for (const name of [
+        "E164",
+        "E164_WITHOUT_PLUS",
+        "NATIONAL",
+        "INTERNATIONAL"
+      ]) {
+        const sent = await update(routr(), { calledNumberFormat: name });
+        expect(sent.calledNumberFormat).to.equal(name);
+        sandbox.restore();
+      }
+      const sent = await update(routr(), {
+        calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+        calledNumberPrefix: ""
+      });
+      expect(sent).to.deep.include({
+        calledNumberFormat: "UNSPECIFIED",
+        calledNumberPrefix: ""
+      });
+    });
+
+    it("leaves an absent format or prefix absent, so Routr keeps it", async function () {
+      const sent = await update(
+        routr({ calledNumberFormat: "NATIONAL", calledNumberPrefix: "9" }),
+        { name: "Renamed" }
+      );
+      expect(sent).to.not.have.property("calledNumberFormat");
+      expect(sent).to.not.have.property("calledNumberPrefix");
+      expect(sent).to.not.have.property("callerNumberFormat");
+    });
+
+    it("never fills an empty prefix with the stored one", function () {
+      const merged = mergeTrunkUpdate(
+        {
+          ref: "t-1",
+          calledNumberFormat: "NUMBER_FORMAT_UNSPECIFIED",
+          calledNumberPrefix: ""
+        } as never,
+        { ...current, calledNumberPrefix: "9" } as never
+      );
+      expect(merged).to.deep.include({ calledNumberPrefix: "" });
+    });
+
+    it("reads Routr's names back as Fonoster's", async function () {
+      const trunks = routr({
+        calledNumberFormat: "INTERNATIONAL",
+        calledNumberPrefix: "9#",
+        callerNumberFormat: "UNSPECIFIED"
+      });
+      const metadata = new grpc.Metadata();
+      metadata.set("token", TEST_TOKEN);
+      metadata.set("accessKeyId", ACCESS_KEY_ID);
+      const callback = sandbox.stub();
+      await getTrunk(trunks)(
+        { metadata, request: { ref: "t-1" } } as never,
+        callback
+      );
+      expect(callback.firstCall.args[1]).to.deep.include({
+        calledNumberFormat: "INTERNATIONAL",
+        calledNumberPrefix: "9#",
+        callerNumberFormat: "NUMBER_FORMAT_UNSPECIFIED"
+      });
     });
   });
 });

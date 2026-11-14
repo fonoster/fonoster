@@ -46,6 +46,8 @@ function convertToRoutrNumber(
         ]
       : [],
     trunkRef: number.trunkRef,
+    // Routr keeps the aliases unique per Trunk and answers INVALID_ARGUMENT otherwise
+    ...(number.aliases?.length ? { aliases: number.aliases } : {}),
     extended: { accessKeyId } as Record<string, unknown>
   };
 }
@@ -73,7 +75,10 @@ function convertToRoutrNumberUpdate(
     name: number.name,
     aorLink,
     extraHeaders,
-    trunkRef: number.trunkRef
+    trunkRef: number.trunkRef,
+    // A non-empty list replaces the aliases, an empty one keeps them; clearAliases removes them
+    ...(number.aliases?.length ? { aliases: number.aliases } : {}),
+    ...(number.clearAliases ? { clearAliases: true } : {})
   };
 }
 

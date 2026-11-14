@@ -49,6 +49,17 @@ import {
 } from "./generated/node/numbers_pb";
 
 /**
+ * protobuf names a repeated string "aliasesList" and objectToJson renames only lists of
+ * messages; the SDK's types say "aliases", and a Number without aliases reads [].
+ */
+function withAliases(number: INumber): INumber {
+  const { aliasesList, ...rest } = number as INumber & {
+    aliasesList?: string[];
+  };
+  return { ...rest, aliases: number.aliases ?? aliasesList ?? [] };
+}
+
+/**
  * @classdesc Fonoster Numbers, part of the Fonoster SIP Proxy subsystem,
  * allows you to create, update, retrieve, and delete SIP Number for your deployment.
  * Note that an active Fonoster deployment is required.
@@ -169,7 +180,7 @@ class Numbers {
     });
 
     // The trunk comes back as a plain object (objectToJson).
-    return response ?? null;
+    return response && withAliases(response);
   }
 
   /**
@@ -240,7 +251,10 @@ class Numbers {
       metadata: this.client.getMetadata(),
       request,
       repeatableObjectMapping: [["itemsList", NumberPB]]
-    });
+    }).then((response) => ({
+      ...response,
+      items: response.items?.map(withAliases)
+    }));
   }
 
   /**

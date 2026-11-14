@@ -33,6 +33,7 @@ export const RESERVED_SIP_HEADERS: ReadonlySet<string> = new Set(
     "X-Call-Direction",
     "X-Dod-Number",
     "X-Dod-Privacy",
+    "X-DID-Number",
     "X-Access-Key-Id",
     "X-Is-Api-Originated-Type",
     "X-Connect-Token",

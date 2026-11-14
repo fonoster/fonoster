@@ -33,9 +33,47 @@ import {
   DeleteTrunkResponse as DeleteTrunkResponsePB,
   GetTrunkRequest as GetTrunkRequestPB,
   ListTrunksRequest as ListTrunksRequestPB,
+  NumberFormat as NumberFormatPB,
   TrunkURI,
   UpdateTrunkRequest as UpdateTrunkRequestPB
 } from "./generated/node/trunks_pb";
+
+type NumberFormats = {
+  calledNumberFormat?: string;
+  calledNumberPrefix?: string;
+  callerNumberFormat?: string;
+  callerNumberPrefix?: string;
+};
+
+/**
+ * Sets the number formats a request names, and only those: on an update an absent field keeps
+ * the stored value, while NUMBER_FORMAT_UNSPECIFIED and "" are sent (they reset and clear).
+ */
+function setNumberFormats(
+  pb: CreateTrunkRequestPB | UpdateTrunkRequestPB,
+  request: NumberFormats
+) {
+  if (request.calledNumberFormat !== undefined)
+    pb.setCalledNumberFormat(NumberFormatPB[request.calledNumberFormat]);
+  if (request.calledNumberPrefix !== undefined)
+    pb.setCalledNumberPrefix(request.calledNumberPrefix);
+  if (request.callerNumberFormat !== undefined)
+    pb.setCallerNumberFormat(NumberFormatPB[request.callerNumberFormat]);
+  if (request.callerNumberPrefix !== undefined)
+    pb.setCallerNumberPrefix(request.callerNumberPrefix);
+}
+
+const formatName = (value: number) =>
+  Object.keys(NumberFormatPB).find((name) => NumberFormatPB[name] === value);
+
+/** A Trunk's number formats by name (toObject() gives the enum's numbers). */
+function withFormatNames<T extends Record<string, unknown>>(obj: T): T {
+  return {
+    ...obj,
+    calledNumberFormat: formatName(obj.calledNumberFormat as number),
+    callerNumberFormat: formatName(obj.callerNumberFormat as number)
+  };
+}
 
 /**
  * @classdesc Fonoster Trunks, part of the Fonoster SIP Proxy subsystem,
@@ -148,6 +186,7 @@ class Trunks {
       current.setEnabled(uri.enabled);
       createTrunkRequest.addUris(current);
     });
+    setNumberFormats(createTrunkRequest, request);
 
     return new Promise((resolve, reject) => {
       client.createTrunk(
@@ -194,7 +233,7 @@ class Trunks {
             return;
           }
 
-          const obj = response.toObject();
+          const obj = withFormatNames(response.toObject());
           const outObj = {
             ...obj,
             accessControlListRef: obj.accessControlList?.ref,
@@ -282,6 +321,7 @@ class Trunks {
       current.setEnabled(uri.enabled);
       updateTrunkRequest.addUris(current);
     });
+    setNumberFormats(updateTrunkRequest, request);
 
     return new Promise((resolve, reject) => {
       client.updateTrunk(
@@ -335,7 +375,7 @@ class Trunks {
           }
 
           const items = response.getItemsList().map((item) => {
-            const obj = item.toObject();
+            const obj = withFormatNames(item.toObject());
             const outObj = {
               ...obj,
               uris: obj.urisList,

@@ -27,6 +27,7 @@ tests:
   - mods/appbridge/test/gonode.test.ts
   - mods/appbridge/test/admission.test.ts
   - mods/appbridge/test/workspaceDeleted.test.ts
+  - mods/appbridge/test/calledNumber.test.ts
   - mods/appbridge/test/applicationsApi.test.ts
   - mods/appbridge/test/usageReport.test.ts
   - mods/appbridge/test/replayTool.test.ts
@@ -826,3 +827,17 @@ the NATS connection's `workspaces.deleted` request that answers deleted, not del
 
 **Pass.** A deleted workspace's call is rejected with 404 (never 200), reaches neither admission nor the app, and records and sends `call.failed` with reason `workspace_deleted`; a second call within 60 s is refused without a new request; a live workspace is asked on every call and runs; no answer within 300 ms, an error, no responders or a malformed reply admit the call and log `admitted without a workspace check`; an app without a workspace makes no request. **Fail.** A deleted workspace's call answered, a live one refused, or a missing answer that holds the call up or refuses it.
 
+
+### APB-049 The called number of a call from a Trunk is the matched Number
+
+- **Spec:** voice-session / The called number of a call from a Trunk is the matched Number / A carrier writes the number another way
+- **Spec:** voice-session / The called number of a call from a Trunk is the matched Number / No matched Number in the headers
+- **Priority:** P0
+- **Proof:** Take the called number from the To user again (`onIncoming` in `AppBridge.ts`); the test must go red on the `02079460018` call.
+- **Fault:** faults/APB-049.patch
+- **Test:** mods/appbridge/test/calledNumber.test.ts
+
+The fake Roomr node offers inbound calls with `X-Call-Direction` and `X-DID-Number` as Routr 2.34 sends
+them and a To user the carrier wrote another way; admission is a recording fake that admits.
+
+**Pass.** With `X-Call-Direction: from-pstn` and `X-DID-Number: +442079460018`, the call record's `call.started`, the `call.started` webhook, admission and the session's `to` read `+442079460018` for the To users `02079460018` and `sales`; without `X-DID-Number`, or with it on an `agent-to-peer` call, they read the To user. **Fail.** Any of them reads the carrier's To on a from-pstn call with `X-DID-Number`, or trusts `X-DID-Number` on another direction.

@@ -37,6 +37,7 @@ describe("@common[validators/sip]", function () {
       "X-App-Ref",
       "x-call-ref",
       "X-DOD-Number",
+      "x-did-number",
       "X-Access-Key-Id",
       "X-Is-Api-Originated-Type",
       "X-Connect-Token",

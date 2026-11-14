@@ -30,6 +30,28 @@ enum Transport {
   WSS = "WSS"
 }
 
+/** How a number is written on outbound calls to the carrier. */
+enum NumberFormat {
+  /** As routed (leave as is). */
+  NUMBER_FORMAT_UNSPECIFIED = "NUMBER_FORMAT_UNSPECIFIED",
+  /** +442079460018 */
+  E164 = "E164",
+  /** 442079460018 */
+  E164_WITHOUT_PLUS = "E164_WITHOUT_PLUS",
+  /** 02079460018; a number of another country in international form. */
+  NATIONAL = "NATIONAL",
+  /** 00442079460018: the international prefix of the Number's country. */
+  INTERNATIONAL = "INTERNATIONAL"
+}
+
+/** A Trunk's outbound number formats; a prefix (digits, * and #) needs E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL. */
+type TrunkNumberFormats = {
+  calledNumberFormat?: NumberFormat;
+  calledNumberPrefix?: string;
+  callerNumberFormat?: NumberFormat;
+  callerNumberPrefix?: string;
+};
+
 type TrunkURI = {
   host: string;
   port: number;
@@ -51,7 +73,7 @@ type Trunk = {
   uris?: TrunkURI[];
   createdAt: Date;
   updatedAt: Date;
-};
+} & TrunkNumberFormats;
 
 type TrunkExtended = RenameAndConvertToTimestamp<Trunk> & {
   accessControlList?: AclExtended;
@@ -68,7 +90,7 @@ type CreateTrunkRequest = {
   inboundCredentialsRef?: string;
   outboundCredentialsRef?: string;
   uris?: TrunkURI[];
-};
+} & TrunkNumberFormats;
 
 type CreateTrunkRequestExtended = CreateTrunkRequest & {
   extended?: Record<string, unknown>;
@@ -95,9 +117,11 @@ export {
   CreateTrunkRequestExtended,
   ListTrunksRequest,
   ListTrunksResponse,
+  NumberFormat,
   Transport,
   Trunk,
   TrunkApi,
   TrunkExtended,
+  TrunkNumberFormats,
   UpdateTrunkRequest
 };

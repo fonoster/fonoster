@@ -35,7 +35,9 @@ const createNumberRequestSchema = z
     country: z.string(),
     agentAor: sipUriSchema.optional(),
     appRef: z.string().optional(),
-    countryIsoCode: countryIsoCodeSchema
+    countryIsoCode: countryIsoCodeSchema,
+    // Routr checks each alias and that it is unique on the Trunk
+    aliases: z.array(z.string()).optional()
   })
   .refine(
     ({ agentAor, appRef }) => !(agentAor !== undefined && appRef !== undefined),
@@ -49,7 +51,9 @@ const updateNumberRequestSchema = z
   .object({
     name: nameSchema.optional(),
     agentAor: sipUriSchema.optional(),
-    appRef: z.string().optional()
+    appRef: z.string().optional(),
+    aliases: z.array(z.string()).optional(),
+    clearAliases: z.boolean().optional()
   })
   .refine(
     ({ agentAor, appRef }) => !(agentAor !== undefined && appRef !== undefined),

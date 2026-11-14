@@ -22,6 +22,7 @@ import { confirm, input, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
+import { parseAliases } from "../../../utils/parseAliases";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "modify the configuration of a Number";
@@ -73,6 +74,15 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
         choices: [{ name: "None", value: null }].concat(trunksList),
         default: applicationFromDB.trunk?.ref
       }),
+      aliases: parseAliases(
+        await input({
+          message: "Aliases (comma-separated, empty keeps them)",
+          default: applicationFromDB.aliases?.join(", ") || undefined
+        })
+      ),
+      clearAliases: applicationFromDB.aliases?.length
+        ? await confirm({ message: "Remove all aliases?", default: false })
+        : false,
       appRef: await select({
         message: "Application",
         choices: [{ name: "None", value: null }].concat(applicationsList),

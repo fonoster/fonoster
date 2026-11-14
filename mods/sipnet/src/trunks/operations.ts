@@ -31,12 +31,35 @@ import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
 import { listResources } from "../resources/listResources";
 import { updateResource } from "../resources/updateResource";
+import { toFonosterNumberFormats, toRoutrNumberFormats } from "./numberFormats";
 
 const RESOURCE = "Trunk";
 
+/**
+ * Routr's Trunk API with the number formats in Fonoster's names both ways: requests go out with
+ * Routr's, Trunks come back with Fonoster's.
+ */
+function withNumberFormats(trunks: TrunkApi): TrunkApi {
+  return {
+    ...trunks,
+    createTrunk: (request) => trunks.createTrunk(toRoutrNumberFormats(request)),
+    updateTrunk: (request) => trunks.updateTrunk(toRoutrNumberFormats(request)),
+    getTrunk: async (ref) =>
+      toFonosterNumberFormats(await trunks.getTrunk(ref)),
+    listTrunks: async (request) => {
+      const response = await trunks.listTrunks(request);
+      return {
+        ...response,
+        items: response.items.map(toFonosterNumberFormats)
+      };
+    },
+    deleteTrunk: (ref) => trunks.deleteTrunk(ref)
+  };
+}
+
 function createTrunk(trunks: TrunkApi, checkRefs?: CheckRefs) {
   return createResource<TrunkExtended, CreateTrunkRequestExtended, TrunkApi>(
-    trunks,
+    withNumberFormats(trunks),
     RESOURCE,
     V.createTrunkRequestSchema,
     refsChecker(checkRefs, trunkRefs)
@@ -50,6 +73,8 @@ const blank = (v: unknown) =>
  * A partial update: fields the request leaves blank keep their current value (proto3 sends ""
  * and [] for fields not set, and Routr rejects a trunk without a name or inbound URI). Clearing
  * the URIs or a reference through an update is therefore not possible; recreate the trunk.
+ * The number formats and prefixes are not in this list: they are `optional` in the proto, so an
+ * absent one stays absent (Routr keeps it) and `""` or NUMBER_FORMAT_UNSPECIFIED reaches Routr.
  */
 export function mergeTrunkUpdate(
   request: UpdateTrunkRequest,
@@ -70,7 +95,8 @@ export function mergeTrunkUpdate(
   return merged as UpdateTrunkRequest;
 }
 
-function updateTrunk(trunks: TrunkApi, checkRefs?: CheckRefs) {
+function updateTrunk(routrTrunks: TrunkApi, checkRefs?: CheckRefs) {
+  const trunks = withNumberFormats(routrTrunks);
   const partial = {
     ...trunks,
     getTrunk: (ref: string) => trunks.getTrunk(ref),
@@ -88,12 +114,15 @@ function updateTrunk(trunks: TrunkApi, checkRefs?: CheckRefs) {
 }
 
 function getTrunk(trunks: TrunkApi) {
-  return getResource<TrunkExtended, BaseApiObject, TrunkApi>(trunks, RESOURCE);
+  return getResource<TrunkExtended, BaseApiObject, TrunkApi>(
+    withNumberFormats(trunks),
+    RESOURCE
+  );
 }
 
 function listTrunks(trunks: TrunkApi) {
   return listResources<TrunkExtended, ListTrunksRequest, TrunkApi>(
-    trunks,
+    withNumberFormats(trunks),
     RESOURCE
   );
 }
