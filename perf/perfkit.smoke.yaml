@@ -42,7 +42,7 @@ benchmarks:
     narrative:
       what: About 30 concurrent speech calls with the same turn loop.
       why: Leaks only show after hours.
-      how: "Smoke run: SIPp holds 0.5 calls/s, 60 s each, PCMU audio, for 5 minutes. After a 5-minute warm-up, AppBridge's memory may grow at most 5 MB/h."
+      how: "Smoke run: SIPp holds 0.5 calls/s, 60 s each, PCMU audio, for 5 minutes. After a 5-minute warm-up, AppBridge's memory may grow at most 200 MB/h: too short a window to judge leaks, so this only catches runaway growth."
     duration: 5m
     warmup: 5m
     uut:
@@ -55,4 +55,4 @@ benchmarks:
       uac: { scenario: speech-soak/uac_invite.xml }
       hold: 60s
       rate: { cps: 0.5 }
-    thresholds: { memoryGrowthMBPerHour: 5, failedCallsPct: 0.1, restarts: 0 }
+    thresholds: { memoryGrowthMBPerHour: 200, failedCallsPct: 0.1, restarts: 0 }   # 5 min is too short for a leak verdict: garbage-collector noise alone is tens of MB/h; the full config keeps 5

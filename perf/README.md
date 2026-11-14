@@ -19,8 +19,9 @@ comparable across releases.
 | `speech-soak` | soak | About 100 concurrent speech calls for six hours (1.67 calls/s, 60 s each). | After a 30-minute warm-up, AppBridge's memory grows less than 5 MB/h, under 0.1% of calls fail, and AppBridge never restarts. |
 
 `perfkit.smoke.yaml` runs the same benchmarks, shortened: the ramp stops at 3 calls/s, and the
-soak holds about 30 calls for 5 minutes after a 5-minute warm-up. It checks the harness, not
-AppBridge's limits.
+soak holds about 30 calls for 5 minutes after a 5-minute warm-up, with a memory limit of
+200 MB/h instead of 5: over 5 minutes, garbage-collector noise alone measures tens of MB/h, so
+only runaway growth fails it. It checks the harness, not AppBridge's limits or leaks.
 
 ### The turn loop
 
