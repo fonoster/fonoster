@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { TrunkApi } from "@fonoster/types";
 import SDK from "@routr/sdk";
 import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
 import { withSipNameCheck } from "../resources/sipNames";
@@ -36,7 +37,8 @@ function buildService(
   clientOptions: ClientOptions,
   options: { namesRoot?: string } = {}
 ) {
-  const client = new SDK.Trunks(clientOptions);
+  // Routr's types name "leave as is" UNSPECIFIED; operations.ts maps the number formats both ways
+  const client = new SDK.Trunks(clientOptions) as unknown as TrunkApi;
   const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
   return {

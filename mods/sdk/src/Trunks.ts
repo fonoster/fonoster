@@ -140,6 +140,10 @@ class Trunks {
    * @param {number} request.uris[].weight - Optional weight of the Trunk
    * @param {number} request.uris[].priority - Optional priority of the Trunk
    * @param {boolean} request.uris[].enabled - Optional enabled of the Trunk
+   * @param {string} request.calledNumberFormat - Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL
+   * @param {string} request.calledNumberPrefix - Optional: 1 to 20 digits, * or #, with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL
+   * @param {string} request.callerNumberFormat - Optional: as calledNumberFormat, for the caller number
+   * @param {string} request.callerNumberPrefix - Optional: as calledNumberPrefix, for the caller number
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Trunk
    * @example
    * const trunks = new SDK.Trunks(client); // Existing client object
@@ -274,6 +278,10 @@ class Trunks {
    * @param {number} request.uris[].weight - Optional weight of the Trunk
    * @param {number} request.uris[].priority - Optional priority of the Trunk
    * @param {boolean} request.uris[].enabled - Optional enabled of the Trunk
+   * @param {string} request.calledNumberFormat - Optional: NUMBER_FORMAT_UNSPECIFIED, E164, E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL
+   * @param {string} request.calledNumberPrefix - Optional: 1 to 20 digits, * or #, with E164_WITHOUT_PLUS, NATIONAL or INTERNATIONAL
+   * @param {string} request.callerNumberFormat - Optional: as calledNumberFormat, for the caller number
+   * @param {string} request.callerNumberPrefix - Optional: as calledNumberPrefix, for the caller number
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Trunk
    * @example
    * const trunks = new SDK.Trunks(client); // Existing client object

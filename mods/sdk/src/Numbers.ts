@@ -118,6 +118,7 @@ class Numbers {
    * @param {string} request.city - The city of the Number
    * @param {string} request.country - The country of the Number
    * @param {string} request.countryIsoCode - The countryIsoCode of the Number
+   * @param {string[]} request.aliases - Optional: what the carrier sends instead of the number (e.g. 01234), unique on the Trunk
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Number
    * @example
    * const numbers = new SDK.Numbers(client); // Existing client object
@@ -189,6 +190,8 @@ class Numbers {
    * @param {UpdateNumberRequest} request - The request object that contains the necessary information to update an existing Number
    * @param {string} request.ref - The reference of the Number to update
    * @param {string} request.name - The name of the Number
+   * @param {string[]} request.aliases - Replaces the Number's aliases; an empty list keeps them
+   * @param {boolean} request.clearAliases - Removes every alias; wins over aliases
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Number
    * @example
    * const numbers = new SDK.Numbers(client); // Existing client object
