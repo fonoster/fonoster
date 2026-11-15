@@ -16,11 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CallsPausedReason } from "@fonoster/types";
 import { expect } from "chai";
 import { Billing } from "../src/Billing";
 import { FonosterClient } from "../src/client/types";
 import {
   BillingSummary,
+  CallsStatus,
   CreatePortalSessionResponse,
   CreditSource
 } from "../src/generated/node/billing_pb";
@@ -41,8 +43,21 @@ function summary(): BillingSummary {
   return BillingSummary.deserializeBinary(s.serializeBinary());
 }
 
+/** A calls status as the server would send it. */
+function callsStatus(paused: boolean, reason: string): () => CallsStatus {
+  return () => {
+    const s = new CallsStatus();
+    s.setPaused(paused);
+    s.setReason(reason);
+    return CallsStatus.deserializeBinary(s.serializeBinary());
+  };
+}
+
 /** A client whose Billing methods record the request and answer `answer()`. */
-function fakeClient(sent: Record<string, unknown>) {
+function fakeClient(
+  sent: Record<string, unknown>,
+  status = callsStatus(false, "")
+) {
   const method =
     (name: string, answer: () => unknown) =>
     (
@@ -60,6 +75,7 @@ function fakeClient(sent: Record<string, unknown>) {
       updateAutoRecharge: method("updateAutoRecharge", summary),
       createTopUp: method("createTopUp", summary),
       subscribe: method("subscribe", summary),
+      getCallsStatus: method("getCallsStatus", status),
       createPortalSession: method("createPortalSession", () => {
         const r = new CreatePortalSessionResponse();
         r.setUrl("https://billing.stripe.com/p/session/test");
@@ -116,5 +132,32 @@ describe("@sdk[billing]", function () {
     await billing.subscribe();
     expect(sent.getBilling.getOwnerRef()).to.equal("");
     expect(sent.subscribe.getOwnerRef()).to.equal("");
+  });
+
+  it("says whether calls are paused, and why", async function () {
+    const sent: Record<string, any> = {};
+    const paused = await new Billing(
+      fakeClient(sent, callsStatus(true, "trial_ended"))
+    ).getCallsStatus();
+    expect(paused).to.deep.equal({
+      paused: true,
+      reason: CallsPausedReason.TRIAL_ENDED
+    });
+    expect(sent.getCallsStatus.getAccessKeyId()).to.equal("");
+    const outOfCredits = await new Billing(
+      fakeClient(sent, callsStatus(true, "insufficient_balance"))
+    ).getCallsStatus();
+    expect(outOfCredits.reason).to.equal(
+      CallsPausedReason.INSUFFICIENT_BALANCE
+    );
+  });
+
+  it("has no reason when calls aren't paused or the reason is unknown", async function () {
+    const running = await new Billing(fakeClient({})).getCallsStatus();
+    expect(running).to.deep.equal({ paused: false, reason: undefined });
+    const unknown = await new Billing(
+      fakeClient({}, callsStatus(true, "something_new"))
+    ).getCallsStatus();
+    expect(unknown).to.deep.equal({ paused: true, reason: undefined });
   });
 });

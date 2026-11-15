@@ -66,9 +66,16 @@ export function ownerOfCall(call: unknown): string | undefined {
 
 /**
  * The Billing API for the dashboard (billing.proto), when billing is on: each call is passed to
- * the billing service with owner_ref set from the caller, never from the request.
+ * the billing service with owner_ref set from the caller, never from the request. GetCallsStatus
+ * is for anyone in the workspace (the authorization interceptor checks the role) and gets
+ * access_key_id from the call.
  */
-function buildService(address: string, ownerOf = ownerOfCall) {
+function buildService(
+  address: string,
+  ownerOf = ownerOfCall,
+  accessKeyIdOf: (call: unknown) => string | undefined = (call) =>
+    getAccessKeyIdFromCall(call as grpc.ServerInterceptingCall)
+) {
   const client = new (grpc.makeGenericClientConstructor(
     definition(),
     "Billing",
@@ -77,15 +84,26 @@ function buildService(address: string, ownerOf = ownerOfCall) {
     string,
     Forward
   >;
+  type Callback = (
+    error: grpc.ServiceError | null | Partial<grpc.ServiceError>,
+    response?: unknown
+  ) => void;
+  const send = (
+    method: string,
+    request: Record<string, unknown>,
+    callback: Callback
+  ) =>
+    client[method](request, (error, response) => {
+      if (error)
+        logger.verbose("billing call refused", { method, code: error.code });
+      callback(
+        error ? { code: error.code, message: error.details } : null,
+        response
+      );
+    });
   const forward =
     (method: (typeof METHODS)[number]) =>
-    (
-      call: { request: Record<string, unknown> },
-      callback: (
-        error: grpc.ServiceError | null | Partial<grpc.ServiceError>,
-        response?: unknown
-      ) => void
-    ) => {
+    (call: { request: Record<string, unknown> }, callback: Callback) => {
       const ownerRef = ownerOf(call);
       if (!ownerRef) {
         callback({
@@ -94,15 +112,17 @@ function buildService(address: string, ownerOf = ownerOfCall) {
         });
         return;
       }
-      client[method]({ ...call.request, ownerRef }, (error, response) => {
-        if (error)
-          logger.verbose("billing call refused", { method, code: error.code });
-        callback(
-          error ? { code: error.code, message: error.details } : null,
-          response
-        );
-      });
+      send(method, { ...call.request, ownerRef }, callback);
     };
+  const getCallsStatus = (
+    call: { request: Record<string, unknown> },
+    callback: Callback
+  ) =>
+    send(
+      "getCallsStatus",
+      { ...call.request, accessKeyId: accessKeyIdOf(call) },
+      callback
+    );
   return {
     definition: {
       serviceName: "Billing",
@@ -110,7 +130,10 @@ function buildService(address: string, ownerOf = ownerOfCall) {
       version: "v1beta2",
       proto: "billing.proto"
     },
-    handlers: Object.fromEntries(METHODS.map((m) => [m, forward(m)]))
+    handlers: {
+      ...Object.fromEntries(METHODS.map((m) => [m, forward(m)])),
+      getCallsStatus
+    }
   };
 }
 

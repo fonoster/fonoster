@@ -32,7 +32,8 @@ const ENUMS = [
   "AmdStatus",
   "ContactType",
   "Role",
-  "WorkspaceMemberStatus"
+  "WorkspaceMemberStatus",
+  "CallsPausedReason"
 ] as const;
 
 describe("@sdk/enums", function () {

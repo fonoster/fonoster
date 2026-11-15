@@ -33,6 +33,17 @@ function deserialize_fonoster_billing_v1beta2_BillingSummary(buffer_arg) {
   return billing_pb.BillingSummary.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_billing_v1beta2_CallsStatus(arg) {
+  if (!(arg instanceof billing_pb.CallsStatus)) {
+    throw new Error('Expected argument of type fonoster.billing.v1beta2.CallsStatus');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_billing_v1beta2_CallsStatus(buffer_arg) {
+  return billing_pb.CallsStatus.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_billing_v1beta2_CloseAccountRequest(arg) {
   if (!(arg instanceof billing_pb.CloseAccountRequest)) {
     throw new Error('Expected argument of type fonoster.billing.v1beta2.CloseAccountRequest');
@@ -99,6 +110,17 @@ function deserialize_fonoster_billing_v1beta2_GetBillingRequest(buffer_arg) {
   return billing_pb.GetBillingRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_billing_v1beta2_GetCallsStatusRequest(arg) {
+  if (!(arg instanceof billing_pb.GetCallsStatusRequest)) {
+    throw new Error('Expected argument of type fonoster.billing.v1beta2.GetCallsStatusRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_billing_v1beta2_GetCallsStatusRequest(buffer_arg) {
+  return billing_pb.GetCallsStatusRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_billing_v1beta2_SubscribeRequest(arg) {
   if (!(arg instanceof billing_pb.SubscribeRequest)) {
     throw new Error('Expected argument of type fonoster.billing.v1beta2.SubscribeRequest');
@@ -125,6 +147,8 @@ function deserialize_fonoster_billing_v1beta2_UpdateAutoRechargeRequest(buffer_a
 // Billing for Fonoster Cloud (add-billing-service): the owner's credits, plan, auto-recharge,
 // top-ups and the Stripe Customer Portal. The billing service serves it with owner_ref set; the
 // apiserver serves it to the dashboard for workspace owners and sets owner_ref from the caller.
+// GetCallsStatus is the exception: anyone in the workspace may call it, and the apiserver sets
+// access_key_id from the call.
 var BillingService = exports.BillingService = {
   // The balance by source, the plan and auto-recharge
 getBilling: {
@@ -198,6 +222,18 @@ closeAccount: {
     requestDeserialize: deserialize_fonoster_billing_v1beta2_CloseAccountRequest,
     responseSerialize: serialize_fonoster_billing_v1beta2_CloseAccountResponse,
     responseDeserialize: deserialize_fonoster_billing_v1beta2_CloseAccountResponse,
+  },
+  // Whether billing refuses new calls in the call's workspace, and why
+getCallsStatus: {
+    path: '/fonoster.billing.v1beta2.Billing/GetCallsStatus',
+    requestStream: false,
+    responseStream: false,
+    requestType: billing_pb.GetCallsStatusRequest,
+    responseType: billing_pb.CallsStatus,
+    requestSerialize: serialize_fonoster_billing_v1beta2_GetCallsStatusRequest,
+    requestDeserialize: deserialize_fonoster_billing_v1beta2_GetCallsStatusRequest,
+    responseSerialize: serialize_fonoster_billing_v1beta2_CallsStatus,
+    responseDeserialize: deserialize_fonoster_billing_v1beta2_CallsStatus,
   },
 };
 

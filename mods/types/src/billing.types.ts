@@ -19,6 +19,21 @@
 // Fonoster Cloud's billing (billing.proto), for the workspace owner. Amounts are credits
 // (1 credit = $0.01). There is no owner field: the account is always the caller's.
 
+/** Why billing refuses new calls in a workspace. */
+enum CallsPausedReason {
+  /** The owner's Trial ended; calls wait until they subscribe */
+  TRIAL_ENDED = "trial_ended",
+  /** The balance and its overdraft are used up */
+  INSUFFICIENT_BALANCE = "insufficient_balance"
+}
+
+/** Whether billing refuses new calls in the caller's workspace. Anyone in the workspace may ask. */
+type CallsStatus = {
+  paused: boolean;
+  /** Undefined when not paused, or for a reason this SDK doesn't know */
+  reason?: CallsPausedReason;
+};
+
 /** Where credits came from: the plan, a top-up or the Trial. */
 type CreditSource = {
   /** plan, topup or trial */
@@ -69,6 +84,8 @@ type CreatePortalSessionResponse = {
 
 export {
   BillingSummary,
+  CallsPausedReason,
+  CallsStatus,
   CreateTopUpRequest,
   CreatePortalSessionRequest,
   CreatePortalSessionResponse,

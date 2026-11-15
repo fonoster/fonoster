@@ -115,7 +115,7 @@ async function main() {
 
   const stripe = config.stripe ? createStripe(config.stripe) : undefined;
   await serveBillingApi(
-    billingApi({ prisma, plans: config.plans, clock, stripe }),
+    billingApi({ prisma, plans: config.plans, clock, stripe, directory }),
     config.grpc.bind,
     config.grpc.apiPort
   );
