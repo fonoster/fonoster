@@ -567,7 +567,7 @@ export class AppBridge {
           `call ${info.callRef}: admitted without a workspace check (${check.failed})`
         );
       else if (check.deleted)
-        return this.refuseInbound(call, app, to, "workspace_deleted", 404);
+        return this.refuseInbound(call, app, "workspace_deleted", 404);
     }
     // Admission while the caller hears ringing (add-billing-service D7); the node sent 180.
     if (this.admission) {
@@ -592,7 +592,6 @@ export class AppBridge {
         return this.refuseInbound(
           call,
           app,
-          to,
           decision.reason ?? "not_authorized",
           refusalStatus(decision.reason)
         );
@@ -609,11 +608,11 @@ export class AppBridge {
   private refuseInbound(
     call: Call,
     app: AppConfig,
-    to: string,
     reason: string,
     status: number
   ) {
-    const { callRef, from } = call.info;
+    // A browser test's parties are the token's caller and the agent, not the SIP leg's (#1060).
+    const { callRef, from, to } = call.info;
     logger.info(`call ${callRef}: refused (${reason})`);
     call.record("event", {
       type: "call.started",

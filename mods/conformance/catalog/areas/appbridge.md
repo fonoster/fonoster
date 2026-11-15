@@ -841,3 +841,19 @@ The fake Roomr node offers inbound calls with `X-Call-Direction` and `X-DID-Numb
 them and a To user the carrier wrote another way; admission is a recording fake that admits.
 
 **Pass.** With `X-Call-Direction: from-pstn` and `X-DID-Number: +442079460018`, the call record's `call.started`, the `call.started` webhook, admission and the session's `to` read `+442079460018` for the To users `02079460018` and `sales`; without `X-DID-Number`, or with it on an `agent-to-peer` call, they read the To user. **Fail.** Any of them reads the carrier's To on a from-pstn call with `X-DID-Number`, or trusts `X-DID-Number` on another direction.
+
+### APB-050 A refused browser test call records the caller and the agent
+
+- **Spec:** voice-session / Calls are admitted before they start / Browser test refused
+- **Priority:** P1
+- **Proof:** Pass the called number from the SIP leg (`to`) to the refusals again (`onIncoming` in `AppBridge.ts`); the test must go red on the refused test call.
+- **Fault:** faults/APB-050.patch
+- **Test:** mods/appbridge/test/admission.test.ts
+
+The fake Roomr node offers a browser test call to agent-a: a signed `X-Connect-Token` of workspace
+WO-A whose caller is ana@acme.io, and the To user `roomr`, the media node's internal name. A fake
+Authz refuses it with `trial_ended`.
+
+**Pass.** The call gets 402, and the `call.failed` webhook and the recorded `call.started` read
+`from: ana@acme.io` and `to: agent-a`, as an answered test call does (#1060). **Fail.** Either reads
+`to: roomr`, or another party than the token's caller.

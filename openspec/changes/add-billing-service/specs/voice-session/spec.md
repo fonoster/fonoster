@@ -17,6 +17,13 @@ SHALL ask the authorization service whether the session may start. A refusal SHA
   first), and nothing is billed
 - **AND** the workspace receives `call.failed` with `reason: "insufficient_balance"`
 
+#### Scenario: Browser test refused
+
+- **WHEN** a browser test to an agent is refused
+- **THEN** the recorded `call.started` and the `call.failed` webhook name the token's caller as
+  `from` and the agent's ref as `to`, as for an answered browser test, never the media node's
+  internal name
+
 #### Scenario: Outbound refused
 
 - **WHEN** `CreateCall` is refused with `concurrency_limit`
