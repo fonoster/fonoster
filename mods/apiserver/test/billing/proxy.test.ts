@@ -131,7 +131,7 @@ describe("@apiserver/billing proxy", function () {
     });
   });
 
-  it("[BIL-058] reads whether calls are paused for any caller, in the call's workspace", async () => {
+  it("[BIL-059] reads whether calls are paused for any caller, in the call's workspace", async () => {
     // Not the owner (ownerOf answers undefined), naming another workspace in the body.
     const { error, response } = await invoke(
       undefined,

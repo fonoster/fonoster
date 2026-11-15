@@ -70,7 +70,7 @@ describe("@common[identity/hasAccess]", function () {
     expect(hasAccess(member("WOabc"), UPDATE_USER)).to.be.false;
   });
 
-  it("[BIL-058] lets a member read paused calls only in their own workspace", function () {
+  it("[BIL-059] lets a member read paused calls only in their own workspace", function () {
     const token = {
       accessKeyId: "USabc",
       access: [{ accessKeyId: "WOa", role: Role.WORKSPACE_MEMBER }]
