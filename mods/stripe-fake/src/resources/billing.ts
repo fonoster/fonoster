@@ -357,7 +357,10 @@ export function finalize(fake: StripeFake, invoice: Json): Json {
   return invoice;
 }
 
-/** Attempts payment; on failure schedules the next retry and marks the subscription past due. */
+/**
+ * Attempts payment; on failure schedules the next retry and marks the subscription past due (a
+ * subscription's first invoice is not retried, and its subscription stays incomplete).
+ */
 export function pay(fake: StripeFake, invoice: Json): Json {
   const clock = fake.clockOf(invoice.customer as string);
   const now = fake.now(clock);
@@ -389,7 +392,10 @@ export function pay(fake: StripeFake, invoice: Json): Json {
     fake.update(invoice, { attempt_count: attempts, attempted: true });
     return markPaid(fake, invoice, sub, now, clock);
   }
-  const retry = RETRY_DAYS[attempts - 1];
+  // As on Stripe, a subscription's first invoice is not retried: the subscription stays
+  // `incomplete` until the invoice is paid (by hand or on the hosted page).
+  const first = invoice.billing_reason === "subscription_create";
+  const retry = first ? undefined : RETRY_DAYS[attempts - 1];
   const previous = fake.update(invoice, {
     attempt_count: attempts,
     attempted: true,
@@ -405,10 +411,10 @@ export function pay(fake: StripeFake, invoice: Json): Json {
   );
   if (sub) {
     const status =
-      retry === undefined
-        ? "unpaid"
-        : sub.status === "incomplete"
-          ? "incomplete"
+      first || sub.status === "incomplete"
+        ? "incomplete"
+        : retry === undefined
+          ? "unpaid"
           : "past_due";
     if (sub.status !== status) {
       const prev = fake.update(sub, { status });
