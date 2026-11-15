@@ -25,6 +25,7 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { notFoundError } from "../core/notFoundError";
 
 // Workspace webhook management (add-workspace-webhooks 2.1, 2.5; build log CP-B5). Endpoints and
 // the delivery log live in webhook_endpoints / webhook_deliveries; the AppBridge replicas' dispatchers read
@@ -45,10 +46,8 @@ export type WebhooksConfig = {
 
 const ROTATION_WINDOW_MS = 24 * 3600 * 1000;
 const INVALID_ARGUMENT = 3;
-const NOT_FOUND = 5;
 
 const invalid = (message: string) => ({ code: INVALID_ARGUMENT, message });
-const notFound = (message: string) => ({ code: NOT_FOUND, message });
 const seconds = (d?: Date | null) => (d ? Math.floor(d.getTime() / 1000) : 0);
 const hint = (secret: string) => `…${secret.slice(-4)}`;
 
@@ -122,7 +121,8 @@ export function createWebhooksHandlers(
     const row = await db.webhookEndpoint.findFirst({
       where: { ref, accessKeyId }
     });
-    if (!row) throw notFound(`webhook not found: ${ref}`);
+    if (!row)
+      throw notFoundError(`webhook not found: ${ref}`, { public: true });
     return row as Row;
   };
 
@@ -247,7 +247,8 @@ export function createWebhooksHandlers(
     const row = await db.webhookDelivery.findFirst({
       where: { ref, accessKeyId }
     });
-    if (!row) throw notFound(`delivery not found: ${ref}`);
+    if (!row)
+      throw notFoundError(`delivery not found: ${ref}`, { public: true });
     return row as Row;
   };
 

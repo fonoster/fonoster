@@ -92,6 +92,12 @@ New releases are listed newest first. For releases up to 0.27, see the
   after 30 days.** See [Delete a workspace](/workspace/access#delete-a-workspace). Workspaces
   deleted before this release aren't affected.
 
+## API
+
+- **Not-found errors now say what's missing**, such as `Application with ref … not found`,
+  instead of `The requested resource was not found`. Refs from another workspace still get the
+  generic message.
+
 ## Self-hosting
 
 - `fonoster-registry sync-voices deepgram|elevenlabs -f <file>` writes a vendor's voices into a
