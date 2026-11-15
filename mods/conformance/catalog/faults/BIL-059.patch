@@ -1,0 +1,12 @@
+diff --git a/mods/billing/src/api.ts b/mods/billing/src/api.ts
+--- a/mods/billing/src/api.ts
++++ b/mods/billing/src/api.ts
+@@ -136,7 +136,7 @@ export function billingApi(deps: ApiDeps) {
+         ? await prisma.billingAccount.findUnique({ where: { ownerRef: owner } })
+         : null;
+       const reason = a ? await pausedReason(prisma, a, plans) : undefined;
+-      return { paused: Boolean(reason), reason: reason ?? "" };
++      return { paused: false && Boolean(reason), reason: "" };
+     },
+ 
+     async updateAutoRecharge(r: {

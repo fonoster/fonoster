@@ -122,11 +122,43 @@ const topupPurpose = (invoice: Stripe.Invoice) => {
   return purpose === "topup" || purpose === "recharge" ? purpose : undefined;
 };
 
+/** A subscription's first invoice: billing keeps no subscription whose first payment failed. */
+const isFirstInvoice = (invoice: Stripe.Invoice) =>
+  invoice.billing_reason === "subscription_create";
+
+/** The invoice's subscription id (Stripe sends an id or the expanded object). */
+const subscriptionOf = (invoice: Stripe.Invoice) => {
+  const s = invoice.parent?.subscription_details?.subscription;
+  return typeof s === "string" ? s : s?.id;
+};
+
 /** A paid subscription invoice starts a period: its plan credits, here and in Stripe (D9). */
 async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
   if (topupPurpose(invoice)) return topupPaid(tx, deps, invoice);
   const account = await accountOfCustomer(tx, invoice.customer);
   if (!account) return;
+  // A first invoice is paid after its subscription was stored, or instead of it (paid later on
+  // Stripe's page, or applied before the outbox stored the id): that subscription is the plan's. Paid
+  // for a subscription the account replaced since, it is canceled and an operator refunds it.
+  const subscription = isFirstInvoice(invoice)
+    ? subscriptionOf(invoice)
+    : undefined;
+  if (
+    subscription &&
+    account.stripeSubscriptionId &&
+    account.stripeSubscriptionId !== subscription
+  ) {
+    await enqueue(tx, account.id, {
+      kind: "cancel_subscription",
+      payload: { subscription }
+    });
+    logger.error("first invoice paid for a replaced subscription", {
+      accountId: account.id,
+      invoice: invoice.id,
+      subscription
+    });
+    return;
+  }
   const planLine = invoice.lines.data.find(
     (l) => l.pricing?.price_details?.price === deps.catalog.planPrice
   );
@@ -161,6 +193,7 @@ async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
     where: { id: account.id },
     data: {
       plan: "payg",
+      ...(subscription ? { stripeSubscriptionId: subscription } : {}),
       // A plan set to cancel stays so when a retried invoice is paid.
       status: account.status === "canceling" ? "canceling" : "active",
       periodStart: start,
@@ -274,10 +307,13 @@ export async function applyEvent(tx: Db, deps: Deps, event: Stripe.Event) {
       if (topupPurpose(invoice)) return topupFailed(tx, deps, invoice, false);
       const account = await accountOfCustomer(tx, invoice.customer);
       if (!account) return;
-      await tx.billingAccount.update({
-        where: { id: account.id },
-        data: { status: "past_due" }
-      });
+      // A declined first payment changes nothing: no subscription was stored for it, so the owner
+      // can upgrade again (or still pay it on Stripe's page).
+      if (!isFirstInvoice(invoice))
+        await tx.billingAccount.update({
+          where: { id: account.id },
+          data: { status: "past_due" }
+        });
       deps.notifier.notify(account.ownerRef, "payment_failed", {
         invoice: invoice.id
       });

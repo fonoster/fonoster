@@ -447,12 +447,13 @@ describe("@stripe-fake", function () {
     expect(
       (await stripe.events.list({ type: "invoice.payment_failed" })).data
     ).to.have.length(1);
+    // A subscription's first invoice is not retried, as on Stripe; paying it follows the card.
     await stripe.testHelpers.testClocks.advance(clock.id, {
       frozen_time: clock.frozen_time + 4 * DAY
     });
-    const invoice = await stripe.invoices.retrieve(
-      sub.latest_invoice as string
-    );
+    const open = await stripe.invoices.retrieve(sub.latest_invoice as string);
+    expect([open.status, open.attempt_count]).to.deep.equal(["open", 1]);
+    const invoice = await stripe.invoices.pay(open.id!);
     expect(invoice.status).to.equal("paid");
     expect((await stripe.subscriptions.retrieve(sub.id)).status).to.equal(
       "active"

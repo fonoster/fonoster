@@ -35,7 +35,11 @@ import { ensureCatalog, StripeCatalog } from "../src/stripe/catalog";
 import { createStripe } from "../src/stripe/client";
 import { runOutboxOnce } from "../src/stripe/outbox";
 import { reconcile } from "../src/stripe/reconcile";
-import { applyEventsOnce, webhookReceiver } from "../src/stripe/webhooks";
+import {
+  applyEvent,
+  applyEventsOnce,
+  webhookReceiver
+} from "../src/stripe/webhooks";
 import { RecordedUsage } from "../src/usage";
 import { BillingTestDb, createBillingTestDb } from "./testDb";
 
@@ -515,5 +519,177 @@ describe("@billing stripe", function () {
       where: { id: account.id }
     });
     expect([again.plan, again.status]).to.deep.equal(["payg", "active"]);
+  });
+
+  const accountOf = (id: string) =>
+    db!.prisma.billingAccount.findUniqueOrThrow({ where: { id } });
+
+  const planGrants = async (id: string) =>
+    (await grantsOf(db!.prisma, id)).filter((g) => g.bucket === "plan");
+
+  /** Makes a card the customer's default, as the Customer Portal would. */
+  async function useCard(customer: string, cardMethod: string) {
+    const pm = await stripe.paymentMethods.attach(cardMethod, { customer });
+    await stripe.customers.update(customer, {
+      invoice_settings: { default_payment_method: pm.id }
+    });
+  }
+
+  async function subscribeAgain(accountId: string) {
+    await db!.prisma.$transaction((tx) => subscribe(tx, accountId));
+    await pump();
+  }
+
+  async function advanceDays(days: number) {
+    const { frozen_time } =
+      await stripe.testHelpers.testClocks.retrieve(clockId);
+    await stripe.testHelpers.testClocks.advance(clockId, {
+      frozen_time: frozen_time + days * DAY
+    });
+    clock.set(new Date((frozen_time + days * DAY) * 1000));
+    await pump();
+  }
+
+  // One owner through the first three cases: declined, a few days later, then upgrading again.
+  let declined:
+    | (Awaited<ReturnType<typeof subscribed>> & {
+        sub: string;
+        invoice: string;
+      })
+    | undefined;
+
+  it("[BIL-058] a declined first payment leaves the Trial as it was, with no subscription", async () => {
+    const s = await subscribed("pm_card_chargeDeclined");
+    const subs = (
+      await stripe.subscriptions.list({ customer: s.customer, status: "all" })
+    ).data;
+    declined = {
+      ...s,
+      sub: subs[0].id,
+      invoice: subs[0].latest_invoice as string
+    };
+    const row = await db!.prisma.stripeOutbox.findFirstOrThrow({
+      where: { accountId: s.account.id, kind: "subscription" }
+    });
+    expect((row.result as { status?: string }).status).to.equal("incomplete");
+    const after = await accountOf(s.account.id);
+    expect([
+      after.plan,
+      after.status,
+      after.stripeSubscriptionId
+    ]).to.deep.equal(["trial", s.account.status, null]);
+    expect(notices).to.deep.include({ owner: s.owner, kind: "payment_failed" });
+    expect(subs.map((x) => x.status)).to.deep.equal(["incomplete"]);
+  });
+
+  it("[BIL-058] does not retry a declined first payment", async () => {
+    await advanceDays(4);
+    const invoice = await stripe.invoices.retrieve(declined!.invoice);
+    expect([invoice.status, invoice.attempt_count]).to.deep.equal(["open", 1]);
+  });
+
+  it("[BIL-058] upgrading again with a working card starts Pay-as-you-go and cancels the declined attempt", async () => {
+    const { account, customer, sub, invoice } = declined!;
+    await useCard(customer, "pm_card_visa");
+    await subscribeAgain(account.id);
+    const after = await accountOf(account.id);
+    expect([after.plan, after.status]).to.deep.equal(["payg", "active"]);
+    expect(after.stripeSubscriptionId).to.be.a("string").and.not.equal(sub);
+    expect(await planGrants(account.id)).to.have.length(1);
+    expect((await stripe.subscriptions.retrieve(sub)).status).to.equal(
+      "canceled"
+    );
+    expect((await stripe.invoices.retrieve(invoice)).status).to.equal("void");
+  });
+
+  it("[BIL-058] after two declined upgrades and a paid one, only the paid subscription is left", async () => {
+    const { account, customer } = await subscribed("pm_card_chargeDeclined");
+    await subscribeAgain(account.id);
+    await useCard(customer, "pm_card_visa");
+    await subscribeAgain(account.id);
+    const subs = (await stripe.subscriptions.list({ customer, status: "all" }))
+      .data;
+    expect(subs).to.have.length(3);
+    const live = subs.filter((x) => x.status !== "canceled");
+    expect(live).to.have.length(1);
+    expect((await accountOf(account.id)).stripeSubscriptionId).to.equal(
+      live[0].id
+    );
+    for (const x of subs.filter((x) => x.status === "canceled"))
+      expect(
+        (await stripe.invoices.retrieve(x.latest_invoice as string)).status
+      ).to.equal("void");
+  });
+
+  it("[BIL-058] a declined first invoice paid later starts Pay-as-you-go on that subscription", async () => {
+    const { account, customer } = await subscribed("pm_card_chargeDeclined");
+    const [sub] = (await stripe.subscriptions.list({ customer, status: "all" }))
+      .data;
+    await stripe.invoices.pay(sub.latest_invoice as string, {
+      payment_method: "pm_card_visa"
+    });
+    await pump();
+    const after = await accountOf(account.id);
+    expect([
+      after.plan,
+      after.status,
+      after.stripeSubscriptionId
+    ]).to.deep.equal(["payg", "active", sub.id]);
+    expect(await planGrants(account.id)).to.have.length(1);
+  });
+
+  it("[BIL-058] a first invoice paid for a replaced subscription grants nothing and cancels it", async () => {
+    const { account, customer } = await subscribed();
+    const before = await accountOf(account.id);
+    const balance = await balanceOf(db!.prisma, account.id);
+    const start = Math.floor(clock.now().getTime() / 1000);
+    const invoice = {
+      id: "in_replaced",
+      object: "invoice",
+      customer,
+      billing_reason: "subscription_create",
+      metadata: {},
+      parent: {
+        subscription_details: { subscription: { id: "sub_replaced" } }
+      },
+      lines: {
+        data: [
+          {
+            pricing: { price_details: { price: catalog.planPrice } },
+            period: { start, end: start + 30 * DAY }
+          }
+        ]
+      }
+    };
+    await db!.prisma.$transaction((tx) =>
+      applyEvent(tx, deps(), {
+        id: "evt_replaced",
+        type: "invoice.paid",
+        data: { object: invoice }
+      } as unknown as Stripe.Event)
+    );
+    expect(await balanceOf(db!.prisma, account.id)).to.equal(balance);
+    const after = await accountOf(account.id);
+    expect(after.stripeSubscriptionId).to.equal(before.stripeSubscriptionId);
+    expect(await planGrants(account.id)).to.have.length(1);
+    const cancels = await db!.prisma.stripeOutbox.findMany({
+      where: { accountId: account.id, kind: "cancel_subscription" }
+    });
+    expect(cancels.map((c) => c.payload)).to.deep.equal([
+      { subscription: "sub_replaced" }
+    ]);
+  });
+
+  it("[BIL-058] a declined renewal still makes Pay-as-you-go past due, on the same subscription", async () => {
+    const { account, customer } = await subscribed();
+    const { stripeSubscriptionId } = await accountOf(account.id);
+    await useCard(customer, "pm_card_chargeDeclined");
+    await advanceDays(32);
+    const after = await accountOf(account.id);
+    expect([
+      after.plan,
+      after.status,
+      after.stripeSubscriptionId
+    ]).to.deep.equal(["payg", "past_due", stripeSubscriptionId]);
   });
 });

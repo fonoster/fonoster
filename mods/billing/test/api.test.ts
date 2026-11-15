@@ -192,7 +192,7 @@ describe("@billing API", function () {
       });
     }
 
-    it("[BIL-058] tells a member that the owner's ended Trial paused calls", async () => {
+    it("[BIL-059] tells a member that the owner's ended Trial paused calls", async () => {
       owners.set("WO-ended", "owner-ended");
       const a = await ensureAccount(
         db!.prisma,
@@ -210,7 +210,7 @@ describe("@billing API", function () {
       });
     });
 
-    it("[BIL-058] pauses Pay-as-you-go once balance and overdraft are gone", async () => {
+    it("[BIL-059] pauses Pay-as-you-go once balance and overdraft are gone", async () => {
       // 100 credits, 300 spent: 200 below zero, the whole 200-credit overdraft.
       await payg("owner-out", "WO-out", 100, 300);
       expect(await status("WO-out")).to.deep.equal({
@@ -219,7 +219,7 @@ describe("@billing API", function () {
       });
     });
 
-    it("[BIL-058] doesn't pause a past-due account with balance left, or a healthy one", async () => {
+    it("[BIL-059] doesn't pause a past-due account with balance left, or a healthy one", async () => {
       await payg("owner-due", "WO-due", 500, 0, "past_due");
       await payg("owner-ok", "WO-ok", 500, 150);
       expect(await status("WO-due")).to.deep.equal({
@@ -232,7 +232,7 @@ describe("@billing API", function () {
       });
     });
 
-    it("[BIL-058] doesn't pause, or create an account for, an owner who has none", async () => {
+    it("[BIL-059] doesn't pause, or create an account for, an owner who has none", async () => {
       owners.set("WO-fresh", "owner-fresh");
       expect(await status("WO-fresh")).to.deep.equal({
         paused: false,
@@ -245,7 +245,7 @@ describe("@billing API", function () {
       ).to.equal(0);
     });
 
-    it("[BIL-058] doesn't pause a workspace with no owner", async () => {
+    it("[BIL-059] doesn't pause a workspace with no owner", async () => {
       expect(await status("WO-nobody")).to.deep.equal({
         paused: false,
         reason: ""
