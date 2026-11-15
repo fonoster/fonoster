@@ -1,8 +1,9 @@
 # Fonoster Cloud's billing (rating, credits, admission, Stripe). Not in the install archive:
 # production's inventory writes it next to the release (fonoster_files) and names it in
 # COMPOSE_FILE (ops/cloud/README.md). It needs STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and
-# NATS_BILLING_PASSWORD in .env, features.billing in config/fonoster.yaml and authz in
-# config/appbridge.yaml, and the NATS user and Envoy route in ops/cloud/inserts.yml.
+# NATS_BILLING_PASSWORD in .env, features.billing and authz in config/fonoster.yaml (outbound
+# admission), authz in config/appbridge.yaml (inbound admission), and the NATS user and Envoy route
+# in ops/cloud/inserts.yml.
 #
 # Its tables live in its own database, billing (BILLING_DATABASE_URL, migrated at every start).
 # Create it on the Postgres first.
