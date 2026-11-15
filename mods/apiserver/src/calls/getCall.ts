@@ -54,7 +54,7 @@ function getCall(
     const response = await fetchSingleCall(accessKeyId, ref);
 
     if (!response) {
-      throw notFoundError(`Call not found: ${ref}`);
+      throw notFoundError(`Call not found: ${ref}`, { public: true });
     }
 
     callback(null, response);

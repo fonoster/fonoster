@@ -75,7 +75,9 @@ function createCall(
     });
 
     if (!app) {
-      throw notFoundError(`Application with ref ${appRef} not found`);
+      throw notFoundError(`Application with ref ${appRef} not found`, {
+        public: true
+      });
     }
 
     // `from` picks the trunk the call leaves by (X-Dod-Number), so it must be one of the

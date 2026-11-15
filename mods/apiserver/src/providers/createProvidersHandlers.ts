@@ -24,6 +24,7 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { notFoundError } from "../core/notFoundError";
 import { listWarnings } from "./registryUsage";
 
 // The read-only provider catalog and the workspace's own vendor keys (add-provider-registry 4.3;
@@ -34,9 +35,7 @@ import { listWarnings } from "./registryUsage";
 export type ProvidersDb = any;
 
 const INVALID_ARGUMENT = 3;
-const NOT_FOUND = 5;
 const invalid = (message: string) => ({ code: INVALID_ARGUMENT, message });
-const notFound = (message: string) => ({ code: NOT_FOUND, message });
 const seconds = (d?: Date | null) => (d ? Math.floor(d.getTime() / 1000) : 0);
 
 type Row = Record<string, unknown>;
@@ -223,7 +222,10 @@ export function createProvidersHandlers(db: ProvidersDb) {
     const existing = await db.workspaceProviderKey.findUnique({
       where: { accessKeyId_providerId: { accessKeyId, providerId } }
     });
-    if (!existing) throw notFound(`no key for provider ${providerId}`);
+    if (!existing)
+      throw notFoundError(`no key for provider ${providerId}`, {
+        public: true
+      });
     await db.secret.delete({ where: { ref: existing.secretRef } });
     callback(null, { providerId });
   };

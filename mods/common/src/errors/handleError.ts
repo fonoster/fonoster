@@ -43,15 +43,7 @@ function handleError(
     logMessage: string
   ) => {
     logger.error(logMessage, { message: errorMessage });
-
-    const messageParts = errorMessage.split(":");
-    let effectiveErrorMessage = errorMessage;
-
-    if (errorCode === status.NOT_FOUND && messageParts.length > 1) {
-      effectiveErrorMessage = `Resource not found: ${messageParts[messageParts.length - 1].trim()}`;
-    }
-
-    callback({ code: errorCode, message: effectiveErrorMessage });
+    callback({ code: errorCode, message: errorMessage });
   };
 
   switch (code) {
@@ -65,9 +57,14 @@ function handleError(
       break;
     case PrismaErrorEnum.RECORD_NOT_FOUND:
     case grpc.status.NOT_FOUND:
+      // Only a not-found error Fonoster code marked public (see the apiserver's notFoundError)
+      // says what is missing; Prisma, Routr and other gRPC errors stay generic.
       logAndCallback(
         status.NOT_FOUND,
-        "The requested resource was not found",
+        code === grpc.status.NOT_FOUND &&
+          (error as { public?: unknown }).public === true
+          ? message
+          : "The requested resource was not found",
         "not found error"
       );
       break;

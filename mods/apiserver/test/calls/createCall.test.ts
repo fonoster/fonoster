@@ -82,6 +82,35 @@ describe("@calls/createCall", function () {
     });
   });
 
+  it("answers NOT_FOUND naming the appRef when the workspace has no such app", async function () {
+    const { createCall } = await import("../../src/calls/createCall");
+    const metadata = new Metadata();
+    metadata.set("token", TEST_TOKEN);
+    const publisher = { publishCall: sandbox.stub() };
+    const applications = {
+      application: { findUnique: sandbox.stub().resolves(null) }
+    } as unknown as Prisma;
+    const callback = sandbox.stub();
+
+    await createCall(
+      applications,
+      publisher,
+      ownNumber
+    )(
+      {
+        metadata,
+        request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
+      },
+      callback
+    );
+
+    expect(callback.firstCall.args[0]).to.deep.equal({
+      code: status.NOT_FOUND,
+      message: `Application with ref ${TEST_UUID} not found`
+    });
+    expect(publisher.publishCall).to.not.have.been.called;
+  });
+
   it("fails with RESOURCE_EXHAUSTED when no Roomr node takes the call", async function () {
     const { createCall } = await import("../../src/calls/createCall");
     const { CallPlacementError } = await import("../../src/calls/types");
