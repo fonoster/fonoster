@@ -131,7 +131,7 @@ an API key can have.
 
       const apiKeys = new SDK.ApiKeys(client);
       const key = await apiKeys.createApiKey({
-        role: "WORKSPACE_ADMIN",
+        role: SDK.Role.WORKSPACE_ADMIN,
         expiresAt: Math.floor(Date.now() / 1000) + 90 * 24 * 60 * 60
       });
 

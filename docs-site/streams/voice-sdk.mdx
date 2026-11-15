@@ -111,7 +111,7 @@ You need:
           const apps = new SDK.Applications(client);
           const { ref, signingSecret } = await apps.createApplication({
             name: "Front desk stream",
-            type: "STREAM",
+            type: SDK.ApplicationType.STREAM,
             url: process.env.PUBLIC_URL,
             protocol: "fonoster"
           });

@@ -107,6 +107,9 @@ the client renews the access token before a request when it has expired.
 An application is a stream (`STREAM`) or an Autopilot agent (`AUTOPILOT`).
 `new SDK.Applications(client)`.
 
+Enum values such as `ApplicationType`, `Privacy` and `Role` are exported from `@fonoster/sdk` (for example
+`SDK.ApplicationType.AUTOPILOT`); in TypeScript, use them instead of plain strings.
+
 | Method                                               | Purpose                                                                                                                                             | Returns                                                                                                               |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `createApplication(request)`                         | Create a stream or an agent                                                                                                                         | `{ ref, signingSecret, signingSecretHint }`. The secret is shown only here and on rotation; Autopilot agents get none |
