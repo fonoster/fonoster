@@ -20,6 +20,7 @@ import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { AnnouncementBar } from "~/components/status/announcement-bar";
+import { BillingNoticeProvider } from "~/components/status/billing-notice-context";
 import { ApiUnreachable } from "~/components/status/boot-error";
 import { Splash } from "~/components/status/splash";
 import { Toaster } from "~/components/ui/sonner";
@@ -43,28 +44,31 @@ export function App({
   return (
     <RuntimeProvider value={{ apiUrl }}>
       <QueryClientProvider client={queryClient}>
-        {/* The announcement bar sits above every screen; the screen fills the rest. */}
-        <div className="flex h-full flex-col">
-          <AnnouncementBar />
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <CapabilitiesProvider
-              client={client}
-              loading={<Splash />}
-              failed={(retry) => (
-                <ApiUnreachable apiUrl={apiUrl} onRetry={retry} />
-              )}
-            >
-              <BrowserRouter>
-                <AuthProvider client={client}>
-                  <TooltipProvider delayDuration={300}>
-                    {children}
-                    <Toaster />
-                  </TooltipProvider>
-                </AuthProvider>
-              </BrowserRouter>
-            </CapabilitiesProvider>
+        {/* The announcement bar sits above every screen; the screen fills the rest. Inside a
+            workspace, BillingNotice puts calls paused by billing in it. */}
+        <BillingNoticeProvider>
+          <div className="flex h-full flex-col">
+            <AnnouncementBar />
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <CapabilitiesProvider
+                client={client}
+                loading={<Splash />}
+                failed={(retry) => (
+                  <ApiUnreachable apiUrl={apiUrl} onRetry={retry} />
+                )}
+              >
+                <BrowserRouter>
+                  <AuthProvider client={client}>
+                    <TooltipProvider delayDuration={300}>
+                      {children}
+                      <Toaster />
+                    </TooltipProvider>
+                  </AuthProvider>
+                </BrowserRouter>
+              </CapabilitiesProvider>
+            </div>
           </div>
-        </div>
+        </BillingNoticeProvider>
       </QueryClientProvider>
     </RuntimeProvider>
   );

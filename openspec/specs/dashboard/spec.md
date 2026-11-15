@@ -464,7 +464,7 @@ SHALL only stop reading the status stream: it sends nothing, and focus returns t
 #### Scenario: The server refuses the call
 
 - **WHEN** `CreateCall` fails with FAILED_PRECONDITION "The call was refused: insufficient_balance", or with RESOURCE_EXHAUSTED
-- **THEN** the drawer shows "Your balance is too low to make calls. Add credit in Billing." or "No line is free to place the call. Try again in a minute." in an error alert, keeps the number typed, and opens no TrackCall
+- **THEN** the drawer shows "Credits have run out. Calls are paused in this workspace." or "No line is free to place the call. Try again in a minute." in an error alert, keeps the number typed, and opens no TrackCall
 
 #### Scenario: The call is not answered
 

@@ -38,4 +38,6 @@ test("[DSH-040] a self-hosted install has no Billing, even for an owner", async 
   await page.goto("/billing?from=ws-1");
   await expect(page).toHaveURL(/\/workspaces$/);
   expect(api.callsTo("Billing/GetBilling")).toHaveLength(0);
+  // Nor does it ask whether billing paused calls.
+  expect(api.callsTo("Billing/GetCallsStatus")).toHaveLength(0);
 });

@@ -18,6 +18,7 @@
  */
 import { useEffect } from "react";
 import { Navigate, Outlet, useParams } from "react-router-dom";
+import { BillingNotice } from "~/billing/billing-notice";
 import { Splash } from "~/components/status/splash";
 import { useAuth } from "~/lib/auth";
 import { WorkspaceProvider } from "~/lib/workspace";
@@ -44,6 +45,7 @@ export function WorkspaceGate() {
     client.setAccessKeyId(workspace.accessKeyId);
   return (
     <WorkspaceProvider value={workspace}>
+      <BillingNotice />
       <Outlet />
     </WorkspaceProvider>
   );

@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { test as base, expect, type Page } from "@playwright/test";
+import { billingPb } from "./billing";
 import { capabilities, emptyReply, GrpcWebMock, identity } from "./grpc-web";
 
 export type Variant = "community" | "cloud";
@@ -202,7 +203,9 @@ export const test = base.extend<{ variant: Variant; api: GrpcWebMock }>({
         const list = new identity.ListWorkspacesResponse();
         list.setItemsList([workspace("ws-1", "Acme Support", ada.ref)]);
         return list;
-      });
+      })
+      // Calls aren't paused unless a test says so (billing is on only on Fonoster Cloud).
+      .on("Billing/GetCallsStatus", () => new billingPb.CallsStatus());
     await api.install();
     await use(api);
   }

@@ -18,7 +18,9 @@
  */
 import type { INumber } from "@fonoster/types";
 import { Lock, Phone, PhoneMissed, PhoneOff } from "lucide-react";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { CALLS_PAUSED } from "~/billing/calls-paused";
+import { useCallsPaused } from "~/billing/calls-paused.service";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
@@ -28,6 +30,7 @@ import { cn } from "~/lib/utils";
 import { formatNumber } from "./routing";
 import {
   fromNumber,
+  pausedByBilling,
   testCallError,
   toE164,
   VIEWS,
@@ -79,17 +82,22 @@ function TestCall({
   returnFocusTo: (number: INumber) => HTMLElement | null;
 }) {
   const call = useTestCall();
+  const { paused, refresh } = useCallsPaused();
   const [to, setTo] = useState("");
   const [invalid, setInvalid] = useState(false);
   const alertRef = useRef<HTMLDivElement>(null);
+  const noteId = useId();
+  const alertId = useId();
 
   useEffect(() => {
     if (call.error) alertRef.current?.focus();
-  }, [call.error]);
+    // Refused because billing paused calls: the bar and the disabled button follow.
+    if (pausedByBilling(call.error)) void refresh();
+  }, [call.error, refresh]);
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (call.live) return;
+    if (call.live || paused) return;
     const e164 = toE164(to);
     setInvalid(!e164);
     if (!e164 || !number.appRef) return;
@@ -115,8 +123,21 @@ function TestCall({
         // No button while the call is live: there is no hang-up.
         !call.live && (
           <>
-            <span />
-            <Button type="submit" form="test-call-form">
+            {paused && !call.error ? (
+              <span id={noteId} className="text-sm text-muted-foreground">
+                {CALLS_PAUSED}
+              </span>
+            ) : (
+              <span />
+            )}
+            <Button
+              type="submit"
+              form="test-call-form"
+              disabled={paused}
+              aria-describedby={
+                paused ? (call.error ? alertId : noteId) : undefined
+              }
+            >
               <Phone aria-hidden />
               {call.status === "idle" ? "Call" : "Call again"}
             </Button>
@@ -168,7 +189,7 @@ function TestCall({
           </Alert>
         )}
         {call.error && (
-          <Alert variant="error" ref={alertRef} tabIndex={-1}>
+          <Alert variant="error" ref={alertRef} tabIndex={-1} id={alertId}>
             {testCallError(call.error)}
           </Alert>
         )}

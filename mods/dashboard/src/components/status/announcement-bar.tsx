@@ -22,10 +22,17 @@ import { useState } from "react";
 import { parseAnnouncement } from "~/lib/announcement";
 import { DASHBOARD_FILE_KEY, loadDashboardFile } from "~/lib/dashboard-file";
 import { STORAGE_KEYS, storage } from "~/lib/storage";
+import {
+  useBillingNotice,
+  type BillingNoticeValue
+} from "./billing-notice-context";
 
 const ICONS = { info: Info, warning: TriangleAlert, critical: AlertCircle };
 
-/** The bar above every page: fonoster.com's notice bar, from config/dashboard.yaml. */
+/**
+ * The bar above every page: fonoster.com's notice bar, from config/dashboard.yaml. While billing
+ * pauses the current workspace's calls, it says so instead, and can't be closed.
+ */
 export function AnnouncementBar({
   load = loadDashboardFile
 }: {
@@ -42,6 +49,8 @@ export function AnnouncementBar({
   const [closed, setClosed] = useState(() =>
     storage.get(STORAGE_KEYS.announcement)
   );
+  const billing = useBillingNotice();
+  if (billing) return <CallsPausedBar notice={billing} />;
   if (!data) return null;
   // Closing hides this message only: any change to it shows the bar again.
   const id = JSON.stringify([
@@ -86,6 +95,43 @@ export function AnnouncementBar({
       >
         <X aria-hidden />
       </button>
+    </div>
+  );
+}
+
+function CallsPausedBar({ notice }: { notice: BillingNoticeValue }) {
+  const Icon = ICONS.critical;
+  const { action } = notice;
+  return (
+    <div className="fn-announcement" data-tone="critical" role="alert">
+      <p>
+        <Icon aria-hidden className="fn-announcement__icon" />
+        <span>{notice.text}</span>
+        {action && (
+          <>
+            {" "}
+            <a
+              href={action.href}
+              onClick={(event) => {
+                // A plain click stays in this tab, through the router; modified clicks act as links.
+                if (
+                  event.button !== 0 ||
+                  event.metaKey ||
+                  event.ctrlKey ||
+                  event.shiftKey ||
+                  event.altKey
+                )
+                  return;
+                event.preventDefault();
+                action.go();
+              }}
+            >
+              <span>{action.label}</span>
+              <ArrowRight aria-hidden />
+            </a>
+          </>
+        )}
+      </p>
     </div>
   );
 }

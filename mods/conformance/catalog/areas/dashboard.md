@@ -294,7 +294,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 
 The SDK's `calls.createCall` against mocked gRPC-Web: CreateCall answers a ref, TrackCall streams statuses and closes. The stack has no carrier that answers an outbound call, so this case is mocked.
 
-**Pass.** Test call to +15551234567 sends CreateCall with the Number's E.164, that destination and its appRef; the drawer shows Calling, Ringing, Answered, then Call ended when the stream closes; a refused CreateCall shows its mapped message; a BUSY stream shows Busy; a SIP agent Number's Test call is disabled with its note. **Fail.** A wrong from/to/appRef, a drawer stuck on a status, Answered on an unanswered call, a raw error code, or an enabled Test call on a SIP agent Number.
+**Pass.** Test call to +15551234567 sends CreateCall with the Number's E.164, that destination and its appRef; the drawer shows Calling, Ringing, Answered, then Call ended when the stream closes; a refused CreateCall shows its mapped message (`insufficient_balance`: "Credits have run out. Calls are paused in this workspace."); a BUSY stream shows Busy; a SIP agent Number's Test call is disabled with its note. **Fail.** A wrong from/to/appRef, a drawer stuck on a status, Answered on an unanswered call, a raw error code, or an enabled Test call on a SIP agent Number.
 
 ### DSH-018 Create a trunk, refuse a taken inbound URI, and say what deleting it stops
 
@@ -644,7 +644,7 @@ The test from #1058, now tagged: the owner's real account in the billing service
 - **Fault:** faults/DSH-040.patch
 - **Test:** mods/dashboard/e2e/billing.community.spec.ts
 
-**Pass.** With `billing.enabled` false the owner's account menu has no Billing, `/billing` goes to the workspace picker, and the billing API is never called. **Fail.** Billing shown or called on a self-hosted install.
+**Pass.** With `billing.enabled` false the owner's account menu has no Billing, `/billing` goes to the workspace picker, and the billing API is never called (neither GetBilling nor GetCallsStatus). **Fail.** Billing shown or called on a self-hosted install.
 
 ### DSH-041 A SIP network built through the UI against the platform, then taken down
 
