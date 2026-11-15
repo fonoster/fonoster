@@ -89,7 +89,8 @@ describe("@billing closeAccount", function () {
       prisma: db!.prisma,
       plans: DEFAULT_PLANS,
       clock,
-      stripe: withStripe
+      stripe: withStripe,
+      directory: { ownerOf: async () => undefined }
     });
     const served = await serveBillingApi(api, "127.0.0.1", 0);
     servers.push(served.server);

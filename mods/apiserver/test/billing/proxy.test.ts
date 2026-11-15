@@ -47,6 +47,13 @@ describe("@apiserver/billing proxy", function () {
           seen.push(call.request);
           cb(null, { plan: "trial", balance: 1000 });
         },
+        getCallsStatus: (
+          call: grpc.ServerUnaryCall<Record<string, unknown>, unknown>,
+          cb: grpc.sendUnaryData<unknown>
+        ) => {
+          seen.push(call.request);
+          cb(null, { paused: true, reason: "trial_ended" });
+        },
         createTopUp: (_: unknown, cb: grpc.sendUnaryData<unknown>) =>
           cb({
             code: grpc.status.FAILED_PRECONDITION,
@@ -78,13 +85,22 @@ describe("@apiserver/billing proxy", function () {
   });
   after(() => server.forceShutdown());
 
-  const invoke = (owner: string | undefined, method: string, request: object) =>
+  const invoke = (
+    owner: string | undefined,
+    method: string,
+    request: object,
+    accessKeyId = "WO-call"
+  ) =>
     new Promise<{
       error: Partial<grpc.ServiceError> | null;
       response?: unknown;
     }>((resolve) =>
       (
-        buildService(address, () => owner).handlers[method] as (
+        buildService(
+          address,
+          () => owner,
+          () => accessKeyId
+        ).handlers[method] as (
           c: object,
           cb: (e: unknown, r?: unknown) => void
         ) => void
@@ -113,6 +129,19 @@ describe("@apiserver/billing proxy", function () {
       code: grpc.status.FAILED_PRECONDITION,
       message: "add a payment method before buying credits"
     });
+  });
+
+  it("[BIL-058] reads whether calls are paused for any caller, in the call's workspace", async () => {
+    // Not the owner (ownerOf answers undefined), naming another workspace in the body.
+    const { error, response } = await invoke(
+      undefined,
+      "getCallsStatus",
+      { accessKeyId: "WO-someone-else" },
+      "WO-mine"
+    );
+    expect(error).to.equal(null);
+    expect(response).to.deep.equal({ paused: true, reason: "trial_ended" });
+    expect(seen.at(-1)).to.deep.equal({ accessKeyId: "WO-mine" });
   });
 
   it("[BIL-057] closes an owner's billing account for Identity, with billing's refusal", async () => {

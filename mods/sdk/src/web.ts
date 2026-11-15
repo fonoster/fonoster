@@ -55,6 +55,7 @@ export {
   CallDirection,
   CallStatus,
   CallType,
+  CallsPausedReason,
   ContactType,
   DialStatus,
   ExpectedTextType,

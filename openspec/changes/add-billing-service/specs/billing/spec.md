@@ -280,3 +280,34 @@ asked, the user SHALL NOT be deleted. The account, its ledger and its Stripe cus
 
 - **WHEN** an owner who never had a billing account is deleted
 - **THEN** closing succeeds and no account is created
+
+### Requirement: Members read whether calls are paused
+
+The Billing API SHALL serve `GetCallsStatus` to anyone in a workspace, for that workspace only: the
+apiserver SHALL take the workspace from the call, never from the request. It SHALL answer `paused`
+and `reason` (`trial_ended` or `insufficient_balance`) with the rule admission uses to refuse every
+new call, and nothing else: no amounts, plan, status or owner. The concurrency limit SHALL NOT count
+as paused. Reading SHALL NOT create a billing account; a workspace whose owner has none, or with no
+owner, SHALL NOT be paused.
+
+#### Scenario: A member of a workspace whose Trial ended
+
+- **WHEN** someone who is not the owner asks for the calls status of a workspace whose owner's Trial
+  ended
+- **THEN** the answer is paused, with reason `trial_ended`
+
+#### Scenario: Credits have run out
+
+- **WHEN** the owner's balance and overdraft are used up
+- **THEN** the answer is paused, with reason `insufficient_balance`
+
+#### Scenario: Calls are not paused
+
+- **WHEN** the owner's account is healthy, or past due with balance left, or the owner has no
+  account
+- **THEN** the answer is not paused, with no reason, and no account is created
+
+#### Scenario: Another workspace is named
+
+- **WHEN** a caller with a role only in workspace A names workspace B in the request or the call
+- **THEN** a body naming B is answered for A, and a call made in B is refused

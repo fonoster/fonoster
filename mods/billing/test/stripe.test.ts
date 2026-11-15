@@ -501,7 +501,8 @@ describe("@billing stripe", function () {
       prisma: db!.prisma,
       plans: DEFAULT_PLANS,
       clock,
-      stripe
+      stripe,
+      directory: { ownerOf: async () => undefined }
     });
     const refused = await api
       .createTopUp({ ownerRef: owner, credits: 1000 })

@@ -26,7 +26,7 @@ import { getLogger } from "@fonoster/logger";
 import { ActiveCalls } from "./activeCalls";
 import { Clock } from "./clock";
 import { PlanSettings } from "./config";
-import { PrismaClient } from "./db";
+import { BillingAccount, PrismaClient } from "./db";
 import { OwnerDirectory } from "./directory";
 import { grant, overdraftLimit } from "./ledger";
 import { credits } from "./money";
@@ -67,6 +67,29 @@ export async function ensureAccount(
   });
 }
 
+/** Why billing refuses every new call of an owner's account, if it does. */
+export type PausedReason = "trial_ended" | "insufficient_balance";
+
+/**
+ * The paused rule, shared by admission and GetCallsStatus: a Trial past its days, or a balance
+ * with its overdraft used up. Concurrency is not a pause and stays in admission.
+ */
+export async function pausedReason(
+  prisma: PrismaClient,
+  account: BillingAccount,
+  plans: PlanSettings
+): Promise<PausedReason | undefined> {
+  // A Trial past its days (plans.trialDays): nothing runs until the owner subscribes, whatever the balance.
+  if (account.status === "ended") return "trial_ended";
+  const snapshot = await prisma.balanceSnapshot.findUnique({
+    where: { accountId: account.id }
+  });
+  const balance = snapshot?.balance ?? 0n;
+  if (balance + (await overdraftLimit(prisma, account, plans)) <= 0n)
+    return "insufficient_balance";
+  return undefined;
+}
+
 /**
  * Admission from the ledger (add-billing-service D7, billing "Admission from the ledger"): never
  * calls Stripe. Methods are not billing's to authorize.
@@ -97,15 +120,8 @@ export class BillingAuthzHandler implements AuthzHandler {
       return { authorized: true };
     }
     const account = await ensureAccount(prisma, owner, plans, clock.now());
-    // A Trial past its days (plans.trialDays): nothing runs until the owner subscribes, whatever the balance.
-    if (account.status === "ended")
-      return { authorized: false, reason: "trial_ended" };
-    const snapshot = await prisma.balanceSnapshot.findUnique({
-      where: { accountId: account.id }
-    });
-    const balance = snapshot?.balance ?? 0n;
-    if (balance + (await overdraftLimit(prisma, account, plans)) <= 0n)
-      return { authorized: false, reason: "insufficient_balance" };
+    const paused = await pausedReason(prisma, account, plans);
+    if (paused) return { authorized: false, reason: paused };
     if (
       activeCalls.count(owner) >=
       plans.concurrency[account.plan === "payg" ? "payg" : "trial"]

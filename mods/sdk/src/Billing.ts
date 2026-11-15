@@ -18,6 +18,8 @@
  */
 import {
   BillingSummary,
+  CallsPausedReason,
+  CallsStatus,
   CreatePortalSessionRequest,
   CreatePortalSessionResponse,
   CreateTopUpRequest,
@@ -28,11 +30,13 @@ import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
   BillingSummary as BillingSummaryPB,
+  CallsStatus as CallsStatusPB,
   CreatePortalSessionRequest as CreatePortalSessionRequestPB,
   CreatePortalSessionResponse as CreatePortalSessionResponsePB,
   CreateTopUpRequest as CreateTopUpRequestPB,
   CreditSource as CreditSourcePB,
   GetBillingRequest as GetBillingRequestPB,
+  GetCallsStatusRequest as GetCallsStatusRequestPB,
   SubscribeRequest as SubscribeRequestPB,
   UpdateAutoRechargeRequest as UpdateAutoRechargeRequestPB
 } from "./generated/node/billing_pb";
@@ -42,11 +46,17 @@ import {
  * (1 credit = $0.01) by source, the plan, top-ups, auto-recharge and the Stripe Customer Portal.
  * Only workspace owners may call it, and only on Fonoster Cloud (the capabilities say
  * `billing.enabled`). The account is always the caller's: it covers every workspace they own.
+ * `getCallsStatus()` is the exception: anyone in the workspace may call it.
  *
  * @example
  * const billing = new SDK.Billing(client);
  * const { balance, sources } = await billing.getBilling();
  * await billing.createTopUp({ credits: 1000 });
+ *
+ * const { paused, reason } = await billing.getCallsStatus();
+ * if (paused && reason === SDK.CallsPausedReason.TRIAL_ENDED) {
+ *   // The Trial has ended. Calls are paused in this workspace.
+ * }
  */
 class Billing {
   private readonly client: FonosterClient;
@@ -152,6 +162,31 @@ class Billing {
       metadata: this.client.getMetadata(),
       request
     });
+  }
+
+  /**
+   * Whether billing refuses new calls in the client's workspace, and why. Anyone in the workspace
+   * may call it; it carries no amounts. `reason` is undefined when calls aren't paused, or for a
+   * reason this SDK doesn't know.
+   */
+  async getCallsStatus(): Promise<CallsStatus> {
+    const client = this.client.getBillingClient();
+    const { paused, reason } = await makeRpcRequest<
+      GetCallsStatusRequestPB,
+      CallsStatusPB,
+      Record<string, unknown>,
+      { paused: boolean; reason: string }
+    >({
+      method: client.getCallsStatus.bind(client),
+      requestPBObjectConstructor: GetCallsStatusRequestPB,
+      metadata: this.client.getMetadata(),
+      request: {}
+    });
+    const known = Object.values(CallsPausedReason) as string[];
+    return {
+      paused,
+      reason: known.includes(reason) ? (reason as CallsPausedReason) : undefined
+    };
   }
 
   private async summary(raw: Promise<RawSummary>): Promise<BillingSummary> {

@@ -367,5 +367,6 @@
   "API-076": "A Number's aliases are stored, kept and cleared",
   "API-077": "An alias already used on the Trunk is refused",
   "API-078": "A Trunk's number formats are stored and kept",
-  "API-079": "A reset clears a Trunk's number format with its prefix"
+  "API-079": "A reset clears a Trunk's number format with its prefix",
+  "BIL-058": "Anyone in a workspace reads whether billing paused its calls"
 }

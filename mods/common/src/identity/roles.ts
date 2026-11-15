@@ -84,7 +84,9 @@ const workspaceResourceAccess = [
   "/fonoster.calls.v1beta2.Calls/ListCalls",
   "/fonoster.calls.v1beta2.Calls/GetCall",
   "/fonoster.calls.v1beta2.Calls/TrackCall",
-  "/fonoster.voice.v1beta2.Voice/CreateSession"
+  "/fonoster.voice.v1beta2.Voice/CreateSession",
+  // Whether billing paused calls: anyone in the workspace, for that workspace only.
+  "/fonoster.billing.v1beta2.Billing/GetCallsStatus"
 ];
 
 const workspaceResourceOwnerOrAdminAccess = [

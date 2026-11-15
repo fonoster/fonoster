@@ -23,6 +23,7 @@ import { hasAccess } from "../../src/identity/hasAccess";
 const UPDATE_USER = "/fonoster.identity.v1beta2.Identity/UpdateUser";
 const CREATE_WORKSPACE = "/fonoster.identity.v1beta2.Identity/CreateWorkspace";
 const INVITE = "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace";
+const GET_CALLS_STATUS = "/fonoster.billing.v1beta2.Billing/GetCallsStatus";
 
 const member = (accessKeyId: string) => ({
   accessKeyId,
@@ -31,7 +32,8 @@ const member = (accessKeyId: string) => ({
 
 describe("@common[identity/hasAccess]", function () {
   it("lets a user with no workspaces call user methods", function () {
-    expect(hasAccess({ accessKeyId: "USabc", access: [] }, UPDATE_USER)).to.be.true;
+    expect(hasAccess({ accessKeyId: "USabc", access: [] }, UPDATE_USER)).to.be
+      .true;
   });
 
   it("lets a workspace member still update themselves and create workspaces", function () {
@@ -44,7 +46,8 @@ describe("@common[identity/hasAccess]", function () {
   });
 
   it("doesn't throw on a token without an access claim", function () {
-    expect(hasAccess({ accessKeyId: "USabc" } as never, UPDATE_USER)).to.be.true;
+    expect(hasAccess({ accessKeyId: "USabc" } as never, UPDATE_USER)).to.be
+      .true;
     expect(hasAccess({} as never, UPDATE_USER)).to.be.false;
     expect(hasAccess(undefined as never, INVITE, "WOxxxxxxxx")).to.be.false;
   });
@@ -65,5 +68,14 @@ describe("@common[identity/hasAccess]", function () {
 
   it("doesn't give the USER role to non-user tokens", function () {
     expect(hasAccess(member("WOabc"), UPDATE_USER)).to.be.false;
+  });
+
+  it("[BIL-058] lets a member read paused calls only in their own workspace", function () {
+    const token = {
+      accessKeyId: "USabc",
+      access: [{ accessKeyId: "WOa", role: Role.WORKSPACE_MEMBER }]
+    };
+    expect(hasAccess(token, GET_CALLS_STATUS, "WOa")).to.be.true;
+    expect(hasAccess(token, GET_CALLS_STATUS, "WOb")).to.be.false;
   });
 });

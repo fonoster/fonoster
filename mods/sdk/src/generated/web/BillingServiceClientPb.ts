@@ -297,5 +297,48 @@ export class BillingClient {
     this.methodDescriptorCloseAccount);
   }
 
+  methodDescriptorGetCallsStatus = new grpcWeb.MethodDescriptor(
+    '/fonoster.billing.v1beta2.Billing/GetCallsStatus',
+    grpcWeb.MethodType.UNARY,
+    billing_pb.GetCallsStatusRequest,
+    billing_pb.CallsStatus,
+    (request: billing_pb.GetCallsStatusRequest) => {
+      return request.serializeBinary();
+    },
+    billing_pb.CallsStatus.deserializeBinary
+  );
+
+  getCallsStatus(
+    request: billing_pb.GetCallsStatusRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<billing_pb.CallsStatus>;
+
+  getCallsStatus(
+    request: billing_pb.GetCallsStatusRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: billing_pb.CallsStatus) => void): grpcWeb.ClientReadableStream<billing_pb.CallsStatus>;
+
+  getCallsStatus(
+    request: billing_pb.GetCallsStatusRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: billing_pb.CallsStatus) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.billing.v1beta2.Billing/GetCallsStatus',
+        request,
+        metadata || {},
+        this.methodDescriptorGetCallsStatus,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.billing.v1beta2.Billing/GetCallsStatus',
+    request,
+    metadata || {},
+    this.methodDescriptorGetCallsStatus);
+  }
+
 }
 

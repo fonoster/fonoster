@@ -20,10 +20,11 @@ import { createServiceDefinition } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import Stripe from "stripe";
-import { ensureAccount } from "./admission";
+import { ensureAccount, pausedReason } from "./admission";
 import { Clock } from "./clock";
 import { PlanSettings } from "./config";
 import { PrismaClient } from "./db";
+import { OwnerDirectory } from "./directory";
 import { balanceOf, canPay, grantsOf, overdraftLimit } from "./ledger";
 import { credits, toCredits } from "./money";
 import {
@@ -57,6 +58,8 @@ type ApiDeps = {
   prisma: PrismaClient;
   plans: PlanSettings;
   clock: Clock;
+  /** The owner of a workspace, for GetCallsStatus. */
+  directory: OwnerDirectory;
   /** Without Stripe, top-ups, subscribing and the portal are refused. */
   stripe?: Stripe;
 };
@@ -120,6 +123,21 @@ export function billingApi(deps: ApiDeps) {
 
   return {
     getBilling: (r: { ownerRef: string }) => summary(r.ownerRef),
+
+    /**
+     * Whether calls are paused in a workspace, for anyone in it: only `paused` and `reason`, never
+     * amounts or the plan. Reading never creates an account; an owner without one is not paused.
+     */
+    async getCallsStatus(r: { accessKeyId: string }) {
+      const owner = r.accessKeyId
+        ? await deps.directory.ownerOf(r.accessKeyId)
+        : undefined;
+      const a = owner
+        ? await prisma.billingAccount.findUnique({ where: { ownerRef: owner } })
+        : null;
+      const reason = a ? await pausedReason(prisma, a, plans) : undefined;
+      return { paused: Boolean(reason), reason: reason ?? "" };
+    },
 
     async updateAutoRecharge(r: {
       ownerRef: string;
@@ -266,7 +284,8 @@ export async function serveBillingApi(
     createTopUp: unary(api.createTopUp),
     subscribe: unary(api.subscribe),
     createPortalSession: unary(api.createPortalSession),
-    closeAccount: unary(api.closeAccount)
+    closeAccount: unary(api.closeAccount),
+    getCallsStatus: unary(api.getCallsStatus)
   });
   const bound = await new Promise<number>((resolve, reject) =>
     server.bindAsync(

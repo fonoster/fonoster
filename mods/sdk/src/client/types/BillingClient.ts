@@ -18,10 +18,12 @@
  */
 import {
   BillingSummary,
+  CallsStatus,
   CreatePortalSessionRequest,
   CreatePortalSessionResponse,
   CreateTopUpRequest,
   GetBillingRequest,
+  GetCallsStatusRequest,
   SubscribeRequest,
   UpdateAutoRechargeRequest
 } from "../../generated/web/billing_pb";
@@ -36,6 +38,7 @@ type BillingClient = {
     CreatePortalSessionRequest,
     CreatePortalSessionResponse
   >;
+  getCallsStatus: ClientFunction<GetCallsStatusRequest, CallsStatus>;
 };
 
 export { BillingClient };
