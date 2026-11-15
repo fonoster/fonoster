@@ -450,7 +450,7 @@ delay; a test-clock customer's events go out at once.
 A customer's next payment is set to decline before a subscription's first invoice; the control API
 is called under `/v1`; the fake is reset.
 
-**Pass.** The payment fails with `invoice.payment_failed`, the retry follows the card and the subscription becomes active; `/v1/_fake` is 404; after a reset nothing is left and ids start over. **Fail.** The outcome is ignored, the control API leaks into `/v1`, or state survives the reset.
+**Pass.** The payment fails with `invoice.payment_failed`, the first invoice is not retried, paying it follows the card and the subscription becomes active; `/v1/_fake` is 404; after a reset nothing is left and ids start over. **Fail.** The outcome is ignored, the control API leaks into `/v1`, or state survives the reset.
 
 ### BIL-026 The viewer shows credits as billing shows them
 
