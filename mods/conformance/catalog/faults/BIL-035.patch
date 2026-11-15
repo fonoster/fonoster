@@ -1,10 +1,9 @@
 diff --git a/mods/billing/src/admission.ts b/mods/billing/src/admission.ts
-index 43d9e6ed8..ca18c6106 100644
 --- a/mods/billing/src/admission.ts
 +++ b/mods/billing/src/admission.ts
-@@ -107,7 +107,7 @@ export class BillingAuthzHandler implements AuthzHandler {
-     if (balance + (await overdraftLimit(prisma, account, plans)) <= 0n)
-       return { authorized: false, reason: "insufficient_balance" };
+@@ -123,7 +123,7 @@ export class BillingAuthzHandler implements AuthzHandler {
+     const paused = await pausedReason(prisma, account, plans);
+     if (paused) return { authorized: false, reason: paused };
      if (
 -      activeCalls.count(owner) >=
 +      activeCalls.count(owner) >

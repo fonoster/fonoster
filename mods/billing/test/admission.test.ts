@@ -190,7 +190,8 @@ describe("@billing admission", function () {
     const refused = await billingApi({
       prisma: db!.prisma,
       plans: DEFAULT_PLANS,
-      clock: new ManualClock(NOW)
+      clock: new ManualClock(NOW),
+      directory: { ownerOf: async () => undefined }
     })
       .updateAutoRecharge({
         ownerRef: "owner-none",

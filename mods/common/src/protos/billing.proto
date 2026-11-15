@@ -23,6 +23,8 @@ package fonoster.billing.v1beta2;
 // Billing for Fonoster Cloud (add-billing-service): the owner's credits, plan, auto-recharge,
 // top-ups and the Stripe Customer Portal. The billing service serves it with owner_ref set; the
 // apiserver serves it to the dashboard for workspace owners and sets owner_ref from the caller.
+// GetCallsStatus is the exception: anyone in the workspace may call it, and the apiserver sets
+// access_key_id from the call.
 service Billing {
   // The balance by source, the plan and auto-recharge
   rpc GetBilling (GetBillingRequest) returns (BillingSummary) {}
@@ -37,6 +39,8 @@ service Billing {
   // Closes an owner's billing account before the owner is deleted (internal: the apiserver calls
   // it from Identity's DeleteUser and does not serve it)
   rpc CloseAccount (CloseAccountRequest) returns (CloseAccountResponse) {}
+  // Whether billing refuses new calls in the call's workspace, and why
+  rpc GetCallsStatus (GetCallsStatusRequest) returns (CallsStatus) {}
 }
 
 message GetBillingRequest {
@@ -99,3 +103,15 @@ message CloseAccountRequest {
 }
 
 message CloseAccountResponse {}
+
+message GetCallsStatusRequest {
+  // Set by the apiserver from the call's workspace; a value sent by a client is ignored.
+  string access_key_id = 1;
+}
+
+message CallsStatus {
+  // True when billing refuses new calls in this workspace (the rule CheckSessionAuthorized uses).
+  bool paused = 1;
+  // trial_ended or insufficient_balance; empty when not paused.
+  string reason = 2;
+}

@@ -240,3 +240,43 @@ export namespace CloseAccountResponse {
   }
 }
 
+export class GetCallsStatusRequest extends jspb.Message {
+  getAccessKeyId(): string;
+  setAccessKeyId(value: string): GetCallsStatusRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetCallsStatusRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetCallsStatusRequest): GetCallsStatusRequest.AsObject;
+  static serializeBinaryToWriter(message: GetCallsStatusRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetCallsStatusRequest;
+  static deserializeBinaryFromReader(message: GetCallsStatusRequest, reader: jspb.BinaryReader): GetCallsStatusRequest;
+}
+
+export namespace GetCallsStatusRequest {
+  export type AsObject = {
+    accessKeyId: string,
+  }
+}
+
+export class CallsStatus extends jspb.Message {
+  getPaused(): boolean;
+  setPaused(value: boolean): CallsStatus;
+
+  getReason(): string;
+  setReason(value: string): CallsStatus;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CallsStatus.AsObject;
+  static toObject(includeInstance: boolean, msg: CallsStatus): CallsStatus.AsObject;
+  static serializeBinaryToWriter(message: CallsStatus, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CallsStatus;
+  static deserializeBinaryFromReader(message: CallsStatus, reader: jspb.BinaryReader): CallsStatus;
+}
+
+export namespace CallsStatus {
+  export type AsObject = {
+    paused: boolean,
+    reason: string,
+  }
+}
+

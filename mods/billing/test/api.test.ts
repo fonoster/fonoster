@@ -26,6 +26,9 @@ import {
 } from "../src/api";
 import { ManualClock } from "../src/clock";
 import { DEFAULT_PLANS } from "../src/config";
+import { ensureAccount } from "../src/admission";
+import { debit, grant, lockAccount } from "../src/ledger";
+import { credits } from "../src/money";
 import { createStripe } from "../src/stripe/client";
 import { BillingTestDb, createBillingTestDb } from "./testDb";
 
@@ -47,6 +50,9 @@ describe("@billing API", function () {
   let fake: StripeFakeServer;
   let server: grpc.Server;
   let client: Client;
+  /** Workspace access key id -> its owner, as Identity would answer. */
+  const owners = new Map<string, string>();
+  const NOW = new Date("2026-11-01T00:00:00Z");
 
   const call = (method: string, request: object) =>
     new Promise<Record<string, unknown>>((resolve, reject) =>
@@ -60,7 +66,8 @@ describe("@billing API", function () {
     const api = billingApi({
       prisma: db.prisma,
       plans: DEFAULT_PLANS,
-      clock: new ManualClock(new Date("2026-11-01T00:00:00Z")),
+      clock: new ManualClock(NOW),
+      directory: { ownerOf: async (ws) => owners.get(ws) },
       stripe: createStripe({ secretKey: "sk_test_api", apiBase: fake.url })
     });
     const served = await serveBillingApi(api, "127.0.0.1", 0);
@@ -155,5 +162,94 @@ describe("@billing API", function () {
     expect(
       await db!.prisma.stripeOutbox.count({ where: { kind: "topup_invoice" } })
     ).to.equal(1);
+  });
+  describe("GetCallsStatus", () => {
+    const status = (accessKeyId: string) =>
+      call("getCallsStatus", { accessKeyId });
+
+    /** A Pay-as-you-go owner of `workspace` with `topup` credits, minus `spent`. */
+    async function payg(
+      owner: string,
+      workspace: string,
+      topup: number,
+      spent = 0,
+      status = "active"
+    ) {
+      owners.set(workspace, owner);
+      const a = await db!.prisma.billingAccount.create({
+        data: { ownerRef: owner, plan: "payg", status }
+      });
+      await db!.prisma.$transaction(async (tx) => {
+        await grant(tx, a.id, {
+          kind: "topup_grant",
+          amount: credits(topup),
+          source: `seed-${owner}`
+        });
+        if (spent) {
+          await lockAccount(tx, a.id);
+          await debit(tx, a.id, credits(spent), `use-${owner}`, NOW, NOW);
+        }
+      });
+    }
+
+    it("[BIL-059] tells a member that the owner's ended Trial paused calls", async () => {
+      owners.set("WO-ended", "owner-ended");
+      const a = await ensureAccount(
+        db!.prisma,
+        "owner-ended",
+        DEFAULT_PLANS,
+        NOW
+      );
+      await db!.prisma.billingAccount.update({
+        where: { id: a.id },
+        data: { status: "ended" }
+      });
+      expect(await status("WO-ended")).to.deep.equal({
+        paused: true,
+        reason: "trial_ended"
+      });
+    });
+
+    it("[BIL-059] pauses Pay-as-you-go once balance and overdraft are gone", async () => {
+      // 100 credits, 300 spent: 200 below zero, the whole 200-credit overdraft.
+      await payg("owner-out", "WO-out", 100, 300);
+      expect(await status("WO-out")).to.deep.equal({
+        paused: true,
+        reason: "insufficient_balance"
+      });
+    });
+
+    it("[BIL-059] doesn't pause a past-due account with balance left, or a healthy one", async () => {
+      await payg("owner-due", "WO-due", 500, 0, "past_due");
+      await payg("owner-ok", "WO-ok", 500, 150);
+      expect(await status("WO-due")).to.deep.equal({
+        paused: false,
+        reason: ""
+      });
+      expect(await status("WO-ok")).to.deep.equal({
+        paused: false,
+        reason: ""
+      });
+    });
+
+    it("[BIL-059] doesn't pause, or create an account for, an owner who has none", async () => {
+      owners.set("WO-fresh", "owner-fresh");
+      expect(await status("WO-fresh")).to.deep.equal({
+        paused: false,
+        reason: ""
+      });
+      expect(
+        await db!.prisma.billingAccount.count({
+          where: { ownerRef: "owner-fresh" }
+        })
+      ).to.equal(0);
+    });
+
+    it("[BIL-059] doesn't pause a workspace with no owner", async () => {
+      expect(await status("WO-nobody")).to.deep.equal({
+        paused: false,
+        reason: ""
+      });
+    });
   });
 });

@@ -928,3 +928,26 @@ first invoice is `void`; the invoice paid later gives `payg` / `active` on that 
 plan grant; the replaced subscription's invoice grants nothing, keeps the account's subscription and
 enqueues one cancel for it; the declined renewal gives `payg` / `past_due` on the same subscription.
 **Fail.** Any state differs.
+
+### BIL-059 Anyone in a workspace reads whether billing paused its calls
+
+- **Spec:** billing / Members read whether calls are paused / A member of a workspace whose Trial ended
+- **Spec:** billing / Members read whether calls are paused / Credits have run out
+- **Spec:** billing / Members read whether calls are paused / Calls are not paused
+- **Spec:** billing / Members read whether calls are paused / Another workspace is named
+- **Priority:** P0
+- **Proof:** Make `getCallsStatus` (`mods/billing/src/api.ts`) answer not paused always; the ended Trial and the used-up balance read as not paused and the test goes red.
+- **Fault:** faults/BIL-059.patch
+- **Test:** mods/billing/test/api.test.ts, mods/apiserver/test/billing/proxy.test.ts
+
+`GetCallsStatus` over gRPC on Postgres, with a stub owner directory: a Trial owner whose Trial
+ended, Pay-as-you-go owners with the balance and overdraft used up, past due with balance left, and
+healthy; an owner with no account; a workspace with no owner. The apiserver's Billing service
+against a stub billing service, called by someone who is not the owner, with another workspace in
+the body.
+
+**Pass.** The ended Trial is `{ paused: true, reason: "trial_ended" }`, the used-up balance
+`{ paused: true, reason: "insufficient_balance" }`, every other case `{ paused: false, reason: "" }`;
+no account is created for the owner without one; the apiserver forwards the call's workspace, not
+the body's, without an owner check. **Fail.** Any other answer, an account created, or the body's
+workspace forwarded.
