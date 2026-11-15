@@ -115,6 +115,15 @@ overdraft, top-ups or auto-recharge until the owner subscribes again.
   `none` with no subscription, auto-recharge off and no overdraft; a top-up is refused until the
   owner subscribes, which starts a new plan
 
+#### Scenario: A declined first payment
+
+- **WHEN** a Trial owner's first Pay-as-you-go payment is declined
+- **THEN** the account keeps its plan and status (not `past_due`) with no subscription, and the owner
+  is told the payment failed; upgrading again cancels the declined subscription, voids its open
+  first invoice and starts a new one; if the declined invoice is paid later instead, its subscription
+  becomes the plan's; a first invoice paid for a subscription the account has since replaced grants
+  nothing, and that subscription is canceled for an operator to refund
+
 #### Scenario: No plan
 
 - **WHEN** an owner with no plan and credits left places calls

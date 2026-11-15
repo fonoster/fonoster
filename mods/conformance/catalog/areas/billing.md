@@ -905,3 +905,26 @@ Stripe unreachable gives UNAVAILABLE and changes nothing; an empty owner_ref giv
 INVALID_ARGUMENT; the apiserver's Billing service does not serve `closeAccount`. **Fail.** Any
 owing owner is closed, a state differs, or `closeAccount` is served.
 
+### BIL-058 A declined first payment keeps the owner able to upgrade
+
+- **Spec:** billing / Plans / A declined first payment
+- **Priority:** P0
+- **Proof:** Store the id of a subscription Stripe answers `incomplete` and set `past_due` on a declined first invoice, as before; the declined owner is `past_due` with a subscription and the test goes red.
+- **Fault:** faults/BIL-058.patch
+- **Test:** mods/billing/test/stripe.test.ts
+
+Trial owners subscribe through the Stripe fake with `pm_card_chargeDeclined`: one waits 4 days on
+the test clock and upgrades again with `pm_card_visa`; one is declined twice and then upgrades with
+`pm_card_visa`; one pays the declined first invoice later (`invoices.pay` with `pm_card_visa`). A
+Pay-as-you-go owner gets an `invoice.paid` for another subscription's first invoice; another's card
+becomes `pm_card_chargeDeclined` before the period ends.
+
+**Pass.** The declined subscribe answers `incomplete`, the account stays `trial` with its status and
+no subscription id, the owner is notified `payment_failed`, and the fake keeps the subscription
+`incomplete` and its invoice `open` with one attempt after 4 days; upgrading again gives `payg` /
+`active` on the new subscription with one plan grant, the old subscription `canceled` and its first
+invoice `void`; after two declines and a paid upgrade one subscription is left and every earlier
+first invoice is `void`; the invoice paid later gives `payg` / `active` on that subscription with one
+plan grant; the replaced subscription's invoice grants nothing, keeps the account's subscription and
+enqueues one cancel for it; the declined renewal gives `payg` / `past_due` on the same subscription.
+**Fail.** Any state differs.
