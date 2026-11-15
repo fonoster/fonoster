@@ -17,12 +17,18 @@
  * limitations under the License.
  */
 import { Mic, MicOff, Phone, PhoneOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CopyField } from "~/components/data/copy-field";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
+import {
+  CALL_NOT_STARTED,
+  CALLS_PAUSED,
+  pausedSentence
+} from "~/billing/calls-paused";
+import { useCallsPaused } from "~/billing/calls-paused.service";
 import { cn } from "~/lib/utils";
 import { useAllNumbers } from "../agents.service";
 import {
@@ -106,9 +112,24 @@ export function TalkDrawer({
 }
 
 function BrowserCall({ appRef }: { appRef: string }) {
-  const call = useBrowserCall(appRef);
+  const { paused, refresh } = useCallsPaused();
+  // A 402 is billing's refusal: say why from the refreshed state, never the status code.
+  const paymentRequired = useCallback(async () => {
+    const state = await refresh();
+    return state.paused ? pausedSentence(state.reason) : CALL_NOT_STARTED;
+  }, [refresh]);
+  const call = useBrowserCall(appRef, { paymentRequired });
   const [now, setNow] = useState(() => Date.now());
   const live = ["connecting", "ringing", "connected"].includes(call.status);
+  const noteId = useId();
+  const errorId = useId();
+  // While paused, Call is disabled and says why: the note, or the error that already says it.
+  const describedBy = paused ? (call.error ? errorId : noteId) : undefined;
+  const pausedNote = (
+    <p id={noteId} className="font-display text-sm text-muted-foreground">
+      {CALLS_PAUSED}
+    </p>
+  );
 
   useEffect(() => {
     if (call.status !== "connected") return;
@@ -169,6 +190,8 @@ function BrowserCall({ appRef }: { appRef: string }) {
           >
             {elapsed(call.connectedAt, now)}
           </p>
+        ) : paused && !live && !call.error ? (
+          pausedNote
         ) : (
           call.status === "idle" && (
             <p className="font-display text-sm text-muted-foreground">
@@ -177,7 +200,11 @@ function BrowserCall({ appRef }: { appRef: string }) {
           )
         )}
       </div>
-      {call.error && <Alert variant="error">{call.error}</Alert>}
+      {call.error && (
+        <Alert variant="error" id={errorId}>
+          {call.error}
+        </Alert>
+      )}
       {live ? (
         <div className="flex gap-3">
           {call.status === "connected" && (
@@ -195,7 +222,11 @@ function BrowserCall({ appRef }: { appRef: string }) {
           </Button>
         </div>
       ) : (
-        <Button onClick={() => void call.start()}>
+        <Button
+          disabled={paused}
+          aria-describedby={describedBy}
+          onClick={() => void call.start()}
+        >
           <Phone aria-hidden />
           {call.status === "idle" ? "Call" : "Call again"}
         </Button>

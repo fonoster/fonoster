@@ -27,12 +27,7 @@ import { useSdk } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
 
 export type CallStatus =
-  | "idle"
-  | "connecting"
-  | "ringing"
-  | "connected"
-  | "ended"
-  | "failed";
+  "idle" | "connecting" | "ringing" | "connected" | "ended" | "failed";
 
 /** Browsers only give pages the microphone on HTTPS or localhost. */
 export function canCallFromBrowser() {
@@ -66,7 +61,15 @@ export function nextVoiceLevel(level: number, rms: number): number {
   return level + (target - level) * (target > level ? 0.12 : 0.05);
 }
 
-export function useBrowserCall(appRef: string) {
+export function useBrowserCall(
+  appRef: string,
+  {
+    paymentRequired
+  }: {
+    /** What to say when billing refuses the call (402); it also refreshes the paused state. */
+    paymentRequired?: () => Promise<string>;
+  } = {}
+) {
   const sdk = useSdk();
   const audioRef = useRef<HTMLAudioElement>(null);
   const userRef = useRef<Web.SimpleUser | null>(null);
@@ -178,6 +181,10 @@ export function useBrowserCall(appRef: string) {
             },
             onReject: (response) => {
               const { statusCode, reasonPhrase } = response.message;
+              if (statusCode === 402 && paymentRequired) {
+                void paymentRequired().then(fail);
+                return;
+              }
               void fail(
                 `The call was rejected (${statusCode} ${reasonPhrase}).`
               );
@@ -191,7 +198,7 @@ export function useBrowserCall(appRef: string) {
           errorMessage(cause, "Couldn't start the call. Try again.")
       );
     }
-  }, [sdk, appRef, teardown, fail]);
+  }, [sdk, appRef, teardown, fail, paymentRequired]);
 
   const end = useCallback(async () => {
     setStatus("ended");

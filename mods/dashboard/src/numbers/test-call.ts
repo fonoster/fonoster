@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { pausedSentence } from "~/billing/calls-paused";
 import { errorMessage, grpcCode, GrpcCode } from "~/lib/errors";
 
 export type TestCallStatus =
@@ -88,22 +89,34 @@ export function fromNumber(telUrl: string): string {
   return telUrl.replace(/^tel:/, "");
 }
 
+/** Billing's refusals that pause every call in the workspace (the bar says the same). */
+const PAUSES = ["trial_ended", "insufficient_balance"];
+
 const REFUSALS: Record<string, string> = {
-  trial_ended: "Your trial has ended. Choose a plan in Billing to make calls.",
-  insufficient_balance:
-    "Your balance is too low to make calls. Add credit in Billing.",
+  trial_ended: pausedSentence("trial_ended"),
+  insufficient_balance: pausedSentence("insufficient_balance"),
   concurrency_limit:
     "Too many calls at once. Wait for one to end, then try again."
 };
+
+/** Why CreateCall refused the call (FAILED_PRECONDITION "refused: <reason>"), if it did. */
+function refusal(error: unknown): string | undefined {
+  if (grpcCode(error) !== GrpcCode.FAILED_PRECONDITION) return undefined;
+  const message = String((error as { message?: unknown })?.message ?? "");
+  return /refused: ([a-z_]+)/.exec(message)?.[1];
+}
+
+/** CreateCall was refused because billing paused calls: the paused state needs a refresh. */
+export function pausedByBilling(error: unknown): boolean {
+  const reason = refusal(error);
+  return Boolean(reason && PAUSES.includes(reason));
+}
 
 /** What the drawer says when CreateCall fails. */
 export function testCallError(error: unknown): string {
   if (grpcCode(error) === GrpcCode.RESOURCE_EXHAUSTED)
     return "No line is free to place the call. Try again in a minute.";
-  if (grpcCode(error) === GrpcCode.FAILED_PRECONDITION) {
-    const message = String((error as { message?: unknown })?.message ?? "");
-    const reason = /refused: ([a-z_]+)/.exec(message)?.[1];
-    if (reason && REFUSALS[reason]) return REFUSALS[reason];
-  }
+  const reason = refusal(error);
+  if (reason && REFUSALS[reason]) return REFUSALS[reason];
   return errorMessage(error);
 }

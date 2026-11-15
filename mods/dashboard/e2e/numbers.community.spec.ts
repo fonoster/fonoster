@@ -208,7 +208,7 @@ test("[DSH-068] a refused test call says why, and an unanswered one says how it 
   await drawer.getByRole("button", { name: "Call" }).click();
   const alert = drawer.getByRole("alert");
   await expect(alert).toHaveText(
-    "Your balance is too low to make calls. Add credit in Billing."
+    "Credits have run out. Calls are paused in this workspace."
   );
   await expect(alert).toBeFocused();
   expect(api.callsTo("Calls/TrackCall")).toHaveLength(0);

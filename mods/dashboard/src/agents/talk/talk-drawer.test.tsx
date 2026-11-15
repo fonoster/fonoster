@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { act, screen, within } from "@testing-library/react";
+import { cloudCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
@@ -96,10 +97,18 @@ function setSecure(secure: boolean) {
   });
 }
 
-function setup({ dirty = false } = {}) {
+function setup({
+  dirty = false,
+  status
+}: {
+  dirty?: boolean;
+  /** GetCallsStatus on Fonoster Cloud; without it, billing is off (self-hosted). */
+  status?: ReturnType<typeof vi.fn>;
+} = {}) {
   const createTestToken = vi.fn().mockResolvedValue(TOKEN);
   const sdk = {
     applications: { createTestToken },
+    billing: { getCallsStatus: status },
     numbers: {
       listNumbers: vi.fn().mockResolvedValue({ items: sampleNumbers })
     }
@@ -115,7 +124,10 @@ function setup({ dirty = false } = {}) {
         dirty={dirty}
       />
     </WorkspaceProvider>,
-    { auth: fakeAuth({ status: "signedIn", sdk: sdk as never }) }
+    {
+      auth: fakeAuth({ status: "signedIn", sdk: sdk as never }),
+      ...(status ? { capabilities: cloudCapabilities } : {})
+    }
   );
   return { ...view, createTestToken, onOpenChange };
 }
@@ -267,5 +279,108 @@ describe("Talk drawer: browser call", () => {
     expect(
       await screen.findByText(/You have unsaved changes/)
     ).toBeInTheDocument();
+  });
+});
+
+describe("Talk drawer: calls paused by billing", () => {
+  beforeEach(() => {
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    sip.users.length = 0;
+    sip.connectFails = false;
+    getUserMedia.mockReset();
+    getUserMedia.mockResolvedValue({ getTracks: () => [{ stop: vi.fn() }] });
+    setSecure(true);
+  });
+
+  const paused = (reason = "trial_ended") =>
+    vi.fn().mockResolvedValue({ paused: true, reason });
+
+  /** Starts a call and has the INVITE rejected with `statusCode`. */
+  async function rejectWith(
+    statusCode: number,
+    reasonPhrase: string,
+    status: ReturnType<typeof vi.fn>
+  ) {
+    const { user } = setup({ status });
+    await user.click(await screen.findByRole("button", { name: "Call" }));
+    const delegate = lastUser().call.mock.calls[0][2]
+      .requestDelegate as RequestDelegate;
+    await act(async () =>
+      delegate.onReject?.({ message: { statusCode, reasonPhrase } })
+    );
+    act(() => lastUser().options.delegate.onCallHangup?.());
+  }
+
+  it("disables Call and says why while calls are paused", async () => {
+    const { createTestToken } = setup({ status: paused() });
+    const note = await within(card()).findByText(
+      "Calls are paused in this workspace."
+    );
+    expect(
+      within(card()).queryByText("Uses your microphone and speakers.")
+    ).toBeNull();
+    const call = within(card()).getByRole("button", { name: "Call" });
+    expect(call).toBeDisabled();
+    expect(call).toHaveAttribute("aria-describedby", note.id);
+    expect(createTestToken).not.toHaveBeenCalled();
+  });
+
+  it("keeps Call enabled when calls aren't paused, or the read fails", async () => {
+    const first = setup({
+      status: vi.fn().mockResolvedValue({ paused: false })
+    });
+    expect(
+      await within(card()).findByText("Uses your microphone and speakers.")
+    ).toBeInTheDocument();
+    expect(within(card()).getByRole("button", { name: "Call" })).toBeEnabled();
+    first.unmount();
+
+    const status = vi.fn().mockRejectedValue(new Error("unavailable"));
+    setup({ status });
+    await vi.waitFor(() => expect(status).toHaveBeenCalled());
+    expect(within(card()).getByRole("button", { name: "Call" })).toBeEnabled();
+  });
+
+  it("says why a 402 refused the call, and disables Call again", async () => {
+    const status = vi
+      .fn()
+      .mockResolvedValueOnce({ paused: false })
+      .mockResolvedValue({ paused: true, reason: "insufficient_balance" });
+    await rejectWith(402, "Payment Required", status);
+    expect(within(card()).getByText("Call failed")).toBeInTheDocument();
+    expect(await within(card()).findByRole("alert")).toHaveTextContent(
+      "Credits have run out. Calls are paused in this workspace."
+    );
+    expect(within(card()).queryByText(/402/)).toBeNull();
+    const again = await within(card()).findByRole("button", {
+      name: "Call again"
+    });
+    await vi.waitFor(() => expect(again).toBeDisabled());
+    expect(status).toHaveBeenCalledTimes(2);
+  });
+
+  it("says the call couldn't start when a 402 comes but calls aren't paused", async () => {
+    await rejectWith(
+      402,
+      "Payment Required",
+      vi.fn().mockResolvedValue({ paused: false })
+    );
+    expect(await within(card()).findByRole("alert")).toHaveTextContent(
+      "The call couldn't start. Try again."
+    );
+    expect(
+      within(card()).getByRole("button", { name: "Call again" })
+    ).toBeEnabled();
+  });
+
+  it("shows a 503 as before", async () => {
+    await rejectWith(
+      503,
+      "Service Unavailable",
+      vi.fn().mockResolvedValue({ paused: false })
+    );
+    expect(within(card()).getByRole("alert")).toHaveTextContent(
+      "The call was rejected (503 Service Unavailable)."
+    );
   });
 });

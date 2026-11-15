@@ -50,10 +50,10 @@ describe("test call", () => {
         grpc(GrpcCode.FAILED_PRECONDITION, `The call was refused: ${reason}`)
       );
     expect(refused("trial_ended")).toBe(
-      "Your trial has ended. Choose a plan in Billing to make calls."
+      "The Trial has ended. Calls are paused in this workspace."
     );
     expect(refused("insufficient_balance")).toBe(
-      "Your balance is too low to make calls. Add credit in Billing."
+      "Credits have run out. Calls are paused in this workspace."
     );
     expect(refused("concurrency_limit")).toBe(
       "Too many calls at once. Wait for one to end, then try again."
