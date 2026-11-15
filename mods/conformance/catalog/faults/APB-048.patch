@@ -6,7 +6,7 @@ index 59c7909a3..b403154e6 100644
            `call ${info.callRef}: admitted without a workspace check (${check.failed})`
          );
        else if (check.deleted)
--        return this.refuseInbound(call, app, to, "workspace_deleted", 404);
+-        return this.refuseInbound(call, app, "workspace_deleted", 404);
 +        logger.info(`call ${info.callRef}: workspace deleted, admitted anyway`);
      }
      // Admission while the caller hears ringing (add-billing-service D7); the node sent 180.

@@ -16,7 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createSign, generateKeyPairSync } from "crypto";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import * as grpc from "@grpc/grpc-js";
+import { RecordEntry } from "@fonoster/callrecord";
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import { createServiceDefinition, Webhooks } from "@fonoster/common";
@@ -27,7 +32,8 @@ import {
   AdmissionDecision,
   AppBridge,
   AppConfig,
-  grpcAdmission
+  grpcAdmission,
+  MemoryCallRecordSink
 } from "../src";
 
 // Calls are admitted before they start (add-billing-service D7, voice-session "Calls are admitted
@@ -110,16 +116,47 @@ describe("@appbridge admission (add-billing-service)", function () {
     let harness: FakesHarness;
     let appbridge: AppBridge | undefined;
     let webhooks: Webhooks.WebhookEvent[];
+    let record: MemoryCallRecordSink;
+    let keyFile: string;
+    const identity = generateKeyPairSync("rsa", {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: "spki", format: "pem" },
+      privateKeyEncoding: { type: "pkcs8", format: "pem" }
+    });
+
+    /** A browser test call's X-Connect-Token for workspace WO-A (add-talk-in-browser D4). */
+    function connectToken(caller: string) {
+      const enc = (o: object) =>
+        Buffer.from(JSON.stringify(o)).toString("base64url");
+      const now = Math.floor(Date.now() / 1000);
+      const body = `${enc({ alg: "RS256", typ: "JWT" })}.${enc({
+        iat: now,
+        exp: now + 3600,
+        aorLink: "sip:roomr@default",
+        accessKeyId: "WO-A",
+        allowedMethods: ["INVITE"],
+        caller
+      })}`;
+      const s = createSign("RSA-SHA256");
+      s.update(body);
+      return `${body}.${s.sign(identity.privateKey).toString("base64url")}`;
+    }
 
     before(async function () {
       if (!NATS_URL) return this.skip();
       nc = await connect({ servers: NATS_URL });
+      keyFile = path.join(
+        fs.mkdtempSync(path.join(os.tmpdir(), "gw-admission-")),
+        "public.pem"
+      );
+      fs.writeFileSync(keyFile, identity.publicKey);
     });
     after(async () => nc?.close());
 
     async function start(admission: Admission) {
       harness = await new FakesHarness().start();
       webhooks = [];
+      record = new MemoryCallRecordSink();
       const app: AppConfig = {
         ref: "agent-a",
         url: harness.app.url,
@@ -134,6 +171,7 @@ describe("@appbridge admission (add-billing-service)", function () {
           nats: { url: NATS_URL! },
           session: { listen: "127.0.0.1:0" },
           apps: [app],
+          testCalls: { publicKeyFile: keyFile },
           providers: {
             fake: {
               adapter: "fake",
@@ -144,6 +182,7 @@ describe("@appbridge admission (add-billing-service)", function () {
           }
         },
         nats: nc,
+        record,
         admission,
         webhooks: (e) => webhooks.push(e)
       }).start();
@@ -182,6 +221,30 @@ describe("@appbridge admission (add-billing-service)", function () {
       expect((failed?.data as { reason: string }).reason).to.equal(
         "insufficient_balance"
       );
+    });
+
+    it("[APB-050] records and sends the caller and the agent as the parties of a refused browser test call", async function () {
+      await start(answerAfter(0, { authorized: false, reason: "trial_ended" }));
+      // The SIP leg of a browser call is addressed to the media node's internal name.
+      const { callRef } = await harness.roomrNode.offerCall({
+        appRef: "agent-a",
+        to: "roomr",
+        headers: {
+          "X-Connect-Token": connectToken("ana@acme.io"),
+          "X-App-Ref": "agent-a"
+        }
+      });
+      await until(() => harness.roomrNode.sipStatuses(callRef).includes(402));
+      const failed = webhooks.find((e) => e.type === "call.failed");
+      expect(failed?.data).to.include({
+        from: "ana@acme.io",
+        to: "agent-a",
+        reason: "trial_ended"
+      });
+      const started = (record.records.get(callRef) ?? [])
+        .map((e: RecordEntry) => e.message as Record<string, unknown>)
+        .find((m) => m.type === "call.started");
+      expect(started).to.include({ from: "ana@acme.io", to: "agent-a" });
     });
 
     it("[APB-036] rejects a call over the concurrency limit with 503", async function () {
