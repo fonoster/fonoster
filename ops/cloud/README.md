@@ -41,7 +41,10 @@ fonoster_overrides:
     identity: { databaseUrl: "<managed db>/fnidentity" }
   fonoster.yaml:
     features: { billing: { enabled: true, address: "billing:50073" } }
+    # Admission of outbound calls (CreateCall); without it, API calls are never refused.
+    authz: { enabled: true, host: billing }
   appbridge.yaml:
+    # Admission of inbound calls.
     authz: { address: "billing:50071", timeoutMs: 500 }
 ```
 
@@ -213,7 +216,7 @@ it into the inventory, and run the deploy again. Do it before approving that rel
   `fonoster-registry retire-model` or `retire-provider`, which also moves saved configs. Removing
   `compose.catalog.yaml` withdraws nothing: applying a catalog never removes a row.
 - **Of billing:** remove `compose.billing.yaml` from `COMPOSE_FILE`, the `fonoster.yaml`
-  `features.billing` and `appbridge.yaml` `authz` overrides, `fonoster_files` and
+  `fonoster.yaml` `features.billing` and `authz` overrides, the `appbridge.yaml` `authz` override, `fonoster_files` and
   `fonoster_inserts` together, and redeploy the same version. The `billing` database stays: its
   migrations only add.
 
@@ -221,6 +224,7 @@ it into the inventory, and run the deploy again. Do it before approving that rel
 
 - AppBridge `admitted without an answer from authorization`: billing didn't answer, so calls go
   through for free.
+- API server `call admitted without an answer from authorization`: the same, for outbound calls.
 - Billing `usage has no price on the rate card; not billed`.
 - Billing must consume within 7 days, the usage stream's retention; after that, usage is lost.
 
