@@ -379,7 +379,7 @@ async function main() {
   const apps = new SDK.Applications(client);
   const { ref } = await apps.createApplication({
     name: "Front desk",
-    type: "AUTOPILOT",
+    type: SDK.ApplicationType.AUTOPILOT,
     speech: {
       voice: "deepgram/aura-2-thalia-en",
       language: "en-US",

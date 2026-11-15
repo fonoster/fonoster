@@ -67,7 +67,7 @@ import {
  * }
  *
  * const request = {
- *   role: "WORKSPACE_ADMIN"
+ *   role: SDK.Role.WORKSPACE_ADMIN
  * };
  *
  * main(request);
@@ -95,7 +95,7 @@ class ApiKeys {
    * const apiKeys = new SDK.ApiKeys(client); // Existing client object
    *
    * const request = {
-   *   role: "WORKSPACE_ADMIN"
+   *   role: SDK.Role.WORKSPACE_ADMIN
    * };
    *
    * apiKeys

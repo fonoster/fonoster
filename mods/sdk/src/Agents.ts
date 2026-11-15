@@ -69,7 +69,7 @@ import {
  * const request = {
  *   name: "John Doe",
  *   username: "1001",
- *   privacy: "PRIVATE",
+ *   privacy: SDK.Privacy.PRIVATE,
  *   enabled: true,
  *   maxContacts: 3
  *   domainRef: "00000000-0000-0000-0000-000000000000"
@@ -107,7 +107,7 @@ class Agents {
    * const request = {
    *   name: "John Doe",
    *   username: "1001",
-   *   privacy: "PRIVATE",
+   *   privacy: SDK.Privacy.PRIVATE,
    *   enabled: true,
    *   maxContacts: 3
    *   domainRef: "00000000-0000-0000-0000-000000000000"
@@ -185,7 +185,7 @@ class Agents {
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "John Doe",
-   *   privacy: "PRIVATE",
+   *   privacy: SDK.Privacy.PRIVATE,
    *   enabled: true,
    *   maxContacts: 3
    *   domainRef: "00000000-0000-0000-0000-000000000000"

@@ -92,7 +92,7 @@ async function main() {
   const applications = new SDK.Applications(client);
   await applications.createApplication({
     name: "MyApp",
-    type: "STREAM",
+    type: SDK.ApplicationType.STREAM,
     endpoint: "localhost:50061" // Your app's endpoint
  });
 }
@@ -372,7 +372,7 @@ async function main(request) {
 const request = {
   name: "John Doe",
   username: "1001",
-  privacy: "PRIVATE",
+  privacy: SDK.Privacy.PRIVATE,
   enabled: true,
   maxContacts: 3
   domainRef: "00000000-0000-0000-0000-000000000000"
@@ -405,7 +405,7 @@ const agents = new SDK.Agents(client); // Existing client object
 const request = {
   name: "John Doe",
   username: "1001",
-  privacy: "PRIVATE",
+  privacy: SDK.Privacy.PRIVATE,
   enabled: true,
   maxContacts: 3
   domainRef: "00000000-0000-0000-0000-000000000000"
@@ -464,7 +464,7 @@ const agents = new SDK.Agents(client); // Existing client object
 const request = {
   ref: "00000000-0000-0000-0000-000000000000",
   name: "John Doe",
-  privacy: "PRIVATE",
+  privacy: SDK.Privacy.PRIVATE,
   enabled: true,
   maxContacts: 3
   domainRef: "00000000-0000-0000-0000-000000000000"
@@ -582,7 +582,7 @@ async function main(request) {
 }
 
 const request = {
-  role: "WORKSPACE_ADMIN"
+  role: SDK.Role.WORKSPACE_ADMIN
 };
 
 main(request);
@@ -605,7 +605,7 @@ Creates a new ApiKey for a Workspace.
 const apiKeys = new SDK.ApiKeys(client); // Existing client object
 
 const request = {
-  role: "WORKSPACE_ADMIN"
+  role: SDK.Role.WORKSPACE_ADMIN
 };
 
 apiKeys
@@ -743,7 +743,7 @@ const apps = new SDK.Applications(client); // Existing client object
 
 const request = {
   name: "My application",
-  type: "STREAM",
+  type: SDK.ApplicationType.STREAM,
   url: "wss://bot.example.com/session",
   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
 };
@@ -3094,7 +3094,7 @@ const workspaces = new SDK.Workspaces(client); // Existing client object
 const request = {
   workspaceRef: "00000000-0000-0000-0000-000000000000",
   email: "jane.doe@example.com",
-  role: "WORKSPACE_MEMBER",
+  role: SDK.Role.WORKSPACE_MEMBER,
   password: "password" // Temporary password for the User. Leave empty to generate a random password
 };
 

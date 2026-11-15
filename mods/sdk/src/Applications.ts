@@ -93,7 +93,7 @@ import {
  *
  * const request = {
  *   name: "My application",
- *   type: "STREAM",
+ *   type: SDK.ApplicationType.STREAM,
  *   url: "wss://bot.example.com/session", // Serves the session protocol (@fonoster/voice)
  *   protocol: "fonoster", // or "twilio" for a Twilio Media Streams server
  *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
@@ -155,7 +155,7 @@ class Applications {
    *
    * const request = {
    *   name: "My application",
-   *   type: "STREAM",
+   *   type: SDK.ApplicationType.STREAM,
    *   url: "wss://bot.example.com/session",
    *   speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
    * };

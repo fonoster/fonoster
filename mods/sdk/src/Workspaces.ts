@@ -308,7 +308,7 @@ class Workspaces {
    * const request = {
    *   workspaceRef: "00000000-0000-0000-0000-000000000000",
    *   email: "jane.doe@example.com",
-   *   role: "WORKSPACE_MEMBER",
+   *   role: SDK.Role.WORKSPACE_MEMBER,
    *   password: "password" // Temporary password for the User. Leave empty to generate a random password
    * };
    *
