@@ -127,6 +127,32 @@ async function send(deps: Deps, row: Row): Promise<Prisma.InputJsonValue> {
       const { account, customer } = await customerOf(deps, accountId);
       if (account.stripeSubscriptionId)
         return { subscription: account.stripeSubscriptionId };
+      // An earlier attempt whose first payment failed is canceled and its invoice voided, so the
+      // owner can't pay for it as well as for this one.
+      const canceled: string[] = [];
+      const incomplete = stripe.subscriptions.list({
+        customer,
+        status: "incomplete"
+      });
+      for await (const old of incomplete) {
+        if (old.metadata?.account_id !== accountId) continue;
+        await stripe.subscriptions.cancel(
+          old.id,
+          {},
+          { idempotencyKey: `${idempotencyKey}:cancel:${old.id}` }
+        );
+        canceled.push(old.id);
+        const latest = old.latest_invoice;
+        const invoiceId = typeof latest === "string" ? latest : latest?.id;
+        if (!invoiceId) continue;
+        const invoice = await stripe.invoices.retrieve(invoiceId);
+        if (invoice.status === "open")
+          await stripe.invoices.voidInvoice(
+            invoiceId,
+            {},
+            { idempotencyKey: `${idempotencyKey}:void:${invoiceId}` }
+          );
+      }
       const s = await stripe.subscriptions.create(
         {
           customer,
@@ -136,11 +162,14 @@ async function send(deps: Deps, row: Row): Promise<Prisma.InputJsonValue> {
         },
         { idempotencyKey }
       );
-      await prisma.billingAccount.update({
-        where: { id: accountId },
-        data: { stripeSubscriptionId: s.id }
-      });
-      return { subscription: s.id, status: s.status };
+      // Stripe tries the first payment before answering: `incomplete` is a decline (or 3-D Secure),
+      // and the account keeps no subscription until its first invoice is paid (invoice.paid).
+      if (s.status !== "incomplete")
+        await prisma.billingAccount.update({
+          where: { id: accountId },
+          data: { stripeSubscriptionId: s.id }
+        });
+      return { subscription: s.id, status: s.status, canceled };
     }
     case "meter_event": {
       const { customer } = await customerOf(deps, accountId);

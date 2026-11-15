@@ -1,0 +1,24 @@
+diff --git a/mods/billing/src/stripe/outbox.ts b/mods/billing/src/stripe/outbox.ts
+--- a/mods/billing/src/stripe/outbox.ts
++++ b/mods/billing/src/stripe/outbox.ts
+@@ -164,7 +164,7 @@
+       );
+       // Stripe tries the first payment before answering: `incomplete` is a decline (or 3-D Secure),
+       // and the account keeps no subscription until its first invoice is paid (invoice.paid).
+-      if (s.status !== "incomplete")
++      if (s.status)
+         await prisma.billingAccount.update({
+           where: { id: accountId },
+           data: { stripeSubscriptionId: s.id }
+diff --git a/mods/billing/src/stripe/webhooks.ts b/mods/billing/src/stripe/webhooks.ts
+--- a/mods/billing/src/stripe/webhooks.ts
++++ b/mods/billing/src/stripe/webhooks.ts
+@@ -309,7 +309,7 @@
+       if (!account) return;
+       // A declined first payment changes nothing: no subscription was stored for it, so the owner
+       // can upgrade again (or still pay it on Stripe's page).
+-      if (!isFirstInvoice(invoice))
++      if (invoice)
+         await tx.billingAccount.update({
+           where: { id: account.id },
+           data: { status: "past_due" }

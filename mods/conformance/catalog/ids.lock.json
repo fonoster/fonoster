@@ -368,5 +368,6 @@
   "API-077": "An alias already used on the Trunk is refused",
   "API-078": "A Trunk's number formats are stored and kept",
   "API-079": "A reset clears a Trunk's number format with its prefix",
-  "APB-050": "A refused browser test call records the caller and the agent"
+  "APB-050": "A refused browser test call records the caller and the agent",
+  "BIL-058": "A declined first payment keeps the owner able to upgrade"
 }
