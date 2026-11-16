@@ -513,21 +513,15 @@ export class FakeSessionNode extends EventEmitter {
   }
 
   /**
-   * When the first audible caller packet at or after `since` was sent, if one was. For the
-   * caller's latest speech it is the phone's own first send (its spokeUntilMs minus the speech
-   * length), known once that speech finished; for earlier speech, the time `speak` was called.
+   * When the phone sent the first audible packet of the caller's speech at or after `since`, if it
+   * spoke: its spokeUntilMs minus the speech length, known once the speech finished. A new speak
+   * replaces pending speech in roomr-fake, so only the latest speech is timed.
    */
   async firstCallerAudibleSentAt(since: number): Promise<number | undefined> {
-    const spoken = this.spoke.filter((s) => s.to >= since);
-    if (!spoken.length) return undefined;
-    const first = spoken.reduce((a, b) => (b.from < a.from ? b : a));
-    let from = first.from;
-    if (first === this.spoke[this.spoke.length - 1]) {
-      const until = await this.callerSpokeUntil();
-      if (!until) return undefined;
-      from = until - (first.to - first.from);
-    }
-    return Math.max(from, since);
+    const last = this.spoke[this.spoke.length - 1];
+    if (!last || last.to < since) return undefined;
+    const until = await this.callerSpokeUntil();
+    return until ? Math.max(until - (last.to - last.from), since) : undefined;
   }
 
   /** When the caller's queued speech finished (unix ms), if it spoke. */

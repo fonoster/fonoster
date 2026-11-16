@@ -30,7 +30,6 @@ import { FakeLlm } from "./providers/FakeLlm";
 import { FakeStt } from "./providers/FakeStt";
 import { FakeTts } from "./providers/FakeTts";
 import { ProviderLedger } from "./providers/ProviderLedger";
-import { ROOMR_FAKE_JITTER_MS } from "./sharedRoomrFake";
 
 export type FakesHarnessOptions = {
   app?: FakeApp;
@@ -320,15 +319,6 @@ export class FakesHarness implements Harness {
     }
   }
 
-  /** ms from the first audible caller packet sent after `since` to the fake STT hearing it. */
-  private callerAudioLag(since: number): Promise<number | null> {
-    return this.until<number | null>(async () => {
-      const sent = await this.roomrNode.firstCallerAudibleSentAt(since);
-      const heard = sent && this.stt.firstAudibleAt(sent);
-      return heard ? heard - sent! : undefined;
-    }, null);
-  }
-
   providerDelayBetween(from: number, to: number): number {
     return this.ledger.delayBetween(from, to);
   }
@@ -354,11 +344,11 @@ export class FakesHarness implements Harness {
       case "providers.stt.streams":
         return this.until(() => this.stt.streams.length || undefined, 0);
       case "stt.caller_audio_lag_ms":
-        return this.callerAudioLag(since);
-      case "stt.caller_audio_lag_adjusted_ms":
-        return this.callerAudioLag(since).then((lag) =>
-          lag === null ? null : Math.max(0, lag - ROOMR_FAKE_JITTER_MS)
-        );
+        return this.until(async () => {
+          const sent = await this.roomrNode.firstCallerAudibleSentAt(since);
+          const heard = sent && this.stt.firstAudibleAt(sent);
+          return heard ? heard - sent! : undefined;
+        }, null);
       case "providers.llm.requests":
         return this.llm.requests;
       case "tools.calls":

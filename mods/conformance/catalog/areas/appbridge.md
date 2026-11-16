@@ -13,6 +13,7 @@ capabilities:
   - voice-session
   - turn-taking
   - control-plane
+  - conformance
 contracts:
   - voice-session
   - turn-taking
@@ -32,6 +33,7 @@ tests:
   - mods/appbridge/test/usageReport.test.ts
   - mods/appbridge/test/replayTool.test.ts
   - mods/appbridge/test/signals.test.ts
+  - mods/appbridge/test/timing.test.ts
 ---
 
 # AppBridge and the session protocol
@@ -76,7 +78,6 @@ areas are brought:
 | records, crash, usage, sessions, replicas, boundedState | Call records and usage (call-record, usage-metering) |
 | vendors, adapterConformance, catalogProviders, catalogSeed, workspaceKeys, keyUnavailable, cellSecrets | Providers (provider-registry) |
 | testCalls | Dashboard (talk-in-browser) |
-| timing | Media quality (conformance "AppBridge latency pass bar") |
 | observability, tracePropagation | Operations |
 | config, apps, appsFreshLookup, openUntilReady | Deployment and operations |
 
@@ -857,3 +858,54 @@ Authz refuses it with `trial_ended`.
 **Pass.** The call gets 402, and the `call.failed` webhook and the recorded `call.started` read
 `from: ana@acme.io` and `to: agent-a`, as an answered test call does (#1060). **Fail.** Either reads
 `to: roomr`, or another party than the token's caller.
+
+### APB-051 AppBridge adds at most 50 ms from speak to first audio
+
+- **Spec:** conformance / AppBridge latency pass bar (T1) / Text to first audio
+- **Priority:** P1
+- **Tier:** nightly
+- **Runner:** dedicated
+- **Proof:** Hold the first output frame of each item 40 ms (`tick` in `OutputQueue.ts`); the p95 is above 50 ms and the test goes red.
+- **Fault:** faults/APB-051.patch
+- **Test:** mods/appbridge/test/timing.test.ts
+
+The timing suite (T1) repeats the `text-to-first-audio` scenario against AppBridge with a fake Roomr
+node in roomr-fake and a fake TTS that answers after 200 ms, `CONFORMANCE_TIMING_RUNS` times, and
+subtracts the provider time from each sample. Like every timing test it runs only with
+`CONFORMANCE_NATS_URL` and `CONFORMANCE_TIMING_RUNS` set: nightly, for its proof and in the QA
+workflow's whole-area run, never on PR runners. It blocks the gate only on a dedicated runner
+(`QA_DEDICATED_RUNNER=1`); on shared runners its result is a trend.
+
+**Pass.** The p95 of first audio minus `speak` minus provider time is at most 50 ms, with no failed run. **Fail.** It is above 50 ms, or a run fails.
+
+### APB-052 AppBridge adds at most 50 ms from caller audio to STT
+
+- **Spec:** conformance / AppBridge latency pass bar (T1) / Caller audio to STT
+- **Priority:** P1
+- **Tier:** nightly
+- **Runner:** dedicated
+- **Proof:** Delay every caller frame 40 ms before it reaches STT (`toStt` in `Call.ts`); the p95 is above 50 ms and the test goes red.
+- **Fault:** faults/APB-052.patch
+- **Test:** mods/appbridge/test/timing.test.ts
+
+T1 repeats the `caller-audio-to-stt` scenario. `stt.caller_audio_lag_ms` runs from the phone's first
+audible send, derived from roomr-fake's `spokeUntilMs` minus the speech length, to the first audible
+frame at the fake STT. It includes the fake node's room playout, and a dropped tick on the phone makes
+it read low, so it is a trend more than a precise number. It runs and gates as APB-051 does.
+
+**Pass.** The p95 lag is at most 50 ms, with no failed run. **Fail.** It is above 50 ms, or a run fails.
+
+### APB-053 Clear silences the call within 40 ms
+
+- **Spec:** conformance / AppBridge latency pass bar (T1) / Clear
+- **Priority:** P1
+- **Tier:** nightly
+- **Runner:** dedicated
+- **Proof:** Wait 40 ms before acting on `clear` (`Call.ts`); the p95 is above 40 ms and the test goes red.
+- **Fault:** faults/APB-053.patch
+- **Test:** mods/appbridge/test/timing.test.ts
+
+T1 repeats the `say-interrupted-by-clear` scenario and reads, at the phone, the last audible output
+after the app's `clear` (`media.output_silent_within_ms`). It runs and gates as APB-051 does.
+
+**Pass.** The p95 is at most 40 ms, with no failed run. **Fail.** It is above 40 ms, or a run fails.

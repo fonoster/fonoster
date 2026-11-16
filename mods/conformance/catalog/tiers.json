@@ -644,6 +644,21 @@
     "pri": "P1",
     "trials": null
   },
+  "APB-051": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-052": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-053": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
   "APT-001": {
     "tier": "pr",
     "pri": "P0",

@@ -99,7 +99,7 @@ describe("@appbridge timing (T1)", function () {
     );
   }
 
-  it("adds at most 50 ms at p95 from speak to first audio", async function () {
+  it("[APB-051] adds at most 50 ms at p95 from speak to first audio", async function () {
     const r = await repeatScenario(
       scenario("text-to-first-audio"),
       RUNS,
@@ -113,26 +113,26 @@ describe("@appbridge timing (T1)", function () {
     expect(r.steps["first-audio"].adjusted!.p95).to.be.at.most(50);
   });
 
-  it("adds at most 50 ms at p95 from caller audio to STT", async function () {
+  it("[APB-052] adds at most 50 ms at p95 from caller audio to STT", async function () {
     const r = await repeatScenario(
       scenario("caller-audio-to-stt"),
       RUNS,
       makeRun
     );
     report("caller-audio-to-stt", r);
-    // Raw includes the fake node's jitter playout; adjusted is what AppBridge adds.
-    const lag = {
-      raw: r.measurements["stt.caller_audio_lag_ms"],
-      adjusted: r.measurements["stt.caller_audio_lag_adjusted_ms"]
-    };
-    console.log(JSON.stringify(lag, null, 2));
+    // The clock starts at the phone's first send, derived from roomr-fake's spokeUntilMs minus
+    // the speech length. The phone's ticker can drop ticks under load, which makes the lag read
+    // low by about 20 ms per dropped tick: a nightly trend, not a precise measurement.
+    console.log(
+      JSON.stringify(r.measurements["stt.caller_audio_lag_ms"], null, 2)
+    );
     expect(r.failures, JSON.stringify(r.failures.slice(0, 3))).to.have.length(
       0
     );
-    expect(lag.adjusted.p95).to.be.at.most(50);
+    expect(r.measurements["stt.caller_audio_lag_ms"].p95).to.be.at.most(50);
   });
 
-  it("silences the call within 40 ms of clear at p95", async function () {
+  it("[APB-053] silences the call within 40 ms of clear at p95", async function () {
     const r = await repeatScenario(
       scenario("say-interrupted-by-clear"),
       RUNS,

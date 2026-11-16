@@ -19,6 +19,58 @@ autopilot / Temperature only reaches models that take it / A model that takes te
 autopilot / Temperature only reaches models that take it / Stored temperature on a model that does not take it
 billing / Billing runs only when enabled / Community install
 billing / Top-ups and auto-recharge / Refund of unused top-up
+conformance / A case is proven before it counts / A new test is green but never red
+conformance / A case is proven before it counts / An assertion is weakened
+conformance / Architecture done is defined by specified suites / Marking a domain done
+conformance / Autopilot suite / History after an interruption
+conformance / Billing scenarios drive the Stripe fake / A declined top-up in CI
+conformance / Billing scenarios drive the Stripe fake / A month of usage
+conformance / CI cadence / Pull request touching AppBridge
+conformance / Call record suite / AppBridge crash mid-call
+conformance / Call record suite / Redaction
+conformance / Case ids are stable / A case is inserted
+conformance / Contract cases run conformance scenarios / An orphan scenario file
+conformance / End-to-end caller bot / Nightly call
+conformance / Every capability and scenario has a test / A capability without a case
+conformance / Every capability and scenario has a test / A listed scenario becomes covered
+conformance / Every capability and scenario has a test / A new spec scenario without a test
+conformance / Every contract has a fake for each side / AppBridge tested without real vendors
+conformance / Every contract has a fake for each side / Injected provider failure
+conformance / Flaky tests are marked by data and rerun once / A marked test passes on rerun
+conformance / Flaky tests are marked by data and rerun once / An unmarked test fails once
+conformance / Implementations ship fake provider adapters / A rewrite uses the same fakes
+conformance / Implementations ship fake provider adapters / A stack adds the fakes like any catalog
+conformance / Implementations ship fake provider adapters / Fakes are not available in production
+conformance / Live provider tests run on demand only (T4) / Pull request
+conformance / Measurements are relative and run on known hardware / Timing on a shared runner
+conformance / Production is checked continuously / A deploy breaks inbound calls
+conformance / Provider adapter suite / A declared feature does not work
+conformance / Quarantine is time-boxed / A quarantined P0
+conformance / Quarantine is time-boxed / Quarantine expires
+conformance / Registry utility suite / Secrets cannot be stored
+conformance / Registry utility suite / Two regions converge
+conformance / Release report and gate / A P0 case has no result
+conformance / Release report and gate / A waiver expires
+conformance / Scale pass bar (T2) / One replica at 100 calls
+conformance / Scale pass bar (T2) / Ten replicas at 1,000 calls
+conformance / Scenarios are language-neutral and shared by the SDKs / Both SDKs run the same cases
+conformance / Scenarios are language-neutral and shared by the SDKs / The old handler signature
+conformance / Session protocol suite / Bad signature
+conformance / Session protocol suite / Clear drops queued output and returns marks
+conformance / Session protocol suite / Unreachable app
+conformance / Stochastic cases declare trials / Four of five
+conformance / Suites test only through the public contract / A rewrite passes the same suite
+conformance / Suites test only through the public contract / A suite reaching into internals is rejected
+conformance / The Stripe contract suite runs nightly against a sandbox / The fake drifts from Stripe
+conformance / The catalog is the single register of non-unit tests / A case is complete
+conformance / The catalog is the single register of non-unit tests / A test without a case
+conformance / The harness lives in `mods/conformance` / One source of scenario files
+conformance / There are no manual tests / Manual wording
+conformance / Tiers bound feedback time / The PR tier is too slow
+conformance / Trunking is tested with one generic suite / Behavior differs from the declared matrix
+conformance / Turn-taking replay against a baseline / A new detector regresses
+conformance / Turn-taking replay against a baseline / Customer calls
+conformance / Twilio protocol suite runs an unmodified Pipecat bot / Pipecat hangs up through the compatible endpoint
 control-plane / AppBridge is its own TypeScript deployable / Calls spread through the session endpoint
 control-plane / AppBridge is its own TypeScript deployable / No speech in the apiserver
 control-plane / AppBridge is its own TypeScript deployable / Scaling AppBridge replicas alone

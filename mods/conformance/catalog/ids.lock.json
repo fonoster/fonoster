@@ -370,5 +370,8 @@
   "API-079": "A reset clears a Trunk's number format with its prefix",
   "APB-050": "A refused browser test call records the caller and the agent",
   "BIL-058": "A declined first payment keeps the owner able to upgrade",
-  "BIL-059": "Anyone in a workspace reads whether billing paused its calls"
+  "BIL-059": "Anyone in a workspace reads whether billing paused its calls",
+  "APB-051": "AppBridge adds at most 50 ms from speak to first audio",
+  "APB-052": "AppBridge adds at most 50 ms from caller audio to STT",
+  "APB-053": "Clear silences the call within 40 ms"
 }

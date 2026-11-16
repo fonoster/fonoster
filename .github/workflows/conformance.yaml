@@ -7,29 +7,29 @@ name: Conformance
 on:
   pull_request:
     paths:
-      - '.github/workflows/conformance.yaml'
-      - 'mods/apiserver/src/calls/**'
-      - 'mods/apiserver/src/outbound/**'
-      - 'mods/apiserver/test/outbound/**'
-      - 'mods/apiserver/src/regions/**'
-      - 'mods/apiserver/src/records/**'
-      - 'mods/apiserver/src/events/**'
-      - 'mods/apiserver/src/webhooks/**'
-      - 'mods/apiserver/src/core/durableConsumer.ts'
-      - 'mods/apiserver/test/events/**'
-      - 'mods/apiserver/test/webhooks/**'
-      - 'mods/apiserver/test/regions/**'
-      - 'mods/region-agent/**'
-      - 'mods/common/**'
-      - 'mods/conformance/**'
-      - 'mods/appbridge/**'
-      - 'mods/voice/**'
-      - 'mods/autopilot/**'
-      - 'mods/callrecord/**'
-      - 'python/**'
-      - 'package-lock.json'
+      - ".github/workflows/conformance.yaml"
+      - "mods/apiserver/src/calls/**"
+      - "mods/apiserver/src/outbound/**"
+      - "mods/apiserver/test/outbound/**"
+      - "mods/apiserver/src/regions/**"
+      - "mods/apiserver/src/records/**"
+      - "mods/apiserver/src/events/**"
+      - "mods/apiserver/src/webhooks/**"
+      - "mods/apiserver/src/core/durableConsumer.ts"
+      - "mods/apiserver/test/events/**"
+      - "mods/apiserver/test/webhooks/**"
+      - "mods/apiserver/test/regions/**"
+      - "mods/region-agent/**"
+      - "mods/common/**"
+      - "mods/conformance/**"
+      - "mods/appbridge/**"
+      - "mods/voice/**"
+      - "mods/autopilot/**"
+      - "mods/callrecord/**"
+      - "python/**"
+      - "package-lock.json"
   schedule:
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -153,6 +153,7 @@ jobs:
     # Shared runners are noisy; these numbers are a trend, not the pass bar (which needs a
     # dedicated runner, conformance task 4.2).
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     services:
       nats:
         image: nats:2.11.8
@@ -185,7 +186,7 @@ jobs:
           CONFORMANCE_TIMING_RUNS: "200"
           CONFORMANCE_REPORT_DIR: reports
           LOGS_LEVEL: none
-        run: npx mocha --timeout 0 'mods/appbridge/test/timing.test.ts'
+        run: npx mocha --exit --timeout 0 'mods/appbridge/test/timing.test.ts'
 
       - name: Load (T2)
         run: |
