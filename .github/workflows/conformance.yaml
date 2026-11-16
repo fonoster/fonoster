@@ -7,29 +7,29 @@ name: Conformance
 on:
   pull_request:
     paths:
-      - ".github/workflows/conformance.yaml"
-      - "mods/apiserver/src/calls/**"
-      - "mods/apiserver/src/outbound/**"
-      - "mods/apiserver/test/outbound/**"
-      - "mods/apiserver/src/regions/**"
-      - "mods/apiserver/src/records/**"
-      - "mods/apiserver/src/events/**"
-      - "mods/apiserver/src/webhooks/**"
-      - "mods/apiserver/src/core/durableConsumer.ts"
-      - "mods/apiserver/test/events/**"
-      - "mods/apiserver/test/webhooks/**"
-      - "mods/apiserver/test/regions/**"
-      - "mods/region-agent/**"
-      - "mods/common/**"
-      - "mods/conformance/**"
-      - "mods/appbridge/**"
-      - "mods/voice/**"
-      - "mods/autopilot/**"
-      - "mods/callrecord/**"
-      - "python/**"
-      - "package-lock.json"
+      - '.github/workflows/conformance.yaml'
+      - 'mods/apiserver/src/calls/**'
+      - 'mods/apiserver/src/outbound/**'
+      - 'mods/apiserver/test/outbound/**'
+      - 'mods/apiserver/src/regions/**'
+      - 'mods/apiserver/src/records/**'
+      - 'mods/apiserver/src/events/**'
+      - 'mods/apiserver/src/webhooks/**'
+      - 'mods/apiserver/src/core/durableConsumer.ts'
+      - 'mods/apiserver/test/events/**'
+      - 'mods/apiserver/test/webhooks/**'
+      - 'mods/apiserver/test/regions/**'
+      - 'mods/region-agent/**'
+      - 'mods/common/**'
+      - 'mods/conformance/**'
+      - 'mods/appbridge/**'
+      - 'mods/voice/**'
+      - 'mods/autopilot/**'
+      - 'mods/callrecord/**'
+      - 'python/**'
+      - 'package-lock.json'
   schedule:
-    - cron: "0 6 * * *"
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 permissions:
