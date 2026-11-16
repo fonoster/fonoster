@@ -512,12 +512,22 @@ export class FakeSessionNode extends EventEmitter {
     return Math.max(0, ...last);
   }
 
-  /** When the first audible caller packet at or after `since` was sent, if one was. */
-  firstCallerAudibleSentAt(since: number): number | undefined {
-    const sent = this.spoke
-      .filter((s) => s.to >= since)
-      .map((s) => Math.max(s.from, since));
-    return sent.length ? Math.min(...sent) : undefined;
+  /**
+   * When the first audible caller packet at or after `since` was sent, if one was. For the
+   * caller's latest speech it is the phone's own first send (its spokeUntilMs minus the speech
+   * length), known once that speech finished; for earlier speech, the time `speak` was called.
+   */
+  async firstCallerAudibleSentAt(since: number): Promise<number | undefined> {
+    const spoken = this.spoke.filter((s) => s.to >= since);
+    if (!spoken.length) return undefined;
+    const first = spoken.reduce((a, b) => (b.from < a.from ? b : a));
+    let from = first.from;
+    if (first === this.spoke[this.spoke.length - 1]) {
+      const until = await this.callerSpokeUntil();
+      if (!until) return undefined;
+      from = until - (first.to - first.from);
+    }
+    return Math.max(from, since);
   }
 
   /** When the caller's queued speech finished (unix ms), if it spoke. */

@@ -265,6 +265,7 @@ matcher, compared with what the harness measured.
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
 | `providers.stt.streams` | STT streams opened so far, waiting up to 2 s for the first one (use before caller audio that must reach STT) |
 | `stt.caller_audio_lag_ms` | ms from the first audible caller packet the fake Roomr node sent after the step's anchor to the first audible frame the fake STT received (pass bar T1, caller audio to STT); waits up to 2 s, `null` if none arrived |
+| `stt.caller_audio_lag_adjusted_ms` | `stt.caller_audio_lag_ms` minus the pinned roomr-fake's jitter playout (40 ms), clipped at 0: the time AppBridge adds (pass bar T1, caller audio to STT) |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
 | `record.events.<type>` | the call record's AppBridge events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
 | `record.messages.<type>` | the call record's entries of that type from any source (app commands, appbridge messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |

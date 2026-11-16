@@ -30,6 +30,7 @@ import { FakeLlm } from "./providers/FakeLlm";
 import { FakeStt } from "./providers/FakeStt";
 import { FakeTts } from "./providers/FakeTts";
 import { ProviderLedger } from "./providers/ProviderLedger";
+import { ROOMR_FAKE_JITTER_MS } from "./sharedRoomrFake";
 
 export type FakesHarnessOptions = {
   app?: FakeApp;
@@ -306,14 +307,26 @@ export class FakesHarness implements Harness {
    * Polls `read` every 5 ms for up to 2 s and returns its first defined value, or `fallback`.
    * For measurements whose event may still be in flight when the assert step runs.
    */
-  private async until<T>(read: () => T | undefined, fallback: T): Promise<T> {
+  private async until<T>(
+    read: () => T | undefined | Promise<T | undefined>,
+    fallback: T
+  ): Promise<T> {
     const deadline = Date.now() + 2000;
     for (;;) {
-      const value = read();
+      const value = await read();
       if (value !== undefined) return value;
       if (Date.now() > deadline) return fallback;
       await new Promise((r) => setTimeout(r, 5));
     }
+  }
+
+  /** ms from the first audible caller packet sent after `since` to the fake STT hearing it. */
+  private callerAudioLag(since: number): Promise<number | null> {
+    return this.until<number | null>(async () => {
+      const sent = await this.roomrNode.firstCallerAudibleSentAt(since);
+      const heard = sent && this.stt.firstAudibleAt(sent);
+      return heard ? heard - sent! : undefined;
+    }, null);
   }
 
   providerDelayBetween(from: number, to: number): number {
@@ -341,11 +354,11 @@ export class FakesHarness implements Harness {
       case "providers.stt.streams":
         return this.until(() => this.stt.streams.length || undefined, 0);
       case "stt.caller_audio_lag_ms":
-        return this.until(() => {
-          const sent = this.roomrNode.firstCallerAudibleSentAt(since);
-          const heard = sent && this.stt.firstAudibleAt(sent);
-          return heard ? heard - sent! : undefined;
-        }, null);
+        return this.callerAudioLag(since);
+      case "stt.caller_audio_lag_adjusted_ms":
+        return this.callerAudioLag(since).then((lag) =>
+          lag === null ? null : Math.max(0, lag - ROOMR_FAKE_JITTER_MS)
+        );
       case "providers.llm.requests":
         return this.llm.requests;
       case "tools.calls":

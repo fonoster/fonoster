@@ -51,6 +51,13 @@ function downloadedBinary(): string | undefined {
   }
 }
 
+/**
+ * ms the pinned roomr-fake's room holds each participant's audio before playing it out: roomr
+ * v0.4.0 internal/jitter/jitter.go `Prefetch: 2` frames × 20 ms. Caller audio to STT subtracts
+ * it (stt.caller_audio_lag_adjusted_ms) so the T1 bar measures AppBridge, not the fake node.
+ */
+export const ROOMR_FAKE_JITTER_MS = 40;
+
 let shared: Promise<FakeRoomr> | undefined;
 
 export function sharedRoomrFake(): Promise<FakeRoomr> {

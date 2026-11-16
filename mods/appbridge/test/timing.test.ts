@@ -80,6 +80,7 @@ describe("@appbridge timing (T1)", function () {
         }
       }
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
     return {
       options: { harness, connect: () => harness.offerCallAndAccept() },
       cleanup: async () => {
@@ -119,13 +120,16 @@ describe("@appbridge timing (T1)", function () {
       makeRun
     );
     report("caller-audio-to-stt", r);
-    console.log(
-      JSON.stringify(r.measurements["stt.caller_audio_lag_ms"], null, 2)
-    );
+    // Raw includes the fake node's jitter playout; adjusted is what AppBridge adds.
+    const lag = {
+      raw: r.measurements["stt.caller_audio_lag_ms"],
+      adjusted: r.measurements["stt.caller_audio_lag_adjusted_ms"]
+    };
+    console.log(JSON.stringify(lag, null, 2));
     expect(r.failures, JSON.stringify(r.failures.slice(0, 3))).to.have.length(
       0
     );
-    expect(r.measurements["stt.caller_audio_lag_ms"].p95).to.be.at.most(50);
+    expect(lag.adjusted.p95).to.be.at.most(50);
   });
 
   it("silences the call within 40 ms of clear at p95", async function () {

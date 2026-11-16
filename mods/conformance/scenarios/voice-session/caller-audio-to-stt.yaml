@@ -13,4 +13,6 @@ steps:
   - send: { type: listen.update }
   - assert: { providers.stt.streams: { $gte: 1 } }
   - caller: { audio: { kind: tone, ms: 400 } }
-  - assert: { stt.caller_audio_lag_ms: { $lte: 150 } }
+  - assert:
+      stt.caller_audio_lag_ms: { $lte: 150 }
+      stt.caller_audio_lag_adjusted_ms: { $lte: 150 }
