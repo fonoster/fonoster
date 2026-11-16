@@ -1,0 +1,14 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 1d957bdce..c1f64feb8 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1368,7 +1368,8 @@ export class AppSession {
+   private toStt(frame: Buffer) {
+     if (!this.stt) return;
+     if (this.sttUsage) this.call.usage.addMillis(this.sttUsage, FRAME_MS);
+-    this.stt.write(frame);
++    const stt = this.stt;
++    setTimeout(() => stt.write(frame), 40);
+   }
+ 
+   private hear(frame: Buffer, at: number) {

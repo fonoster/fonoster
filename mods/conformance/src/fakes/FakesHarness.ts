@@ -306,10 +306,13 @@ export class FakesHarness implements Harness {
    * Polls `read` every 5 ms for up to 2 s and returns its first defined value, or `fallback`.
    * For measurements whose event may still be in flight when the assert step runs.
    */
-  private async until<T>(read: () => T | undefined, fallback: T): Promise<T> {
+  private async until<T>(
+    read: () => T | undefined | Promise<T | undefined>,
+    fallback: T
+  ): Promise<T> {
     const deadline = Date.now() + 2000;
     for (;;) {
-      const value = read();
+      const value = await read();
       if (value !== undefined) return value;
       if (Date.now() > deadline) return fallback;
       await new Promise((r) => setTimeout(r, 5));
@@ -341,8 +344,8 @@ export class FakesHarness implements Harness {
       case "providers.stt.streams":
         return this.until(() => this.stt.streams.length || undefined, 0);
       case "stt.caller_audio_lag_ms":
-        return this.until(() => {
-          const sent = this.roomrNode.firstCallerAudibleSentAt(since);
+        return this.until(async () => {
+          const sent = await this.roomrNode.firstCallerAudibleSentAt(since);
           const heard = sent && this.stt.firstAudibleAt(sent);
           return heard ? heard - sent! : undefined;
         }, null);

@@ -1,0 +1,17 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 1d957bdce..fce9c48d3 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1661,8 +1661,10 @@ export class AppSession {
+         this.queue.mark(cmd.name as string);
+         return;
+       case "clear":
+-        this.labeler.outputCleared(Date.now());
+-        this.queue.clear();
++        setTimeout(() => {
++          this.labeler.outputCleared(Date.now());
++          this.queue.clear();
++        }, 40);
+         return;
+       case "subscribe":
+         for (const e of cmd.events as string[]) {

@@ -153,6 +153,7 @@ jobs:
     # Shared runners are noisy; these numbers are a trend, not the pass bar (which needs a
     # dedicated runner, conformance task 4.2).
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     services:
       nats:
         image: nats:2.11.8
@@ -185,7 +186,7 @@ jobs:
           CONFORMANCE_TIMING_RUNS: "200"
           CONFORMANCE_REPORT_DIR: reports
           LOGS_LEVEL: none
-        run: npx mocha --timeout 0 'mods/appbridge/test/timing.test.ts'
+        run: npx mocha --exit --timeout 0 'mods/appbridge/test/timing.test.ts'
 
       - name: Load (T2)
         run: |

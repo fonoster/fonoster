@@ -1,0 +1,18 @@
+diff --git a/mods/appbridge/src/session/OutputQueue.ts b/mods/appbridge/src/session/OutputQueue.ts
+index 231ef1148..483ea2231 100644
+--- a/mods/appbridge/src/session/OutputQueue.ts
++++ b/mods/appbridge/src/session/OutputQueue.ts
+@@ -475,6 +475,13 @@ export class OutputQueue {
+ 
+     if (frame) {
+       if (!head.started) {
++        const held = head as { holdUntil?: number };
++        held.holdUntil ??= Date.now() + 40;
++        if (Date.now() < held.holdUntil) {
++          head.frames.unshift(frame);
++          this.options.sink(SILENT_FRAME);
++          return;
++        }
+         head.started = true;
+         if (head.kind !== "audio")
+           this.options.emit({ type: "output.started", id: head.id });
