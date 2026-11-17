@@ -206,7 +206,7 @@ jobs:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
           PIPECAT_PYTHON: python
           LOGS_LEVEL: none
-        run: npx mocha --timeout 60000 'mods/appbridge/test/pipecat.test.ts'
+        run: npx mocha --exit --timeout 60000 'mods/appbridge/test/pipecat.test.ts'
 
       - name: Publish reports
         if: always()
