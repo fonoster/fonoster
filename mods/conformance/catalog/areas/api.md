@@ -5,7 +5,7 @@ level: L2 Integration (API)
 tier: pr
 uut: The apiserver's services (Identity among them) in one process behind its auth interceptor, on Postgres, with Routr storing the SIP resources; the standalone Identity service; @fonoster/identity-client
 tester: Mocha. One case file run through the Node SDK and through raw gRPC on the canonical protos; the case answers call placement on NATS; a fake SMTP server keeps every email; SQL on Identity's database for states the API cannot reach (expired codes, legacy passwords)
-environment: Postgres 16 and NATS as service containers, fonoster/routr-one 3.0.0 on its own database in Postgres (test/api/start-routr.sh); everything else in the test process
+environment: Postgres 16 and NATS as service containers, fonoster/routr-one 3.1.1 on its own database in Postgres (test/api/start-routr.sh); everything else in the test process
 cadence: every pull request (the api job of pr-checks); proofs nightly and at release
 prove: sh mods/conformance/test/api/prove.sh {id} {junitDir}
 reset: sh mods/conformance/test/api/rebuild.sh

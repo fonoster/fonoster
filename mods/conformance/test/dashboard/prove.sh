@@ -17,7 +17,7 @@ export FONOSTER_CA_FILE="$ca" NODE_EXTRA_CA_CERTS="$ca"
 # The real cases whose fault is in a bundle config (Routr's), not in the SPA: they run against the
 # stack's own dashboard after `ops/rebuild/stack reconfigure` renders the configs again, so the
 # fault is what the browser meets. The area's reset: renders them again once it is reverted.
-CONFIG_CASES="DSH-063"
+CONFIG_CASES="DSH-063 DSH-069"
 # The real cases that need the stack on a certificate of the owner's (`ops/rebuild/stack owner-cert
 # on`): Envoy sends HSTS. The stack goes back to its generated certificate afterward, always.
 OWNER_CERT_CASES="DSH-064"

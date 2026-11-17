@@ -231,12 +231,14 @@ it into the inventory, and run the deploy again. Do it before approving that rel
 ## One owner's changes, on the host
 
 ```sh
-docker compose exec billing fonoster-billing-admin trial   --email owner@acme.com --days 45
-docker compose exec billing fonoster-billing-admin credits --email owner@acme.com --credits 500 --note "support case 123"
+cd /opt/fonoster
+docker compose exec billing node mods/billing/dist/adminCli.js trial   --config /etc/fonoster/billing.yaml --email owner@acme.com --days 45
+docker compose exec billing node mods/billing/dist/adminCli.js credits --config /etc/fonoster/billing.yaml --email owner@acme.com --credits 500 --note "support case 123"
 ```
 
 `trial` sets the Trial's length from its start (reopening an ended Trial); `credits` adds credits
-(Trial credits on the Trial, like a top-up otherwise). `--owner <user ref>` instead of `--email`.
+(Trial credits on the Trial, like a top-up otherwise). An ended Trial refuses credits: run `trial`
+first. `--owner <user ref>` instead of `--email`.
 
 ## Ops API
 

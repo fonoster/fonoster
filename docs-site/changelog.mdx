@@ -115,7 +115,9 @@ New releases are listed newest first. For releases up to 0.27, see the
   `config/region/appbridge.yaml`. AppBridge doesn't start while they're set, and its log says
   `callRecord: unknown key "recording"`.
 - **Routr 3:** Routr's config is now `config/routr.yaml`, with a new `routr-migrations` service
-  and `ROUTR_API_KEY` in `.env` (run `./init.sh`). See Routr's
+  and `ROUTR_API_KEY` in `.env` (run `./init.sh`). SIP over TLS takes your certificate and key
+  as PEM files, not a PKCS#12 keystore: see [Accept SIP over TLS on port
+  5061](/self-hosting/https). See Routr's
   [upgrade guide](https://docs.routr.io/guides/upgrade-to-routr-3).
 
 </Update>
