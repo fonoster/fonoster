@@ -98,7 +98,10 @@
         cmd: docker compose up -d --remove-orphans --wait --wait-timeout 900
         chdir: "{{ fonoster_dir }}"
       register: fonoster_up
-      changed_when: fonoster_up.stderr is search('\\b(Created|Recreated|Started|Removed)\\b')
+      # The one-shot routr-migrations starts again on every up; only the other services count.
+      changed_when: >-
+        fonoster_up.stderr_lines | reject('search', 'routr-migrations')
+        | select('search', '\\b(Created|Recreated|Started|Removed)\\b') | list | length > 0
 
     - name: Deploy log
       ansible.builtin.lineinfile:
