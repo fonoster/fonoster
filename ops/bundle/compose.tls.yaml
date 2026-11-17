@@ -3,21 +3,18 @@
 # Set TLS_CERT and TLS_KEY in .env to serve your own certificate
 # (https://docs.fonoster.com/self-hosting/https).
 services:
-  # SIP over TLS (SIPS) for carriers and softphones, off by default. Routr needs the certificate
-  # as a PKCS#12 keystore (config/routr.yaml has the matching transport), e.g.:
-  #
-  #   openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem \
-  #     -out config/tls/signaling.p12 -passout pass:<password>
-  #
-  # Then uncomment these lines and the tls transport in config/routr.yaml, set
-  # spec.edgeport.securityContext.keyStorePassword to <password>, and run init again. Add this
-  # file to COMPOSE_FILE (COMPOSE_FILE=compose.yaml:compose.tls.yaml). The certificate must cover
-  # the names carriers connect to: *.pstn.<domain> and the name in spec.edgeport.externalAddrs
-  # (see the HTTPS docs page).
+  # SIP over TLS (SIPS) for carriers and softphones, off by default. Routr reads the certificate
+  # (with any intermediates) and its unencrypted key as PEM files: copy them to config/tls/sip.crt
+  # and config/tls/sip.key (again after each renewal, then recreate routr). Uncomment these lines
+  # and the tls transport in config/routr.yaml, and run init again. Add this file to
+  # COMPOSE_FILE (COMPOSE_FILE=compose.yaml:compose.tls.yaml). The certificate must cover the
+  # names carriers connect to: *.pstn.<domain> and the name in spec.edgeport.externalAddrs (see
+  # the HTTPS docs page).
   #
   # routr:
   #   volumes:
-  #     - ${CONFIG_DIR:-./config}/tls/signaling.p12:/etc/routr/certs/signaling.p12:ro
+  #     - ${CONFIG_DIR:-./config}/tls/sip.crt:/etc/routr/certs/server.crt:ro
+  #     - ${CONFIG_DIR:-./config}/tls/sip.key:/etc/routr/certs/server.key:ro
   #   ports:
   #     - "5061:5061/tcp"
   {}

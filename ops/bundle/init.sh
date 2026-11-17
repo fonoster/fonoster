@@ -412,7 +412,7 @@ EOF
     openssl x509 -req -in "$TLS/server.csr" -CA "$TLS/ca.pem" -CAkey "$TLS/ca-key.pem" -days 397 \
       -set_serial "0x$(openssl rand -hex 8)" -extfile "$TLS/server.cnf" -extensions server 2>/dev/null \
       | write_file "$TLS/server.pem" 0644
-    # Routr's image reads the server key as uid 1000 to build its SIP over TLS keystore: a bind
+    # Routr reads the server key as uid 1000 to serve SIP over TLS and WSS: a bind
     # mount bypasses config/'s 0700 but not the file's own mode. The CA key stays 0600.
     write_file "$TLS/server-key.pem" 0644 <"$TLS/new-server-key.$$"
     rm -f "$TLS/new-server-key.$$" "$TLS/server.csr"

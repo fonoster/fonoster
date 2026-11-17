@@ -68,7 +68,7 @@ services:
 
   # Applies Routr's database migrations, then exits; routr starts after it succeeds.
   routr-migrations:
-    image: fonoster/routr-pgdata-migrations:3.0.0
+    image: fonoster/routr-pgdata-migrations:3.1.1
     restart: "no"
     depends_on:
       postgres: { condition: service_healthy }
@@ -76,7 +76,7 @@ services:
       DATABASE_URL: ${ROUTR_DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/routr}
 
   routr:
-    image: fonoster/routr-one:3.0.0
+    image: fonoster/routr-one:3.1.1
     restart: unless-stopped
     depends_on:
       routr-migrations: { condition: service_completed_successfully }
