@@ -1071,7 +1071,7 @@ A Trunk stored with `calledNumberFormat: NATIONAL` and `calledNumberPrefix: "9"`
 
 - **Spec:** management-api / A new SIP agent is enabled and not private / Omitted fields take the defaults
 - **Priority:** P0
-- **Proof:** Pass the Routr client to `createResource` without `withAgentDefaults` (`sipnet/src/agents/operations.ts`); Routr stores `enabled: false` and `PRIVATE`, and the test goes red.
+- **Proof:** Send the proto3 zero values for the omitted fields (`enabled: false`, `privacy: PRIVATE`) from sipnet's CreateAgent (`sipnet/src/agents/operations.ts`); Routr stores them and the test goes red.
 - **Fault:** faults/API-080.patch
 - **Test:** mods/conformance/test/api/agentDefaults.api.ts
 

@@ -130,8 +130,9 @@ INVALID_ARGUMENT and Routr's text unless the prefix is cleared in the same updat
 ### Requirement: A new SIP agent is enabled and not private
 
 An Agent created without `enabled` SHALL be stored enabled, and one created without `privacy`
-SHALL be stored with `privacy: NONE`. Routr refuses registrations and calls from a disabled Agent
-and sends `Privacy: id` for a private one, so these defaults keep a new Agent working.
+SHALL be stored with `privacy: NONE` (Routr 3's defaults, which sipnet keeps by not sending the
+fields). Routr refuses registrations and calls from a disabled Agent and sends `Privacy: id` for a
+private one, so these defaults keep a new Agent working.
 
 #### Scenario: Omitted fields take the defaults
 - **WHEN** an Agent is created with only `name` and `username`

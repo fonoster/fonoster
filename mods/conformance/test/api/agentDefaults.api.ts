@@ -22,7 +22,8 @@ import { Driver, Who } from "./drivers";
 import { getWorld, World } from "./world";
 
 // management-api "A new SIP agent is enabled and not private" (API-080, #1423), against Routr 3:
-// Routr enforces both fields, and an omitted proto3 field reaches it as false and PRIVATE.
+// Routr enforces both fields and defaults them when they're omitted, so an omitted field must
+// never reach it as its proto3 zero value (false, PRIVATE).
 
 describe("@api management-api: SIP agent defaults (#1423)", function () {
   this.timeout(60_000);
