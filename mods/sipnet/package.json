@@ -24,8 +24,8 @@
     "@fonoster/logger": "^0.62.0",
     "@fonoster/types": "^0.62.0",
     "@grpc/grpc-js": "~1.14.6",
-    "@routr/common": "2.24.0",
-    "@routr/sdk": "2.34.0",
+    "@routr/common": "^3.0.0",
+    "@routr/sdk": "^3.0.0",
     "phone": "^3.1.72",
     "zod": "^4.6.7"
   },

@@ -66,6 +66,8 @@ export const agentConfigSchema = z
     routr: z
       .object({
         endpoint: z.string(),
+        /** Routr's Data API key (spec.data.apiKeys), usually secret://env/ROUTR_API_KEY. */
+        apiKey: z.string().min(1),
         roomrPeer: z
           .object({
             name: z.string().default("Roomr nodes"),

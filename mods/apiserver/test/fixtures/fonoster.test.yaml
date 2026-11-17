@@ -12,3 +12,5 @@ identity:
   keys:
     privateKeyPath: generated-by-setupConfig/private.pem
     publicKeyPath: generated-by-setupConfig/public.pem
+routr:
+  apiKey: routr-test-key

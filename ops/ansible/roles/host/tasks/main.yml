@@ -106,9 +106,11 @@
   ansible.builtin.file:
     path: "{{ routr_traces_dir }}"
     state: directory
-    owner: "5000"
+    # Routr writes as uid 1000; setgid keeps its files in group 5000, which the ops API reads
+    # through (group_add).
+    owner: "1000"
     group: "5000"
-    mode: "0750"
+    mode: "02750"
   when: routr_traces_enabled
 
 - name: Routr trace retention

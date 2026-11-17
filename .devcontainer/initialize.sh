@@ -7,7 +7,7 @@
 #   .devcontainer/initialize.sh             on the host, each time the editor starts the dev
 #                                           container (initializeCommand); rewrites .dev/ only
 #                                           when .dev/config/tls/server.pem or
-#                                           .dev/config/routr-rtprelay.yaml is missing (otherwise
+#                                           .dev/config/routr.yaml is missing (otherwise
 #                                           run npm run dev:config); needs only a POSIX shell and
 #                                           Docker
 #   .devcontainer/initialize.sh --refresh   inside the workspace (npm run dev:config): merge the
@@ -63,11 +63,11 @@ warn_stale_host_ip() {
   log "         --env-file .dev/.env up -d --no-deps rtpengine routr) and restart npm run dev."
 }
 
-# The merged Routr files, each with its checksum: taken before a refresh and compared after it, to
+# The merged Routr file with its checksum: taken before a refresh and compared after it, to
 # name the ones that changed. The running Routr keeps its old image and mounts until it is
 # recreated on the host, which the workspace has no Docker to do.
 routr_sums() {
-  for f in "$DEV"/config/routr-*.yaml; do
+  for f in "$DEV"/config/routr.yaml; do
     [ -f "$f" ] && printf '%s %s\n' "$(basename "$f")" "$(cksum < "$f")"
   done
   return 0
@@ -75,7 +75,7 @@ routr_sums() {
 
 hint_routr_recreate() {
   changed=""
-  for f in "$DEV"/config/routr-*.yaml; do
+  for f in "$DEV"/config/routr.yaml; do
     [ -f "$f" ] || continue
     name="$(basename "$f")"
     old="$(printf '%s\n' "$1" | awk -v n="$name" '$1 == n { sub(/^[^ ]+ /, ""); print }')"

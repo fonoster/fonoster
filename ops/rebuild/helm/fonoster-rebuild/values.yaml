@@ -318,6 +318,8 @@ regionAgent:
   config:
     routr:
       endpoint: routr:51907
+      # Routr's Data API key (its spec.data.apiKeys), from the pod's environment.
+      apiKey: "secret://env/ROUTR_API_KEY"
     records:
       store: { s3: { bucket: records, endpoint: "http://minio:9000", forcePathStyle: true } }
     autopilot:

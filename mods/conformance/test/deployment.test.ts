@@ -88,6 +88,7 @@ function fakeSecretsDir() {
     },
     "fonoster-autopilot": { secret: "ap-secret" },
     "roomr-peer": { password: "peer-pass" },
+    "routr-api-key": { apiKey: "routr-key" },
     "fonoster-minio": { rootUser: "minio", rootPassword: "minio-pass" },
     "fonoster-vendors": { deepgram: "dg-key" }
   };
@@ -375,13 +376,21 @@ describe("@conformance/deployment (Helm chart)", function () {
       ]
     );
     // nats.auth (on by default): the agent's password comes from the pod's environment.
-    const saved = process.env.NATS_REGION_AGENT_PASSWORD;
+    // So does Routr's API key.
+    const saved = {
+      NATS_REGION_AGENT_PASSWORD: process.env.NATS_REGION_AGENT_PASSWORD,
+      ROUTR_API_KEY: process.env.ROUTR_API_KEY
+    };
     process.env.NATS_REGION_AGENT_PASSWORD = "n0123456789abcdef";
+    process.env.ROUTR_API_KEY = "routr-key";
     try {
-      expect(loadAgentConfig(file).nats.url).to.equal("nats://nats:4222");
+      const config = loadAgentConfig(file);
+      expect(config.nats.url).to.equal("nats://nats:4222");
+      expect(config.routr?.apiKey).to.equal("routr-key");
     } finally {
-      if (saved === undefined) delete process.env.NATS_REGION_AGENT_PASSWORD;
-      else process.env.NATS_REGION_AGENT_PASSWORD = saved;
+      for (const [k, v] of Object.entries(saved))
+        if (v === undefined) delete process.env[k];
+        else process.env[k] = v;
     }
   });
 

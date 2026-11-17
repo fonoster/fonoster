@@ -13,7 +13,7 @@ docker compose up -d
 
 1. `./init.sh` writes `.env` with generated secrets, the signing keys in `config/keys`, a
    certificate for getting started in `config/tls`, and the SIP port in
-   `config/routr-edgeport.yaml`, then prints the dashboard URL, the owner email and where the
+   `config/routr.yaml`, then prints the dashboard URL, the owner email and where the
    password is. Pass `--host-ip <address>` to set the machine's address yourself. Running it
    again keeps every secret and prints the summary again.
 2. `docker compose up -d` starts the voice path, the API, the dashboard and the hosted Autopilot.

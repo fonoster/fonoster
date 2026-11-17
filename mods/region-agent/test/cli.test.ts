@@ -53,6 +53,8 @@ describe("@region-agent fonoster-region CLI", function () {
     process.env.FONOSTER_REGION_SECRETS_KEY = "cli-pass";
     // The cell's region-agent.yaml reads its NATS password from here (add-platform 4.1).
     process.env.NATS_REGION_AGENT_PASSWORD = "nats-agent";
+    // And Routr's API key.
+    process.env.ROUTR_API_KEY = "routr-key";
   });
   afterEach(() => {
     process.env = { ...saved };
@@ -271,6 +273,7 @@ describe("@region-agent fonoster-region CLI", function () {
       path.join(__dirname, "../../../ops/bundle/config/region/region-agent.yaml")
     );
     expect(c.heartbeatMs).to.equal(30000);
+    expect(c.routr?.apiKey).to.equal("routr-key");
     expect(c.autopilot?.url).to.equal("ws://autopilot:3000");
     expect(c.nats).to.deep.equal({
       url: "nats://nats:4222",

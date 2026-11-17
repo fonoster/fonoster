@@ -71,6 +71,7 @@ features:
 
 routr:
   apiEndpoint: routr:51907
+  apiKey: ${ROUTR_API_KEY}                  # sent as "authorization: Bearer <key>"; Routr's spec.data.apiKeys
   # The peer Go Roomr nodes register under; every app-linked number points at it.
   roomrPeer:
     aor: sip:roomr@default

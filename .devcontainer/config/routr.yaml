@@ -1,0 +1,19 @@
+# Dev layer over .dev/config/routr.yaml (ops/rebuild/merge-config.cjs; lists replace, so the whole
+# transport list is restated). Your own overrides: .dev/overlay/routr.yaml.
+#
+# SIP over TLS on 5061 with the certificate init.sh generates in .dev/config/tls/: the routr service
+# (.devcontainer/compose.yaml) mounts its PEMs where the routr-one image builds signaling.p12.
+# init.sh writes SIP_PORT into the tcp and udp ports.
+spec:
+  edgeport:
+    transport:
+      - protocol: tcp
+        port: 5060
+      - protocol: udp
+        port: 5060
+      - protocol: ws
+        port: 5062
+      - protocol: wss
+        port: 5063
+      - protocol: tls
+        port: 5061

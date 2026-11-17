@@ -5,7 +5,7 @@ level: L2 Integration (API)
 tier: pr
 uut: The apiserver's services (Identity among them) in one process behind its auth interceptor, on Postgres, with Routr storing the SIP resources; the standalone Identity service; @fonoster/identity-client
 tester: Mocha. One case file run through the Node SDK and through raw gRPC on the canonical protos; the case answers call placement on NATS; a fake SMTP server keeps every email; SQL on Identity's database for states the API cannot reach (expired codes, legacy passwords)
-environment: Postgres 16, fonoster/routr-one 2.34.0 and NATS as service containers; everything else in the test process
+environment: Postgres 16 and NATS as service containers, fonoster/routr-one 3.0.0 on its own database in Postgres (test/api/start-routr.sh); everything else in the test process
 cadence: every pull request (the api job of pr-checks); proofs nightly and at release
 prove: sh mods/conformance/test/api/prove.sh {id} {junitDir}
 reset: sh mods/conformance/test/api/rebuild.sh
@@ -49,9 +49,9 @@ areas; see the hand-off list in the README).
 ```sh
 docker run -d --name api-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:18.6-alpine3.24
 docker run -d --name api-nats -p 4222:4222 nats:2.11.8
-docker run -d --name api-routr -p 51907:51907 fonoster/routr-one:2.34.0
+ROUTR_API_KEY=api-cases mods/conformance/test/api/start-routr.sh   # Routr 3, its database on api-pg
 export PERSISTENCE_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
-export ROUTR_API_ENDPOINT=127.0.0.1:51907 CONFORMANCE_NATS_URL=nats://127.0.0.1:4222
+export ROUTR_API_ENDPOINT=127.0.0.1:51907 ROUTR_API_KEY=api-cases CONFORMANCE_NATS_URL=nats://127.0.0.1:4222
 npm run build
 npm run test:api -w @fonoster/conformance
 node mods/conformance/catalog/prove.cjs --area API     # the proofs, one run per case
@@ -1026,7 +1026,7 @@ tick, as the apiserver's retention timer runs it, with Identity's directory on i
 - **Test:** mods/conformance/test/api/numberMatching.api.ts
 
 A Number created on a Trunk of workspace A with `aliases: ["01234"]`, through each client, against
-Routr 2.34.
+Routr 3.
 
 **Pass.** Get returns `["01234"]` after the create and after an update that only renames the Number, and no aliases after `clearAliases: true`. **Fail.** The aliases are missing, dropped by the rename or left after the clear.
 
@@ -1051,7 +1051,7 @@ Two Numbers created on one Trunk with the alias `01234`, through each client.
 - **Test:** mods/conformance/test/api/numberMatching.api.ts
 
 A Trunk created with `calledNumberFormat: INTERNATIONAL`, `calledNumberPrefix: "9#"` and
-`callerNumberFormat: E164_WITHOUT_PLUS`, through each client, against Routr 2.34.
+`callerNumberFormat: E164_WITHOUT_PLUS`, through each client, against Routr 3.
 
 **Pass.** Get returns the three values after the create and after an update that only renames the Trunk. **Fail.** Any value is missing, renamed or reset.
 
@@ -1066,3 +1066,15 @@ A Trunk created with `calledNumberFormat: INTERNATIONAL`, `calledNumberPrefix: "
 A Trunk stored with `calledNumberFormat: NATIONAL` and `calledNumberPrefix: "9"`, through each client.
 
 **Pass.** An update with `calledNumberFormat: NUMBER_FORMAT_UNSPECIFIED` alone fails with INVALID_ARGUMENT whose message contains `calledNumberPrefix needs calledNumberFormat e164-without-plus, national or international` and leaves the Trunk unchanged; the same update with `calledNumberPrefix: ""` succeeds and get returns NUMBER_FORMAT_UNSPECIFIED and no prefix. **Fail.** The first update succeeds, or the second leaves NATIONAL or the prefix.
+
+### API-080 A new SIP agent is enabled and not private
+
+- **Spec:** management-api / A new SIP agent is enabled and not private / Omitted fields take the defaults
+- **Priority:** P0
+- **Proof:** Pass the Routr client to `createResource` without `withAgentDefaults` (`sipnet/src/agents/operations.ts`); Routr stores `enabled: false` and `PRIVATE`, and the test goes red.
+- **Fault:** faults/API-080.patch
+- **Test:** mods/conformance/test/api/agentDefaults.api.ts
+
+An Agent created with only `name` and `username`, through each client, against Routr 3.
+
+**Pass.** Get returns `enabled: true` and `privacy: NONE`. **Fail.** Either field comes back `false` or `PRIVATE`, or is missing.

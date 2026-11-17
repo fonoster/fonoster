@@ -126,3 +126,13 @@ INVALID_ARGUMENT and Routr's text unless the prefix is cleared in the same updat
 - **WHEN** that Trunk is updated with `calledNumberFormat: NUMBER_FORMAT_UNSPECIFIED` without `calledNumberPrefix: ""`
 - **THEN** the call fails with INVALID_ARGUMENT whose message contains `calledNumberPrefix needs calledNumberFormat e164-without-plus, national or international`, and the Trunk is unchanged
 - **AND** the same update with `calledNumberPrefix: ""` succeeds and get returns NUMBER_FORMAT_UNSPECIFIED and no prefix
+
+### Requirement: A new SIP agent is enabled and not private
+
+An Agent created without `enabled` SHALL be stored enabled, and one created without `privacy`
+SHALL be stored with `privacy: NONE`. Routr refuses registrations and calls from a disabled Agent
+and sends `Privacy: id` for a private one, so these defaults keep a new Agent working.
+
+#### Scenario: Omitted fields take the defaults
+- **WHEN** an Agent is created with only `name` and `username`
+- **THEN** get returns `enabled: true` and `privacy: NONE`

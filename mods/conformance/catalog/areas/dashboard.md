@@ -296,6 +296,19 @@ The SDK's `calls.createCall` against mocked gRPC-Web: CreateCall answers a ref, 
 
 **Pass.** Test call to +15551234567 sends CreateCall with the Number's E.164, that destination and its appRef; the drawer shows Calling, Ringing, Answered, then Call ended when the stream closes; a refused CreateCall shows its mapped message (`insufficient_balance`: "Credits have run out. Calls are paused in this workspace."); a BUSY stream shows Busy; a SIP agent Number's Test call is disabled with its note. **Fail.** A wrong from/to/appRef, a drawer stuck on a status, Answered on an unanswered call, a raw error code, or an enabled Test call on a SIP agent Number.
 
+### DSH-069 A test call naming another workspace's app is refused
+
+- **Spec:** talk-in-browser / Test tokens stay in their workspace / Another workspace's agent
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Set `forwardConnectToken: false` in `ops/bundle/config/routr.yaml`; Routr drops the token after verifying it, AppBridge takes the call as a normal one and the test must go red on Call failed.
+- **Fault:** faults/DSH-069.patch
+- **Test:** mods/dashboard/e2e/talk-denied.real.spec.ts (the `real` project; a fault proof runs `ops/rebuild/stack reconfigure` first, and the area's reset writes the configs again after)
+
+The seed creates a second workspace of the same user, `Other`, with an app. The browser signs in to the Demo workspace and calls its agent; the test rewrites the INVITE's `X-App-Ref` on the browser's WebSocket to the `Other` app's ref, so the token (Demo's) and the app (Other's) disagree. This is the call path through the real Routr 3, which removes `X-Connect-Token` unless `forwardConnectToken` is on (#1423).
+
+**Pass.** The rewritten INVITE carried the Demo app's ref before the rewrite; the drawer shows Call failed and never Connected; within 90 s the `Other` app has one more call record with `failureReason: test_call_denied`. **Fail.** The call connects, the drawer shows another state, or no such record appears.
+
 ### DSH-018 Create a trunk, refuse a taken inbound URI, and say what deleting it stops
 
 - **Spec:** dashboard / Trunks connect a carrier / Create a trunk
@@ -870,7 +883,7 @@ The catalog no longer has the provider's label, so the select shows its id, as t
 - **Spec:** talk-in-browser / SIP over WebSocket on the API port / Browser connects over HTTPS
 - **Priority:** P0
 - **Tier:** nightly
-- **Proof:** Remove the `wss` transport from `ops/bundle/config/routr-edgeport.yaml`; Routr then throws `no listening point found for transport WSS` and the test must go red on Connected.
+- **Proof:** Remove the `wss` transport from `ops/bundle/config/routr.yaml`; Routr then has no WSS listening point for the browser's request and the test must go red on Connected.
 - **Fault:** faults/DSH-063.patch
 - **Test:** mods/dashboard/e2e/talk-https.real.spec.ts (the `real` project; the stack serves HTTPS by default. A fault proof runs `ops/rebuild/stack reconfigure` first, and the area's reset writes the configs again after)
 

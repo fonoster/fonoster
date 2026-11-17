@@ -198,7 +198,7 @@ async function startStack(): Promise<Stack> {
     ...config,
     appUrl: "https://api.test",
     database: { url: apiDb.url },
-    routr: { apiEndpoint: routr },
+    routr: { apiEndpoint: routr, apiKey: required("ROUTR_API_KEY") },
     nats: { url: nats },
     smtp: {
       host: "127.0.0.1",

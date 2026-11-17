@@ -102,7 +102,7 @@ describe("@devcontainer initialize.sh --refresh", function () {
       "/workspaces/fonoster/mods/conformance/fakes.catalog.yaml"
     ]);
     // init.sh ran after the merge: the SIP port is a number, the dev TLS transport stays.
-    const transport = yaml(dir, "routr-edgeport.yaml").spec.transport;
+    const transport = yaml(dir, "routr.yaml").spec.edgeport.transport;
     expect(transport[0]).to.deep.equal({ protocol: "tcp", port: 5060 });
     expect(transport.map((t: { protocol: string }) => t.protocol)).to.include(
       "tls"

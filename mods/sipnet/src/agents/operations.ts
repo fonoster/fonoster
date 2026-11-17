@@ -23,6 +23,7 @@ import {
   BaseApiObject,
   CreateAgentRequestExtended,
   ListAgentsRequest,
+  Privacy,
   UpdateAgentRequest
 } from "@fonoster/types";
 import { agentRefs, CheckRefs, refsChecker } from "../resources/checkRefs";
@@ -34,9 +35,25 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Agent";
 
+/**
+ * A new Agent is enabled and not private unless the request says otherwise. Routr enforces both
+ * (a disabled Agent can't register or call; a private one sends Privacy: id), and an omitted proto3
+ * field would arrive as `false` and `PRIVATE`.
+ */
+function withAgentDefaults(agents: AgentsApi): AgentsApi {
+  const api: AgentsApi = Object.create(agents);
+  api.createAgent = (request: CreateAgentRequestExtended) =>
+    agents.createAgent({
+      ...request,
+      enabled: request.enabled ?? true,
+      privacy: request.privacy ?? Privacy.NONE
+    });
+  return api;
+}
+
 function createAgent(agents: AgentsApi, checkRefs?: CheckRefs) {
   return createResource<AgentExtended, CreateAgentRequestExtended, AgentsApi>(
-    agents,
+    withAgentDefaults(agents),
     RESOURCE,
     V.createAgentRequestSchema,
     refsChecker(checkRefs, agentRefs)

@@ -20,7 +20,8 @@ the bundled database's data isn't moved.
 ## Create the databases
 
 Create three empty databases. The API server creates the tables in `fonoster` and `fnidentity`
-on every start, and Routr does the same in `routr`:
+on every start, and the one-shot `routr-migrations` service does the same in `routr` before Routr
+starts:
 
 ```sql
 CREATE DATABASE routr;
@@ -30,8 +31,8 @@ CREATE DATABASE fnidentity;
 
 ## Point every service at it
 
-Each service takes its database URL from its file in `config/`, with the same credentials in all
-four. Replace the bundled URL in each. In `config/fonoster.yaml`, set the API server's `database`
+The Fonoster services take their database URL from their file in `config/`, and Routr from
+`.env`, with the same credentials in all four. Replace the bundled URL in each. In `config/fonoster.yaml`, set the API server's `database`
 and Identity's `identity.database`:
 
 ```yaml config/fonoster.yaml
@@ -48,21 +49,14 @@ database:
   url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require"
 ```
 
-Routr has its own, under `spec.database` in `config/routr-one.yaml`:
+Routr's goes in `.env`, as `ROUTR_DATABASE_URL`. Both `routr-migrations` and `routr` read it:
 
-```yaml config/routr-one.yaml
-  database:
-    url: postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/routr?sslmode=require
+```bash .env
+ROUTR_DATABASE_URL=postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/routr?sslmode=require
 ```
 
 These files now hold the database password. Back them up with `.env`, and carry them over when you
 [upgrade](/self-hosting/upgrade).
-
-<Warning>
-  Set the Routr database here, not as a `DATABASE_URL` variable on the `routr` service. Since 0.35.0
-  that variable is ignored: Routr reads `config/routr-one.yaml`, and `docker compose logs routr`
-  prints `DATABASE_URL is ignored; spec.database.url in /etc/routr/one.yaml wins`.
-</Warning>
 
 ## Turn the bundled Postgres off
 
@@ -79,8 +73,11 @@ This is what it does:
 services:
   postgres:
     profiles: [bundled-db]
+  routr-migrations:
+    depends_on: !override {}
   routr:
     depends_on: !override
+      routr-migrations: { condition: service_completed_successfully }
       nats: { condition: service_healthy }
   apiserver:
     depends_on: !override
@@ -96,8 +93,9 @@ Start, and wait for every service to be healthy. This is what proves the databas
 docker compose up -d --wait
 ```
 
-If `routr` can't reach its database, it reports `unhealthy` and the command exits with an error.
-Fix the URL in `config/routr-one.yaml` and start again. A file with a bad key stops its service at
+If `routr-migrations` can't reach Routr's database, it exits with an error and Routr doesn't
+start; if `routr` can't, it never turns healthy. Either way the command exits with an error. Fix
+`ROUTR_DATABASE_URL` in `.env` and start again. A file with a bad key stops its service at
 start, and `docker compose logs <service>` names the key.
 
 See what's running:
@@ -106,7 +104,7 @@ See what's running:
 docker compose ps
 ```
 
-`postgres` isn't listed, and `routr` shows `healthy`.
+`postgres` isn't listed, `routr-migrations` has exited, and `routr` shows `healthy`.
 
 <Check>Every service runs against your database.</Check>
 
