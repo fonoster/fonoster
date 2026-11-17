@@ -24,6 +24,8 @@ features:
 # Numbers of apps route to the Roomr nodes' Peer, created at start with this password.
 routr:
   apiEndpoint: routr:51907
+  # Sent as "authorization: Bearer <key>" on every Data API call.
+  apiKey: "${ROUTR_API_KEY}"
   # API-originated calls are dialed through Routr's SIP port as the roomr peer.
   sipProxy: "routr:${SIP_PORT}"
   roomrPeer: { aor: "sip:roomr@default", username: roomr, password: "${ROOMR_PASSWORD}" }

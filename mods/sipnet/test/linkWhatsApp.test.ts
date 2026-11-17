@@ -221,7 +221,8 @@ describe("@sipnet[sipnet/linkWhatsApp]", function () {
       sendRegister: false,
       inboundCredentialsRef: credential.ref,
       outboundCredentialsRef: credential.ref,
-      normalizeToE164: true,
+      calledNumberFormat: "E164",
+      callerNumberFormat: "E164",
       rewriteFromWithNumber: true,
       fromDomain: INBOUND_URI,
       extended: owned
@@ -597,7 +598,8 @@ describe("@sipnet[sipnet/linkWhatsApp]", function () {
       ref: "trunk-existing",
       inboundCredentialsRef: "cred-existing",
       outboundCredentialsRef: "cred-existing",
-      normalizeToE164: true,
+      calledNumberFormat: "E164",
+      callerNumberFormat: "E164",
       rewriteFromWithNumber: true,
       fromDomain: INBOUND_URI
     });

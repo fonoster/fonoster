@@ -297,7 +297,9 @@ fonoster_overrides:
 - Bare `?sslmode=require` fails with `DEPTH_ZERO_SELF_SIGNED_CERT`.
 - Use the database's direct port, not a connection pooler, or the read-only start-up options may not
   apply.
-- `routr_traces_enabled` and `compose.traces.yaml` are required.
+- `routr_traces_enabled` and `compose.traces.yaml` are required. The host role creates the traces
+  folder `1000:5000`, mode `02750`: Routr writes as uid 1000, and the setgid bit keeps its files in
+  group 5000, which the ops API reads through.
 
 ### 3. First start
 

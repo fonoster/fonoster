@@ -78,6 +78,8 @@ services:
       FONOSTER_REGION_SECRETS_FILE: /var/lib/fonoster-secrets/secrets.enc
       AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run ./init.sh}
       ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run ./init.sh}
+      # config/region/region-agent.yaml reads it as secret://env/ROUTR_API_KEY.
+      ROUTR_API_KEY: ${ROUTR_API_KEY:?run ./init.sh}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run ./init.sh}
       # The region's public connection details (region.endpoints) from the settings Routr and

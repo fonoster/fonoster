@@ -46,7 +46,11 @@ const DEMO = {
   agentPassword: env("RB_AGENT_PASSWORD"),
   trunkUri: env("RB_CARRIER_URI", "carrier.pstn.fonoster.local"),
   number: env("RB_DEMO_NUMBER", "+17853178070"),
-  appName: "Demo Autopilot"
+  appName: "Demo Autopilot",
+  // Another workspace of the same user, with an app: a browser test call of the Demo workspace
+  // that names it must be refused (DSH-069).
+  otherWorkspace: "Other",
+  otherAppName: "Other Autopilot"
 };
 
 const LANGUAGE = "en-US";
@@ -174,7 +178,16 @@ async function main() {
     const { ref } = await workspaces.createWorkspace({ name: DEMO.workspace });
     ws = await workspaces.getWorkspace(ref);
   }
-  // A fresh token carries the new workspace.
+  let other = items(await workspaces.listWorkspaces()).find(
+    (w) => w.name === DEMO.otherWorkspace
+  );
+  if (!other) {
+    const { ref } = await workspaces.createWorkspace({
+      name: DEMO.otherWorkspace
+    });
+    other = await workspaces.getWorkspace(ref);
+  }
+  // A fresh token carries both workspaces (one more sign-in only: Identity allows 3 in 10 minutes).
   const client = await login(ws.accessKeyId);
   const picked = choose(items(await new SDK.Providers(client).listCatalog({})));
 
@@ -285,6 +298,19 @@ async function main() {
       existing)
     : await applications.createApplication(appRequest);
 
+  // The other workspace's app, through the same client switched to that workspace.
+  client.setAccessKeyId(other.accessKeyId);
+  const otherApplications = new SDK.Applications(client);
+  const otherApp =
+    items(await otherApplications.listApplications({ pageSize: 100 })).find(
+      (a) => a.name === DEMO.otherAppName
+    ) ??
+    (await otherApplications.createApplication({
+      ...appRequest,
+      name: DEMO.otherAppName
+    }));
+  client.setAccessKeyId(ws.accessKeyId);
+
   const numbers = new SDK.Numbers(client);
   const telUrl = `tel:${DEMO.number}`;
   let number = items(await numbers.listNumbers({ pageSize: 100 })).find(
@@ -313,6 +339,10 @@ async function main() {
     },
     trunk: { ref: trunk.ref, inboundUri: DEMO.trunkUri },
     app: { ref: app.ref, name: DEMO.appName },
+    other: {
+      workspace: { ref: other.ref, accessKeyId: other.accessKeyId },
+      app: { ref: otherApp.ref, name: DEMO.otherAppName }
+    },
     number: { ref: number.ref, telUrl }
   };
   fs.writeFileSync(seedFile, JSON.stringify(result, null, 2) + "\n", {

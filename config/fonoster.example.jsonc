@@ -9,6 +9,7 @@
   },
   "encryption": { "key": "k1.aesgcm256.GENERATE-YOUR-OWN-with-npx-47ng-cloak-gen00=" },
   "nats": { "url": "nats://nats:4222" },
+  "routr": { "apiEndpoint": "routr:51907", "apiKey": "${ROUTR_API_KEY}" },
   "identity": {
     "database": {
       "url": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fnidentity",

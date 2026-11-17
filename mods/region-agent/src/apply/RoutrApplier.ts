@@ -206,12 +206,12 @@ export class RoutrApplier {
   }
 }
 
-/** The Routr port over @routr/sdk (the cell's Routr API, e.g. routr:51908). */
+/** The Routr port over @routr/sdk (the cell's Routr Data API, e.g. routr:51907). */
 export function sdkRoutrPort(options: {
   endpoint: string;
+  /** Sent as "authorization: Bearer <key>" (Routr's spec.data.apiKeys). */
+  apiKey: string;
   insecure?: boolean;
-  username?: string;
-  password?: string;
 }): RoutrPort {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const SDK = require("@routr/sdk").default ?? require("@routr/sdk");

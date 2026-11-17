@@ -238,7 +238,7 @@ YAML
   if with_billing; then render_billing; fi
 
   # Last, every time: the secrets, keys and certificate (kept across runs; the certificate is
-  # reissued when the host address changes), HOST_IP, and the SIP port in routr-edgeport.yaml.
+  # reissued when the host address changes), HOST_IP, and the SIP port in routr.yaml.
   sh "$BUNDLE/init.sh" --dir "$LOCAL" --host-ip "$host_ip" >/dev/null || die "ops/bundle/init.sh failed"
   load_env
 
@@ -323,7 +323,7 @@ cmd_up() {
   # The first user, once (fonoster-owner leaves an existing one alone).
   printf '%s' "$RB_ADMIN_PASSWORD" | compose exec -T apiserver fonoster-owner create "$RB_ADMIN_EMAIL" >&2 \
     || die "could not create the first user"
-  # Routr's API comes up later (it migrates its own database first); seeding needs it. The
+  # Routr's API comes up later (after routr-migrations); seeding needs it. The
   # apiserver logs the roomr peer once Routr answers.
   wait_for "Routr" 90 routr_ready || { compose logs --tail 20 routr; die "Routr did not start"; }
   cmd_info

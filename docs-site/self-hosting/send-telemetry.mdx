@@ -41,8 +41,8 @@ one yet, [run Grafana next to Fonoster](#see-it-in-grafana) first.
 </Steps>
 
 Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, AppBridge, the Roomr node,
-the hosted Autopilot and Routr. Routr reads the variable directly. The others read it through
-`telemetry.otlpEndpoint` in their file in `config/`:
+the hosted Autopilot and Routr. Each reads it through `telemetry.otlpEndpoint` in its file in
+`config/`:
 
 ```yaml
 telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
@@ -59,8 +59,7 @@ line in its `config/<service>.yaml` and recreate that service
 | API server       | `fonoster-apiserver` | One span per API request                                                                                      | `fonoster.apiserver.grpc.requests` (by method and status), `fonoster.apiserver.records.indexed`                                                   |
 | AppBridge        | `fonoster-appbridge` | `appbridge.call`, one span per call                                                                           | `fonoster.appbridge.calls.total`, `fonoster.appbridge.calls.active`                                                                               |
 | Roomr node       | `fonoster-roomr`     | `roomr.call.inbound` and `roomr.call.outbound`, one span per call, with `fonoster.call_ref` and `sip.call_id` | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active`                                                                       |
-| Routr EdgePort   | `routr-edgeport`     | `SIP <METHOD>`, one span per SIP request, from arrival to its final response, with `sip.call_id`              | `routr.sip.requests`, `routr.sip.responses` (by status), `routr.sip.timeouts`, `routr.sip.transport_errors`, `routr.sip.send_dropped` (by reason) |
-| Routr's services | `one`                | One span per routing step, linked over gRPC                                                                   | None                                                                                                                                              |
+| Routr            | `routr-one`          | `SIP <METHOD>`, one span per SIP request, from arrival to its final response, with `sip.call_id`              | `routr.sip.requests`, `routr.sip.responses` (by status), `routr.sip.timeouts`, `routr.sip.transport_errors`, `routr.sip.overflows`, `routr.sip.malformed` |
 
 AppBridge, the Roomr node and Routr also send their logs. The API server's stay in
 `docker compose logs`. A call is one trace: Routr's `SIP INVITE` span, then the Roomr node's call
@@ -71,7 +70,7 @@ Roomr node's call span also carries `sip.call_id`, so later requests of the dial
 `BYE`, are found by the same Call-ID.
 Metrics are sent every 15 seconds.
 
-An EdgePort `SIP <METHOD>` span ends as an error when its request gets no final response before
+A Routr `SIP <METHOD>` span ends as an error when its request gets no final response before
 the transaction times out (32 seconds). That's how a request the far end never answered shows up.
 
 ## Other settings
@@ -156,7 +155,7 @@ at them. It keeps data on its own disk, so it suits one server, not a cluster.
 
   <Step title="Open Grafana">
     Open `http://localhost:3000` on the server. Within 15 seconds, metrics arrive from the API
-    server, AppBridge, the Roomr node and Routr's EdgePort. Make a call to see its traces and
+    server, AppBridge, the Roomr node and Routr. Make a call to see its traces and
     logs.
 
     <Note>
@@ -199,29 +198,15 @@ In Grafana, open **Explore**.
   {service_name=~"fonoster-.*"} | fonoster_call_ref="call-d9f359e2fea82902ad23d0e89f70070c"
   ```
 
-## Spot dropped SIP messages
+## Spot unanswered SIP requests
 
-The EdgePort counts every SIP message it drops instead of sending, in `routr.sip.send_dropped`, by
-`routr.drop.reason`. In Grafana, pick the **Prometheus** data source and run:
-
-```
-sum by (routr_drop_reason) (increase(routr_sip_send_dropped_total[1h]))
-```
-
-Each drop also logs a record that names the message's first line and Call-ID, or says it was the
-TLS handshake of a new outbound connection. This **Loki** query lists them:
+A request the far end never answered shows up in **Tempo** as a Routr span that ended as an error
+when its transaction timed out (32 seconds):
 
 ```
-{service_name="routr-edgeport"} |= "dropping"
+{ resource.service.name = "routr-one" && status = error }
 ```
 
-The request that was never delivered shows up in **Tempo** as an EdgePort span that ended as an
-error when its transaction timed out:
-
-```
-{ resource.service.name = "routr-edgeport" && status = error }
-```
-
-A browser call that stays connected after your app hangs up is one way this shows up: a
-`SIP BYE` span that ends in error after about 32 seconds, and a drop with reason `ws_reconnect`.
-The EdgePort couldn't deliver the BYE to the browser.
+In **Prometheus**, `routr_sip_timeouts_total` and `routr_sip_transport_errors_total` count them.
+A browser call that stays connected after your app hangs up is one way this shows up: a `SIP BYE`
+span that ends in error after about 32 seconds.

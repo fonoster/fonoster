@@ -389,6 +389,7 @@ describe("@apiserver[regions/units]", function () {
         database: { url: "postgres://x" },
         encryption: { key: "k".repeat(32) },
         nats: { url: "nats://x" },
+        routr: { apiKey: "k" },
         identity: {}
       };
       const bad = fonosterConfigSchema.safeParse({

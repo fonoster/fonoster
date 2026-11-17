@@ -160,6 +160,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
         "minio",
         "nats",
         "postgres",
+        "routr-migrations",
         "routr",
         "rtpengine"
       ].sort()
@@ -286,31 +287,45 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       });
   });
 
-  it("proves Routr reaches the database routr-one.yaml names before the API server starts", function () {
-    // Healthy = the database spec.database.url names answers `select 1`. print_env is what the
-    // image's own CMD evals, so the check reads the URL exactly as Routr does, and `$$` keeps the
-    // shell variables out of Compose's interpolation (#1186).
-    const check = services.routr.healthcheck?.test;
-    expect(check?.[0]).to.equal("CMD-SHELL");
-    expect(check?.[1]).to.contain(
-      "OUT=$$(su-exec $$USER node ./dist/print_env)"
+  it("migrates Routr's database before Routr starts, and starts the API server once Routr is healthy", function () {
+    // routr-migrations (a one-shot) and routr read one URL; Routr reaches its database before it
+    // answers /healthz and exits when it can't, so a wrong URL never turns healthy (#1186).
+    const url =
+      "${ROUTR_DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/routr}";
+    expect(services["routr-migrations"].environment?.DATABASE_URL).to.equal(
+      url
     );
-    expect(check?.[1]).to.contain('eval "$$OUT"');
-    expect(check?.[1]).to.contain("psql \"$$DATABASE_URL\" -tAc 'select 1'");
+    expect(services.routr.environment?.ROUTR_DATABASE_URL).to.equal(url);
+    expect(services.routr.depends_on?.["routr-migrations"]).to.deep.equal({
+      condition: "service_completed_successfully"
+    });
+    expect(services.routr.healthcheck?.test).to.deep.equal([
+      "CMD",
+      "wget",
+      "-qO-",
+      "http://127.0.0.1:8080/healthz"
+    ]);
+    expect(
+      parse(read("ops/bundle/config/routr.yaml")).spec.health
+    ).to.deep.equal({
+      bindAddr: "127.0.0.1:8080"
+    });
     expect(services.apiserver.depends_on?.routr).to.deep.equal({
       condition: "service_healthy"
     });
   });
 
-  it("turns the bundled Postgres off with compose.external-db.yaml, Routr still reaches the database it names", function () {
+  it("turns the bundled Postgres off with compose.external-db.yaml, Routr still migrated before it starts", function () {
     const ext = overlay("compose.external-db.yaml").services;
     expect(read("ops/bundle/compose.external-db.yaml")).to.match(
       /depends_on: !override\n/
     );
-    // Never started; the services that waited for it wait for NATS only, and the API server keeps
-    // waiting for Routr's database check.
+    // Never started; the services that waited for it wait for NATS only (routr for its
+    // migrations too), and the API server keeps waiting for Routr.
     expect(ext.postgres.profiles).to.deep.equal(["bundled-db"]);
+    expect(ext["routr-migrations"].depends_on).to.deep.equal({});
     expect(ext.routr.depends_on).to.deep.equal({
+      "routr-migrations": { condition: "service_completed_successfully" },
       nats: { condition: "service_healthy" }
     });
     expect(ext.apiserver.depends_on).to.deep.equal({
@@ -322,7 +337,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       .filter(([, svc]) => svc.depends_on?.postgres)
       .map(([name]) => name)
       .sort();
-    expect(onPostgres).to.deep.equal(["apiserver", "routr"]);
+    expect(onPostgres).to.deep.equal(["apiserver", "routr-migrations"]);
   });
 
   it("lists no fake provider in its catalog (conformance: fakes are not available in production)", function () {
@@ -556,11 +571,11 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     // SIP over TLS is documented, not on. WSS is there for browsers on an https:// dashboard
     // (Envoy terminates TLS and proxies to ws), and nothing publishes its port.
     const edge = parse(
-      read("ops/bundle/config/routr-edgeport.yaml")
-    ).spec.transport.map((t: { protocol: string }) => t.protocol);
+      read("ops/bundle/config/routr.yaml")
+    ).spec.edgeport.transport.map((t: { protocol: string }) => t.protocol);
     expect(edge).to.deep.equal(["tcp", "udp", "ws", "wss"]);
     expect(read("ops/bundle/compose.yaml")).not.to.contain("5063");
-    expect(read("ops/bundle/config/routr-edgeport.yaml")).to.match(
+    expect(read("ops/bundle/config/routr.yaml")).to.match(
       /# - protocol: tls\n\s*# {3}port: 5061/
     );
   });
@@ -702,7 +717,12 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   });
 
   it("names in its config files only values init.sh's .env defines (or that have a default)", function () {
-    const defined = initEnv();
+    const defined = new Set(initEnv().keys());
+    // Or that compose.yaml always passes, with a default of its own (ROUTR_DATABASE_URL).
+    for (const svc of Object.values(services))
+      for (const [name, value] of Object.entries(svc.environment ?? {}))
+        if (new RegExp(`^\\$\\{${name}:-`).test(String(value)))
+          defined.add(name);
     const dir = path.join(BUNDLE, "config");
     for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".yaml"))) {
       const refs = body(fs.readFileSync(path.join(dir, f), "utf8")).match(

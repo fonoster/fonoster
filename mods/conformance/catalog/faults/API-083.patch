@@ -1,0 +1,13 @@
+diff --git a/mods/sipnet/src/resources/createResource.ts b/mods/sipnet/src/resources/createResource.ts
+index 52cf1b1a3..457bbe5b4 100644
+--- a/mods/sipnet/src/resources/createResource.ts
++++ b/mods/sipnet/src/resources/createResource.ts
+@@ -55,7 +55,7 @@ function createResource<T, R, U>(
+       extended: {
+         accessKeyId
+       }
+-    });
++    }).catch(() => ({}) as T);
+ 
+     callback(null, response);
+   };

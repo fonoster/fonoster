@@ -137,8 +137,8 @@ describe("@bundle init.sh", function () {
       expect(san).to.contain(name);
     expect(mode(path.join(tls, "ca-key.pem"))).to.equal(0o600);
 
-    const ports = parse(read(dir, "config/routr-edgeport.yaml"))
-      .spec.transport.filter((t: { protocol: string }) =>
+    const ports = parse(read(dir, "config/routr.yaml"))
+      .spec.edgeport.transport.filter((t: { protocol: string }) =>
         ["tcp", "udp"].includes(t.protocol)
       )
       .map((t: { port: unknown }) => t.port);
@@ -166,7 +166,7 @@ describe("@bundle init.sh", function () {
 
     // Assert
     expect(r.status, r.err).to.equal(0);
-    expect(first.out).to.match(/^\.env written \(11 secrets generated\)\n/);
+    expect(first.out).to.match(/^\.env written \(12 secrets generated\)\n/);
     expect(secrets(dir)).to.deep.equal(before);
     expect(r.out).to.contain(".env kept\n");
     expect(r.out).to.contain("keys: kept");
@@ -264,41 +264,46 @@ describe("@bundle init.sh", function () {
     );
   });
 
-  it("sets the SIP port in a merged, re-serialised routr-edgeport.yaml", function () {
+  it("sets the SIP port in a merged, re-serialised routr.yaml", function () {
     // Arrange: keys sorted, list items at the key's indent, no comments (to_nice_yaml).
     const dir = folder("SIP_PORT=15060\n");
     fs.writeFileSync(
-      path.join(dir, "config", "routr-edgeport.yaml"),
+      path.join(dir, "config", "routr.yaml"),
       [
-        "apiVersion: v2beta1",
-        "kind: EdgePort",
+        "apiVersion: v3",
+        "kind: Routr",
         "spec:",
-        "  transport:",
-        "  - port: 5060",
-        "    protocol: tcp",
-        "  - port: 5060",
-        "    protocol: udp",
-        "  - port: 5062",
-        "    protocol: ws",
-        "  unknownMethodAction: Discard",
+        "  edgeport:",
+        "    transport:",
+        "    - port: 5060",
+        "      protocol: tcp",
+        "    - port: 5060",
+        "      protocol: udp",
+        "    - port: 5062",
+        "      protocol: ws",
+        "    unknownMethodAction: Discard",
+        "  rtprelay:",
+        "    host: rtpengine",
+        "    port: 22222",
         ""
       ].join("\n")
     );
 
     // Act
     init(dir, ["--host-ip", "203.0.113.10"]);
-    const once = read(dir, "config/routr-edgeport.yaml");
+    const once = read(dir, "config/routr.yaml");
     init(dir);
 
     // Assert
     const spec = parse(once).spec;
-    expect(spec.transport).to.deep.equal([
+    expect(spec.rtprelay.port).to.equal(22222);
+    expect(spec.edgeport.transport).to.deep.equal([
       { port: 15060, protocol: "tcp" },
       { port: 15060, protocol: "udp" },
       { port: 5062, protocol: "ws" }
     ]);
-    expect(spec.unknownMethodAction).to.equal("Discard");
-    expect(read(dir, "config/routr-edgeport.yaml")).to.equal(once);
+    expect(spec.edgeport.unknownMethodAction).to.equal("Discard");
+    expect(read(dir, "config/routr.yaml")).to.equal(once);
   });
 
   it("exits 1 naming the problem: bad --host-ip, no address found, no config/, no openssl", function () {

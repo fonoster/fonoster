@@ -104,7 +104,7 @@ checked for what must not be there, every service's state is read, and the dashb
 called through the CA the install generated. An archive whose `SHA256SUMS` does not match must fail
 the play before anything in `/opt/fonoster` changes.
 
-**Pass.** The plan exits 0, prints no secret and creates no `/opt/fonoster/compose.yaml`; the apply exits 0; `/opt/fonoster` has no `README.md` or `ansible/`, and `config/routr-one.yaml` is the release's with the inventory's override merged; every service is `running`; the dashboard answers 200 and `ExchangeCredentials` answers `grpc-status: 3`; a checksum mismatch fails naming it, with `/opt/fonoster` byte-identical. **Fail.** Any of those differs.
+**Pass.** The plan exits 0, prints no secret and creates no `/opt/fonoster/compose.yaml`; the apply exits 0; `/opt/fonoster` has no `README.md` or `ansible/`, and `config/routr.yaml` is the release's with the inventory's override merged; every service is `running`; the dashboard answers 200 and `ExchangeCredentials` answers `grpc-status: 3`; a checksum mismatch fails naming it, with `/opt/fonoster` byte-identical. **Fail.** Any of those differs.
 
 ### OPS-004 Applying the previous version rolls back
 
@@ -131,7 +131,7 @@ keys moved away from under an existing install.
 - **Test:** ops/ansible/test/throwaway.sh
 
 The same version and inventory applied again on the converged runner, then once more with only the
-Routr log level changed in its override, which changes `config/routr-one.yaml` and nothing else.
+Routr log level changed in its override, which changes `config/routr.yaml` and nothing else.
 The container of every service is compared before and after.
 
 **Pass.** The second apply's recap says `changed=0`; with the override changed, only the `routr` container is new. **Fail.** The recap counts a change, or another service is recreated (or routr is not).
@@ -185,6 +185,6 @@ Last, after OPS-007 and from its values: `ops/cloud/ops-role.sql` runs on the st
 ops API is added only with `fonoster_files`, `COMPOSE_FILE`, `fonoster_overrides` and
 `fonoster_env_secrets`, from `ops/cloud/compose.ops.yaml`, with `intervalMinutes: 1`. A plan and two
 applies run, with a sentinel `OPS_SECRET` and database password. A real call from the corpus is put
-in Routr's traces folder as Routr writes it (uid 5000, modified now). The API server is recreated.
+in Routr's traces folder as Routr writes it (uid 1000, group 5000, modified now). The API server is recreated.
 
 **Pass.** Before the overlay, `/api/ops/interop/alerts` answers 404 through Envoy with any bearer; with the token `/api/ops/metrics` answers 200 with `schema` 1, `users.total` of 1 or more and `billing.present` 1, connecting as `fonoster_ops`; `fonoster_ops` is refused an `INSERT` into `users` and `SELECT email FROM users`; within 150 s the alerts hold exactly one `IOP-004` `whatsapp` alert with that file, and its recording downloads with the fixture's sha256; `touch /var/routr/traces/x` in the API server's container fails; after recreating it the alert is still there once and the next pass succeeds; a second apply changes nothing; neither secret is in the plan or the apply log. **Fail.** Any of those differs, or OPS-007's apply failed.

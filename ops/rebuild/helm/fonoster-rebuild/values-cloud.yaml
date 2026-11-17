@@ -43,6 +43,8 @@ apiserver:
       auth: { methods: [password, email_code], signup: invite }
     routr:
       apiEndpoint: routr:51907
+      # Routr's Data API key (its spec.data.apiKeys), from a Secret you create.
+      apiKey: "secret://k8s/routr-api-key#apiKey"
       roomrPeer:
         aor: "sip:roomr@default"
         username: roomr

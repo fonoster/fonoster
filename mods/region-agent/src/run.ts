@@ -99,7 +99,10 @@ export async function runAgent(
   }
 
   const routr = config.routr
-    ? sdkRoutrPort({ endpoint: config.routr.endpoint })
+    ? sdkRoutrPort({
+        endpoint: config.routr.endpoint,
+        apiKey: config.routr.apiKey
+      })
     : undefined;
   if (routr && config.routr?.roomrPeer) {
     const p = config.routr.roomrPeer as {

@@ -23,7 +23,7 @@ import { CallError, Driver, Who } from "./drivers";
 import { getWorld, World } from "./world";
 
 // management-api "A Number carries the aliases its carrier sends" and "A Trunk carries its outbound
-// number formats" (API-076 to API-079, #1387), through both clients against Routr 2.34: the
+// number formats" (API-076 to API-079, #1387), through both clients against Routr 3: the
 // fields are stored by Routr, so only a real Routr shows they are kept, cleared and refused.
 
 type Item = Record<string, unknown> & { ref: string };

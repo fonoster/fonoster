@@ -6,6 +6,7 @@ database:
   encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
 routr:
   endpoint: routr:51907
+  apiKey: "secret://env/ROUTR_API_KEY"
   roomrPeer:
     name: Roomr nodes
     username: roomr

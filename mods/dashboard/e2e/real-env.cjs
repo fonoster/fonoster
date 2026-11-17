@@ -47,7 +47,11 @@ const out = {
   E2E_REAL_PASSWORD: env.RB_ADMIN_PASSWORD,
   E2E_REAL_WORKSPACE: seed.workspace.name,
   E2E_REAL_WORKSPACE_KEY: seed.workspace.accessKeyId,
-  E2E_REAL_APP: seed.app.name
+  E2E_REAL_APP: seed.app.name,
+  E2E_REAL_APP_REF: seed.app.ref,
+  // Another workspace of the same user and its app (DSH-069).
+  E2E_REAL_OTHER_WORKSPACE_KEY: seed.other?.workspace.accessKeyId,
+  E2E_REAL_OTHER_APP_REF: seed.other?.app.ref
 };
 for (const [k, v] of Object.entries(out)) {
   if (!v) {

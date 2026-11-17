@@ -271,7 +271,7 @@
   check_mode: false
 
 # init.sh keeps every .env value, key and certificate and sets the SIP port in the merged
-# routr-edgeport.yaml, so it runs last. It never prints a secret.
+# routr.yaml, so it runs last. It never prints a secret.
 - name: Initialise (init.sh)
   ansible.builtin.command:
     argv: ["sh", "{{ fonoster_stage }}/init.sh", "--dir", "{{ fonoster_stage }}", "--host-ip", "{{ fonoster_env.HOST_IP }}"]

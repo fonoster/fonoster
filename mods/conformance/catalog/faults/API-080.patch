@@ -1,0 +1,19 @@
+--- a/mods/sipnet/src/agents/operations.ts
++++ b/mods/sipnet/src/agents/operations.ts
+@@ -36,7 +36,15 @@
+ 
+ function createAgent(agents: AgentsApi, checkRefs?: CheckRefs) {
+   return createResource<AgentExtended, CreateAgentRequestExtended, AgentsApi>(
+-    agents,
++    {
++      ...agents,
++      createAgent: (request: CreateAgentRequestExtended) =>
++        agents.createAgent({
++          ...request,
++          enabled: request.enabled ?? false,
++          privacy: request.privacy ?? ("ID" as CreateAgentRequestExtended["privacy"])
++        })
++    } as AgentsApi,
+     RESOURCE,
+     V.createAgentRequestSchema,
+     refsChecker(checkRefs, agentRefs)

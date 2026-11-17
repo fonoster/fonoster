@@ -207,12 +207,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Routr with its own database, as the bundle pins it.
+      # Routr 3 as the bundle pins it, on a routr database in the job's Postgres, migrated first.
       - name: Start Routr
-        run: |
-          docker run -d --name routr -p 51907:51907 fonoster/routr-one:2.34.0
-          for i in $(seq 1 60); do (echo > /dev/tcp/127.0.0.1/51907) 2>/dev/null && exit 0; sleep 2; done
-          docker logs routr; exit 1
+        env:
+          ROUTR_API_KEY: api-cases
+        run: mods/conformance/test/api/start-routr.sh
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -229,6 +228,7 @@ jobs:
         env:
           PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
           ROUTR_API_ENDPOINT: 127.0.0.1:51907
+          ROUTR_API_KEY: api-cases
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
           LOGS_LEVEL: none
         run: |
