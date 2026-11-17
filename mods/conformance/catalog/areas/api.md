@@ -1078,3 +1078,39 @@ A Trunk stored with `calledNumberFormat: NATIONAL` and `calledNumberPrefix: "9"`
 An Agent created with only `name` and `username`, through each client, against Routr 3.
 
 **Pass.** Get returns `enabled: true` and `privacy: NONE`. **Fail.** Either field comes back `false` or `PRIVATE`, or is missing.
+
+### API-081 The Roomr Peer setup on a second start changes nothing
+
+- **Spec:** management-api / The Roomr Peer is created once / A second start changes nothing
+- **Priority:** P1
+- **Proof:** Create the Credentials before the Peer in `apiserver/src/core/upsertRoomrPeer.ts`; the second start adds another set of Credentials before the Peer is refused, and the test goes red.
+- **Fault:** faults/API-081.patch
+- **Test:** mods/conformance/test/api/routrKey.api.ts
+
+The API server's Peer setup (`upsertRoomrPeer`), run twice against Routr 3.
+
+**Pass.** Routr holds one Peer with username `roomr` and one set of its Credentials, linked. **Fail.** A second Peer or Credentials, or the Peer isn't linked to them.
+
+### API-082 The region agent's apply sends the Routr API key
+
+- **Spec:** private-regions / The region agent authenticates to the cell's Routr / Apply with the cell's key
+- **Priority:** P0
+- **Proof:** Leave the key out of the Routr clients in `region-agent/src/apply/RoutrApplier.ts` (`sdkRoutrPort`); Routr refuses every call and the test goes red.
+- **Fault:** faults/API-082.patch
+- **Test:** mods/conformance/test/api/routrKey.api.ts
+
+`RoutrApplier` over `sdkRoutrPort` applies a one-ACL snapshot to Routr 3, with the key Routr holds and then with another key.
+
+**Pass.** With the key: one created, none failed. With another key: none created, one failed. **Fail.** Any failure with the right key, or anything created with the wrong one.
+
+### API-083 A wrong Routr API key makes CreateAgent return an error
+
+- **Spec:** management-api / SIP resources reach Routr with its API key / A wrong key is refused
+- **Priority:** P0
+- **Proof:** Swallow Routr's error in sipnet's create (`sipnet/src/resources/createResource.ts`) and answer OK; the test goes red.
+- **Fault:** faults/API-083.patch
+- **Test:** mods/conformance/test/api/routrKey.api.ts
+
+sipnet's CreateAgent handler built with a key Routr 3 doesn't hold.
+
+**Pass.** The call returns an error and no response, and the username is still free (creating it with the right key works). **Fail.** OK, an empty response, or the Agent stored.

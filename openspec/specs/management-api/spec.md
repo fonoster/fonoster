@@ -137,3 +137,23 @@ private one, so these defaults keep a new Agent working.
 #### Scenario: Omitted fields take the defaults
 - **WHEN** an Agent is created with only `name` and `username`
 - **THEN** get returns `enabled: true` and `privacy: NONE`
+
+### Requirement: SIP resources reach Routr with its API key
+
+sipnet SHALL call Routr's Data API with `routr.apiKey` as a Bearer token. A key Routr doesn't
+hold SHALL fail the request with an error, never OK or an empty result, and nothing SHALL be
+stored.
+
+#### Scenario: A wrong key is refused
+- **WHEN** an Agent is created through sipnet with a key Routr doesn't hold
+- **THEN** the call returns an error and no Agent with that username exists
+
+### Requirement: The Roomr Peer is created once
+
+On start, the API server SHALL create the Peer the Roomr nodes register under, with its
+Credentials, when `routr.roomrPeer.password` is set. A start that finds the Peer already there
+SHALL change nothing.
+
+#### Scenario: A second start changes nothing
+- **WHEN** the Peer setup runs twice
+- **THEN** Routr holds one Peer with that username and one set of its Credentials, linked

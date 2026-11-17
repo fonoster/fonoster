@@ -310,3 +310,13 @@ dashboard's install command and the docs' MUST be the same text.
 #### Scenario: One install command
 - **WHEN** a region owner copies the install command from the dashboard
 - **THEN** it is the command on the Install a private region page
+
+### Requirement: The region agent authenticates to the cell's Routr
+
+The region agent SHALL send `routr.apiKey` as a Bearer token on every call to the cell's Routr
+Data API, so an apply against a Routr with `spec.data.apiKeys` succeeds.
+
+#### Scenario: Apply with the cell's key
+- **WHEN** the agent applies a snapshot with the key Routr holds
+- **THEN** every resource is created and none fails
+- **AND** the same apply with another key creates nothing

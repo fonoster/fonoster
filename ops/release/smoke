@@ -98,7 +98,9 @@ log "dashboard 200 on https :$HTTPS_PORT (generated certificate)"
   || { log "the redirect port did not answer 301"; exit 1; }
 log "no HSTS; :$((BASE + 6)) redirects"
 
-# Every long-running service is still up (none exited or is restarting).
-bad="$(docker compose ps -a --format '{{.Service}} {{.State}}' | awk '$2 != "running" {print}')"
+# Every long-running service is still up (none exited or is restarting); the one-shot
+# routr-migrations exited 0.
+bad="$(docker compose ps -a --format '{{.Service}} {{.State}} {{.ExitCode}}' \
+  | awk '$1 == "routr-migrations" ? ($2 != "exited" || $3 != 0) : $2 != "running"')"
 [ -z "$bad" ] || { log "services not running: $bad"; exit 1; }
 log "ok"

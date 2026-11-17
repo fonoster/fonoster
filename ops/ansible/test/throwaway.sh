@@ -176,7 +176,8 @@ record OPS-003 "apply $A exits 0" ok
 extras="$($SUDO find "$LIVE" -maxdepth 1 \( -name README.md -o -name ansible \) -print)"
 [ -z "$extras" ] && record OPS-003 "$LIVE holds no README or ansible folder" ok \
   || record OPS-003 "$LIVE holds no README or ansible folder" fail "$extras"
-bad="$(compose ps -a --format '{{.Service}} {{.State}}' | awk '$2 != "running"')"
+bad="$(compose ps -a --format '{{.Service}} {{.State}} {{.ExitCode}}' \
+  | awk '$1 == "routr-migrations" ? ($2 != "exited" || $3 != 0) : $2 != "running"')"
 [ -z "$bad" ] && record OPS-003 "every service is running" ok || record OPS-003 "every service is running" fail "$bad"
 $SUDO grep -q "mode: all" "$LIVE/config/routr.yaml" && $SUDO grep -q "kind: Routr$" "$LIVE/config/routr.yaml" \
   && record OPS-003 "config/routr.yaml is the release's file with the inventory's override merged" ok \

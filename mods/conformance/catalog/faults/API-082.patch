@@ -1,0 +1,13 @@
+diff --git a/mods/region-agent/src/apply/RoutrApplier.ts b/mods/region-agent/src/apply/RoutrApplier.ts
+index 597f171f7..04247c55b 100644
+--- a/mods/region-agent/src/apply/RoutrApplier.ts
++++ b/mods/region-agent/src/apply/RoutrApplier.ts
+@@ -215,7 +215,7 @@ export function sdkRoutrPort(options: {
+ }): RoutrPort {
+   // eslint-disable-next-line @typescript-eslint/no-var-requires
+   const SDK = require("@routr/sdk").default ?? require("@routr/sdk");
+-  const opts = { insecure: true, ...options };
++  const opts = { insecure: true, endpoint: options.endpoint };
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const clients: Record<RoutrKind, any> = {
+     acls: new SDK.Acls(opts),
