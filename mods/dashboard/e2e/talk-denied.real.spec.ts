@@ -42,7 +42,9 @@ test("[DSH-069] a test call naming another workspace's app is refused and record
   const SDK = require("@fonoster/sdk");
   const client = new SDK.Client({
     accessKeyId: env("E2E_REAL_OTHER_WORKSPACE_KEY"),
-    endpoint: `localhost:${new URL(env("E2E_REAL_API_URL")).port}`
+    endpoint: `localhost:${new URL(env("E2E_REAL_API_URL")).port}`,
+    // Call records come over the HTTP API, which defaults to port 443
+    httpUrl: env("E2E_REAL_API_URL")
   });
   await client.login(env("E2E_REAL_EMAIL"), env("E2E_REAL_PASSWORD"));
   const records = new SDK.CallRecords(client);

@@ -2,7 +2,7 @@
 # transport list is restated). Your own overrides: .dev/overlay/routr.yaml.
 #
 # SIP over TLS on 5061 with the certificate init.sh generates in .dev/config/tls/: the routr service
-# (.devcontainer/compose.yaml) mounts its PEMs where the routr-one image builds signaling.p12.
+# (.devcontainer/compose.yaml) mounts its PEMs at the certFile and keyFile of the bundle's routr.yaml.
 # init.sh writes SIP_PORT into the tcp and udp ports.
 spec:
   edgeport:

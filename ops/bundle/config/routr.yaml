@@ -25,11 +25,12 @@ spec:
         # Disabled = no client certificate is requested; the carrier's certificate chain is still
         # validated against the system's public CAs. Never DisabledAll: it trusts any certificate.
         authType: Disabled
-      keyStorePassword: changeme
-      keyStore: /etc/routr/certs/signaling.p12
-      keyStoreType: pkcs12
-      # No truststore: Routr uses the system's public CAs. For a carrier with a private CA, set a
-      # truststore (trustStore, trustStorePassword) here.
+      # PEM files. The image generates a self-signed pair when none is mounted; compose.tls.yaml
+      # mounts yours for SIP over TLS.
+      certFile: /etc/routr/certs/server.crt
+      keyFile: /etc/routr/certs/server.key
+      # No caFile: Routr uses the system's public CAs. For a carrier with a private CA, set caFile
+      # to a PEM bundle of its CA here.
     # SIP listens on SIP_PORT inside the container too, so Via and Record-Route carry the port
     # softphones and carriers reach: ./init.sh writes SIP_PORT into the tcp and udp ports below on
     # every run (a port must be a number, not ${NAME}).
@@ -45,13 +46,12 @@ spec:
       # Browsers on an https:// dashboard speak SIP over WSS. Envoy terminates TLS and still
       # proxies them to ws:5062, but Routr routes each request by the transport the browser names,
       # so it needs a WSS listening point too (Record-Route and self-route matching use its port).
-      # Not published; the keystore above is the self-signed one the image creates, unless
-      # compose.tls.yaml mounts yours for SIP over TLS.
+      # Not published; it serves the certificate above.
       - protocol: wss
         port: 5063
       # SIP over TLS (off by default): uncomment with the routr lines in compose.tls.yaml, which
-      # mount your keystore at /etc/routr/certs/signaling.p12 and publish 5061/tcp, and set the
-      # keystore password above. Carriers and softphones then use sips: or transport=tls on 5061.
+      # mount your certificate and key at the certFile and keyFile above and publish 5061/tcp.
+      # Carriers and softphones then use sips: or transport=tls on 5061.
       # - protocol: tls
       #   port: 5061
     events:
