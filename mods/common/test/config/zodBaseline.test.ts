@@ -84,7 +84,8 @@ const SERVICES: Record<string, Service> = {
       domain: "fonoster.local",
       database: { url: "postgres://u:p@localhost/db" },
       encryption: { key: ENCRYPTION_KEY },
-      nats: { url: "nats://localhost:4222" }
+      nats: { url: "nats://localhost:4222" },
+      routr: { apiKey: "routr-key" }
     },
     loaded: true,
     freeForm: { "evaluations.credentials": "x" }

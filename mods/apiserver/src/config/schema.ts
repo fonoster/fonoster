@@ -290,28 +290,28 @@ const fonosterConfigSchema = z
       })
       .prefault({}),
     features: featuresSchema,
-    routr: z
-      .object({
-        apiEndpoint: z.string().default("routr:51907"),
-        /**
-         * host:port of Routr's SIP listener: API-originated calls are dialed through it
-         * (CreateCall's to.proxy), as the roomr peer below (to.auth).
-         */
-        sipProxy: z.string().default("routr:5060"),
-        /**
-         * The peer Go Roomr nodes register under (least-sessions, add-roomr 4.1). Without a
-         * password the apiserver does not create it.
-         */
-        roomrPeer: z
-          .object({
-            aor: z.string().default("sip:roomr@default"),
-            name: z.string().default("Roomr nodes"),
-            username: z.string().default("roomr"),
-            password: z.string().optional()
-          })
-          .prefault({})
-      })
-      .prefault({}),
+    routr: z.object({
+      apiEndpoint: z.string().default("routr:51907"),
+      /** Sent as "authorization: Bearer <key>" on every Data API call (spec.data.apiKeys). */
+      apiKey: z.string().min(1),
+      /**
+       * host:port of Routr's SIP listener: API-originated calls are dialed through it
+       * (CreateCall's to.proxy), as the roomr peer below (to.auth).
+       */
+      sipProxy: z.string().default("routr:5060"),
+      /**
+       * The peer Go Roomr nodes register under (least-sessions, add-roomr 4.1). Without a
+       * password the apiserver does not create it.
+       */
+      roomrPeer: z
+        .object({
+          aor: z.string().default("sip:roomr@default"),
+          name: z.string().default("Roomr nodes"),
+          username: z.string().default("roomr"),
+          password: z.string().optional()
+        })
+        .prefault({})
+    }),
     // user/password: the apiserver's NATS user when the server has per-service users
     // (add-platform 4.1); password is usually a secret:// reference.
     nats: z.object({

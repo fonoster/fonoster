@@ -53,6 +53,11 @@ New releases are listed newest first. For releases up to 0.27, see the
 - Adding a number with a country that has no numbering plan is now refused.
 - Adding a number whose telUrl isn't `tel:` and an E.164 number, such as `tel:442036705880`
   without the `+`, is now refused.
+- **Routr 3 now runs every call.** WhatsApp callers reach apps as Meta writes them, not
+  `+E.164`. A SIP agent calling a SIP agent of another domain gets `403`, and a disabled SIP agent
+  can't register or call (new SIP agents are enabled unless you say otherwise). Deleting
+  credentials or an ACL that a trunk uses is refused. A call that is up while Routr restarts can't
+  be hung up from the far side (`481`).
 
 ## Usage
 
@@ -109,6 +114,9 @@ New releases are listed newest first. For releases up to 0.27, see the
   `callRecord.workspaces.<ref>.recording`** from `config/appbridge.yaml` and
   `config/region/appbridge.yaml`. AppBridge doesn't start while they're set, and its log says
   `callRecord: unknown key "recording"`.
+- **Routr 3:** Routr's config is now `config/routr.yaml`, with a new `routr-migrations` service
+  and `ROUTR_API_KEY` in `.env` (run `./init.sh`). See Routr's
+  [upgrade guide](https://docs.routr.io/guides/upgrade-to-routr-3).
 
 </Update>
 

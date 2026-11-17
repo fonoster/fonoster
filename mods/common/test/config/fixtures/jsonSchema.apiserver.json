@@ -348,6 +348,10 @@
             "type": "string",
             "default": "routr:51907"
           },
+          "apiKey": {
+            "type": "string",
+            "minLength": 1
+          },
           "sipProxy": {
             "type": "string",
             "default": "routr:5060"
@@ -374,6 +378,9 @@
             "additionalProperties": false
           }
         },
+        "required": [
+          "apiKey"
+        ],
         "additionalProperties": false
       },
       "nats": {
@@ -938,6 +945,7 @@
       "domain",
       "database",
       "encryption",
+      "routr",
       "nats"
     ],
     "additionalProperties": false

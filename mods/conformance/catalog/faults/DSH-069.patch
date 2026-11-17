@@ -1,0 +1,12 @@
+diff --git a/ops/bundle/config/routr.yaml b/ops/bundle/config/routr.yaml
+--- a/ops/bundle/config/routr.yaml
++++ b/ops/bundle/config/routr.yaml
+@@ -63,7 +63,7 @@
+     verifierPublicKeyPath: /etc/routr/keys/public.pem
+     # Keep the verified token on the INVITE to the Roomr nodes' Peer: AppBridge reads it to bill
+     # browser test calls as tests, name the tester and check the token's workspace owns the app.
+-    forwardConnectToken: true
++    forwardConnectToken: false
+   data:
+     backend: postgres
+     url: ${ROUTR_DATABASE_URL}

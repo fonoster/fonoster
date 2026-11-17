@@ -19,6 +19,8 @@
 type ClientOptions = {
   endpoint: string;
   insecure: boolean;
+  /** Routr's Data API key, sent as "authorization: Bearer <key>". */
+  apiKey: string;
 };
 
 export { ClientOptions };

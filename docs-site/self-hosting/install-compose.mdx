@@ -85,7 +85,7 @@ You need:
     .env written (12 secrets generated)
     keys: 3 files created in config/keys
     tls: local CA and server certificate created in config/tls for localhost, 127.0.0.1, 203.0.113.10 (for getting started)
-    config: config/routr-edgeport.yaml SIP port 5060
+    config: config/routr.yaml SIP port 5060
     host address: 203.0.113.10
 
     Dashboard   https://203.0.113.10
@@ -137,7 +137,8 @@ You need:
     ```
 
     You see `apiserver`, `autopilot`, `dashboard`, `envoy`, `appbridge`, `roomr`, `minio`, `nats`,
-    `postgres`, `routr` and `rtpengine`, each `Up`.
+    `postgres`, `routr` and `rtpengine`, each `Up`. `routr-migrations` isn't among them: it prepares
+    Routr's database, then exits (`docker compose ps -a` shows it `Exited (0)`).
   </Step>
 
   <Step title="Create your login">

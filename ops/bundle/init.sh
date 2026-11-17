@@ -1,6 +1,6 @@
 #!/bin/sh
 # Prepares this folder for `docker compose up -d`: .env with generated secrets, the signing keys,
-# a certificate for getting started and the SIP port in config/routr-edgeport.yaml. Needs only a
+# a certificate for getting started and the SIP port in config/routr.yaml. Needs only a
 # POSIX shell and openssl.
 #
 #   ./init.sh [--dir <folder>] [--host-ip <address>] [-h]
@@ -16,7 +16,7 @@ usage() {
 Usage: ./init.sh [--dir <folder>] [--host-ip <address>]
 
 Writes .env (generated secrets), config/keys and config/tls when missing, sets the SIP port in
-config/routr-edgeport.yaml, and prints the dashboard URL and how to create the first user. Keeps everything
+config/routr.yaml, and prints the dashboard URL and how to create the first user. Keeps everything
 that is already there.
 
   --dir <folder>        the install folder (default: this script's folder)
@@ -136,6 +136,7 @@ NATS_ROUTR_PASSWORD=
 ENCRYPTION_KEY=
 AUTOPILOT_SIGNING_SECRET=
 ROOMR_PASSWORD=
+ROUTR_API_KEY=
 
 # A private region (COMPOSE_FILE=compose.yaml:compose.region.yaml): the region agent's NATS user
 # and the key of its secrets store.
@@ -411,7 +412,7 @@ EOF
     openssl x509 -req -in "$TLS/server.csr" -CA "$TLS/ca.pem" -CAkey "$TLS/ca-key.pem" -days 397 \
       -set_serial "0x$(openssl rand -hex 8)" -extfile "$TLS/server.cnf" -extensions server 2>/dev/null \
       | write_file "$TLS/server.pem" 0644
-    # Routr's image reads the server key as uid 5000 to build its SIP over TLS keystore: a bind
+    # Routr's image reads the server key as uid 1000 to build its SIP over TLS keystore: a bind
     # mount bypasses config/'s 0700 but not the file's own mode. The CA key stays 0600.
     write_file "$TLS/server-key.pem" 0644 <"$TLS/new-server-key.$$"
     rm -f "$TLS/new-server-key.$$" "$TLS/server.csr"
@@ -428,13 +429,13 @@ fi
 
 # SIP port --------------------------------------------------------------------------------------
 
-# The port of the tcp and udp entries under spec.transport, found by structure: the file may have
-# been merged and re-serialised (keys in another order, no comments).
+# The port of the tcp and udp entries under spec.edgeport.transport, found by structure: the file
+# may have been merged and re-serialised (keys in another order, no comments).
 SIP_PORT="$(env_expanded SIP_PORT)"
 SIP_PORT="${SIP_PORT:-5060}"
-EDGEPORT="$CONFIG/routr-edgeport.yaml"
+ROUTR_CONFIG="$CONFIG/routr.yaml"
 config_msg=""
-if [ -f "$EDGEPORT" ]; then
+if [ -f "$ROUTR_CONFIG" ]; then
   awk -v port="$SIP_PORT" '
     function indent(s) { match(s, /^ */); return RLENGTH }
     function flush(   i, proto) {
@@ -462,13 +463,13 @@ if [ -f "$EDGEPORT" ]; then
       print
     }
     END { if (inside) flush() }
-  ' "$EDGEPORT" >"$EDGEPORT.init.$$"
-  if cmp -s "$EDGEPORT.init.$$" "$EDGEPORT"; then
-    rm -f "$EDGEPORT.init.$$"
+  ' "$ROUTR_CONFIG" >"$ROUTR_CONFIG.init.$$"
+  if cmp -s "$ROUTR_CONFIG.init.$$" "$ROUTR_CONFIG"; then
+    rm -f "$ROUTR_CONFIG.init.$$"
   else
-    chmod 0644 "$EDGEPORT.init.$$" && mv -f "$EDGEPORT.init.$$" "$EDGEPORT"
+    chmod 0644 "$ROUTR_CONFIG.init.$$" && mv -f "$ROUTR_CONFIG.init.$$" "$ROUTR_CONFIG"
   fi
-  config_msg="config: config/routr-edgeport.yaml SIP port $SIP_PORT"
+  config_msg="config: config/routr.yaml SIP port $SIP_PORT"
 fi
 
 # Summary ---------------------------------------------------------------------------------------

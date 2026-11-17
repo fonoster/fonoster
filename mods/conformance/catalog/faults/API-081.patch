@@ -1,0 +1,29 @@
+diff --git a/mods/apiserver/src/core/upsertRoomrPeer.ts b/mods/apiserver/src/core/upsertRoomrPeer.ts
+index 057b4a0b0..f90e6efe5 100644
+--- a/mods/apiserver/src/core/upsertRoomrPeer.ts
++++ b/mods/apiserver/src/core/upsertRoomrPeer.ts
+@@ -42,7 +42,11 @@ async function upsertRoomrPeer(
+   const credentials = new SDK.Credentials(routrConfig);
+ 
+   try {
+-    // Peer first: if it already exists, nothing else is created (no duplicate credentials).
++    const creds = await credentials.createCredentials({
++      name: `${name} credentials`,
++      username,
++      password
++    });
+     const peer = await peers.createPeer({
+       name,
+       username,
+@@ -52,11 +56,6 @@ async function upsertRoomrPeer(
+       maxContacts: -1,
+       enabled: true
+     } as CreatePeerRequest);
+-    const creds = await credentials.createCredentials({
+-      name: `${name} credentials`,
+-      username,
+-      password
+-    });
+     peer.credentialsRef = creds.ref;
+     await peers.updatePeer(peer);
+     logger.info("roomr peer created", { peerRef: peer.ref, aor });

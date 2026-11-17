@@ -138,6 +138,9 @@ export const NATS = natsConnectOptions(config.nats);
 
 export const ROUTR_API_ENDPOINT = config.routr.apiEndpoint;
 
+/** Routr's Data API key (spec.data.apiKeys), sent as a Bearer token on every call. */
+export const ROUTR_API_KEY = config.routr.apiKey;
+
 // The roomr peer every app-linked number points at (add-roomr 4.1)
 export const ROUTR_ROOMR_PEER = config.routr.roomrPeer;
 

@@ -33,9 +33,11 @@ import {
   CredentialsApi,
   LinkWhatsAppRequest,
   LinkWhatsAppResponse,
+  NumberFormat,
   NumbersApi,
   Transport,
   TrunkApi,
+  TrunkNumberFormats,
   UpdateCredentialsRequest
 } from "@fonoster/types";
 import { ServerInterceptingCall, status } from "@grpc/grpc-js";
@@ -57,7 +59,7 @@ const logger = getLogger({ service: "sipnet", filePath: __filename });
 const META_SIP_HOST = "wa.meta.vc";
 const META_SIP_PORT = 5061;
 
-/** Routr's media relay negotiates SRTP with SDES toward trunks over TLS (routr-rtprelay.yaml). */
+/** Routr's media relay negotiates SRTP with SDES toward trunks over TLS (routr.yaml). */
 const SRTP_KEY_EXCHANGE = "SDES";
 
 /** A public SIP endpoint of the install, as `regions.public[].endpoints.sip` declares it. */
@@ -65,13 +67,10 @@ type SipEndpoint = { host: string; port: number; transport: string };
 
 /**
  * Trunk fields Routr has and the Fonoster Trunk proto doesn't: they reach Routr through the SDK's
- * pass-through (routr connect proto, `@routr/common` 2.24.0). Meta answers 403 unless From carries
+ * pass-through (routr connect proto, `@routr/common` 3). Meta answers 403 unless From carries
  * the registered hostname, so every WhatsApp trunk sets them.
  */
-type RoutrTrunkFields = Pick<
-  CC.Trunk,
-  "normalizeToE164" | "rewriteFromWithNumber" | "fromDomain"
->;
+type RoutrTrunkFields = Pick<CC.Trunk, "rewriteFromWithNumber" | "fromDomain">;
 
 type WhatsAppLink = {
   inspectWhatsAppNumber: typeof inspectWhatsAppNumber;
@@ -284,8 +283,10 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
       sipPasswordSet = Boolean(sipPassword);
     }
 
-    const routrTrunkFields: RoutrTrunkFields = {
-      normalizeToE164: true,
+    // Calls sent to Meta carry +E.164 in To, the Request-URI and From.
+    const routrTrunkFields: RoutrTrunkFields & TrunkNumberFormats = {
+      calledNumberFormat: NumberFormat.E164,
+      callerNumberFormat: NumberFormat.E164,
       rewriteFromWithNumber: true,
       fromDomain: inboundUri
     };

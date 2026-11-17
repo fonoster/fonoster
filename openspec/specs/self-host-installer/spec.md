@@ -25,7 +25,7 @@ caller bot. It MUST NOT contain `.env`, `config/keys`, `config/tls`, example fil
 
 `./init.sh`, run in the install folder, SHALL write `.env` with every secret the stack needs, the
 signing keys and the host address (detected, or `--host-ip`), and SHALL set `SIP_PORT` in the tcp
-and udp entries of `config/routr-edgeport.yaml`. It MUST NOT prompt, MUST NOT need vendor keys,
+and udp entries of `config/routr.yaml` (`spec.edgeport.transport`). It MUST NOT prompt, MUST NOT need vendor keys,
 Node.js, Docker or a repository checkout, and MUST need only a POSIX shell and `openssl`. It MUST
 NOT write any other file in `config/` and MUST NOT print a secret value. Files that hold secrets
 MUST be readable by the owner only, except keys the containers read, which MUST be world-readable
@@ -189,4 +189,4 @@ edited file MUST be the one that runs after.
 
 #### Scenario: The SIP port survives
 - **WHEN** the previous install set `SIP_PORT=15060`
-- **THEN** after the upgrade `config/routr-edgeport.yaml` listens on 15060
+- **THEN** after the upgrade `config/routr.yaml` listens on 15060

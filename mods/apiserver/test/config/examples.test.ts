@@ -28,7 +28,8 @@ import {
 const ENV = {
   POSTGRES_USER: "postgres",
   POSTGRES_PASSWORD: "postgres",
-  ROOMR_PASSWORD: "changeme"
+  ROOMR_PASSWORD: "changeme",
+  ROUTR_API_KEY: "routr-key"
 };
 
 const ROOT = join(__dirname, "..", "..", "..", "..");
@@ -54,6 +55,7 @@ describe("@apiserver[config/examples]", function () {
     // Every app-linked number points at the roomr peer (cleanbreak CB-B3).
     expect(config.routr.roomrPeer.aor).to.equal("sip:roomr@default");
     expect(config.routr.roomrPeer.password).to.equal("changeme");
+    expect(config.routr.apiKey).to.equal("routr-key");
     expect(config.features.auth.methods).to.deep.equal(["password"]);
   });
 
@@ -61,6 +63,9 @@ describe("@apiserver[config/examples]", function () {
     const yaml = load("fonoster.example.yaml");
     const jsonc = load("fonoster.example.jsonc");
     expect(jsonc.database).to.deep.equal(yaml.database);
-    expect(jsonc.routr.apiEndpoint).to.equal(yaml.routr.apiEndpoint);
+    expect(jsonc.routr).to.deep.include({
+      apiEndpoint: yaml.routr.apiEndpoint,
+      apiKey: yaml.routr.apiKey
+    });
   });
 });

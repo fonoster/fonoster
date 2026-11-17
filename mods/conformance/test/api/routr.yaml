@@ -1,0 +1,16 @@
+# Routr for the API cases (start-routr.sh). The cases use only its Data API, on Postgres with an
+# API key; RoutrOne needs an EdgePort, so it listens for SIP inside the container, unpublished.
+apiVersion: v3
+kind: Routr
+ref: routr-api-cases
+spec:
+  edgeport:
+    methods: [REGISTER, INVITE, ACK, BYE, CANCEL]
+    transport:
+      - protocol: udp
+        port: 5060
+  data:
+    backend: postgres
+    url: ${ROUTR_DATABASE_URL}
+    apiKeys: ["${ROUTR_API_KEY}"]
+    enforceE164Numbers: true

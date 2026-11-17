@@ -1,0 +1,90 @@
+# Routr. ${NAME} values come from the routr container's environment in compose.yaml, so passwords
+# and keys never land in this file. Edit it, then: docker compose up -d --force-recreate routr
+# Routr rejects unknown keys and reads no environment variable this file doesn't name.
+apiVersion: v3
+kind: Routr
+ref: routr-one
+metadata:
+  region: default
+# debug, info, warn or error
+logLevel: ${ROUTR_LOGS_LEVEL:-info}
+# Traces, metrics and logs over OTLP/HTTP; empty is off.
+telemetry:
+  otlpEndpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+spec:
+  edgeport:
+    unknownMethodAction: Discard
+    # The address Routr writes in Via and Record-Route for parties outside localnets: one that
+    # carriers and softphones reach.
+    externalAddrs: ["${HOST_IP}"]
+    localnets: ["${SUBNET_PREFIX:-10.216.30}.40/29"]
+    methods: [REGISTER, MESSAGE, INVITE, ACK, BYE, CANCEL]
+    securityContext:
+      client:
+        protocols: [TLSv1.3, TLSv1.2]
+        # Disabled = no client certificate is requested; the carrier's certificate chain is still
+        # validated against the system's public CAs. Never DisabledAll: it trusts any certificate.
+        authType: Disabled
+      keyStorePassword: changeme
+      keyStore: /etc/routr/certs/signaling.p12
+      keyStoreType: pkcs12
+      # No truststore: Routr uses the system's public CAs. For a carrier with a private CA, set a
+      # truststore (trustStore, trustStorePassword) here.
+    # SIP listens on SIP_PORT inside the container too, so Via and Record-Route carry the port
+    # softphones and carriers reach: ./init.sh writes SIP_PORT into the tcp and udp ports below on
+    # every run (a port must be a number, not ${NAME}).
+    transport:
+      - protocol: tcp
+        port: 5060
+      - protocol: udp
+        port: 5060
+      # SIP over WebSocket for browser calls ("Talk to agent"). Not published: Envoy proxies /sip
+      # on the API port to it.
+      - protocol: ws
+        port: 5062
+      # Browsers on an https:// dashboard speak SIP over WSS. Envoy terminates TLS and still
+      # proxies them to ws:5062, but Routr routes each request by the transport the browser names,
+      # so it needs a WSS listening point too (Record-Route and self-route matching use its port).
+      # Not published; the keystore above is the self-signed one the image creates, unless
+      # compose.tls.yaml mounts yours for SIP over TLS.
+      - protocol: wss
+        port: 5063
+      # SIP over TLS (off by default): uncomment with the routr lines in compose.tls.yaml, which
+      # mount your keystore at /etc/routr/certs/signaling.p12 and publish 5061/tcp, and set the
+      # keystore password above. Carriers and softphones then use sips: or transport=tls on 5061.
+      # - protocol: tls
+      #   port: 5061
+    events:
+      nats:
+        url: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
+        subject: routr
+  connect:
+    # Browser calls: the API server's test tokens are signed with Identity's key.
+    verifierPublicKeyPath: /etc/routr/keys/public.pem
+    # Keep the verified token on the INVITE to the Roomr nodes' Peer: AppBridge reads it to bill
+    # browser test calls as tests, name the tester and check the token's workspace owns the app.
+    forwardConnectToken: true
+  data:
+    backend: postgres
+    url: ${ROUTR_DATABASE_URL}
+    # The API server, sipnet and the region agent send it as "authorization: Bearer <key>".
+    apiKeys: ["${ROUTR_API_KEY}"]
+    # Refuse a Number whose telUrl isn't tel:+ and an E.164 number (the API checks it too).
+    enforceE164Numbers: true
+  rtprelay:
+    host: rtpengine
+    port: 22222
+    # Merged over Routr's default RTPEngine profiles one key at a time: a key here replaces the
+    # default's, a list replaces the default list, and anything not mentioned stays as Routr ships
+    # it.
+    profiles:
+      # Toward a trunk reached over TLS, offer only the mandatory SRTP suite (RFC 4568 §6.2.1).
+      # RTPEngine's default offer also lists NULL_HMAC_SHA1_80 and NULL_HMAC_SHA1_32, which is
+      # authenticated but unencrypted audio.
+      phone-to-secure-phone:
+        SDES: ["only-AES_CM_128_HMAC_SHA1_80"]
+      web-to-secure-phone:
+        SDES: ["only-AES_CM_128_HMAC_SHA1_80"]
+  # GET /healthz, for compose.yaml's healthcheck only.
+  health:
+    bindAddr: 127.0.0.1:8080

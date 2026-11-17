@@ -60,6 +60,7 @@
     },
     "routr": {
       "apiEndpoint": "routr:51907",
+      "apiKey": "routr-key",
       "sipProxy": "routr:5060",
       "roomrPeer": {
         "aor": "sip:roomr@default",

@@ -27,7 +27,7 @@
     "@opentelemetry/resources": "^2.12.0",
     "@opentelemetry/sdk-trace-base": "^2.12.0",
     "@opentelemetry/sdk-trace-node": "^2.12.0",
-    "@routr/common": "~2.24.1",
+    "@routr/common": "^3.0.0",
     "ajv": "^8.17.1",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",

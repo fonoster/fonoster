@@ -1,12 +1,15 @@
 diff --git a/ops/ansible/roles/fonoster/tasks/switch.yml b/ops/ansible/roles/fonoster/tasks/switch.yml
-index b93d12815..354cd83f2 100644
+index 3d0dd2eb0..f13abf7c5 100644
 --- a/ops/ansible/roles/fonoster/tasks/switch.yml
 +++ b/ops/ansible/roles/fonoster/tasks/switch.yml
-@@ -89,7 +89,7 @@
+@@ -98,10 +98,7 @@
          cmd: docker compose up -d --remove-orphans --wait --wait-timeout 900
          chdir: "{{ fonoster_dir }}"
        register: fonoster_up
--      changed_when: fonoster_up.stderr is search('\\b(Created|Recreated|Started|Removed)\\b')
+-      # The one-shot routr-migrations starts again on every up; only the other services count.
+-      changed_when: >-
+-        fonoster_up.stderr_lines | reject('search', 'routr-migrations')
+-        | select('search', '\\b(Created|Recreated|Started|Removed)\\b') | list | length > 0
 +      changed_when: true
  
      - name: Deploy log

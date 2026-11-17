@@ -176,11 +176,12 @@ record OPS-003 "apply $A exits 0" ok
 extras="$($SUDO find "$LIVE" -maxdepth 1 \( -name README.md -o -name ansible \) -print)"
 [ -z "$extras" ] && record OPS-003 "$LIVE holds no README or ansible folder" ok \
   || record OPS-003 "$LIVE holds no README or ansible folder" fail "$extras"
-bad="$(compose ps -a --format '{{.Service}} {{.State}}' | awk '$2 != "running"')"
+bad="$(compose ps -a --format '{{.Service}} {{.State}} {{.ExitCode}}' \
+  | awk '$1 == "routr-migrations" ? ($2 != "exited" || $3 != 0) : $2 != "running"')"
 [ -z "$bad" ] && record OPS-003 "every service is running" ok || record OPS-003 "every service is running" fail "$bad"
-$SUDO grep -q "mode: all" "$LIVE/config/routr-one.yaml" && $SUDO grep -q "kind: RoutrOne" "$LIVE/config/routr-one.yaml" \
-  && record OPS-003 "config/routr-one.yaml is the release's file with the inventory's override merged" ok \
-  || record OPS-003 "config/routr-one.yaml is the release's file with the inventory's override merged" fail "$($SUDO cat "$LIVE/config/routr-one.yaml")"
+$SUDO grep -q "mode: all" "$LIVE/config/routr.yaml" && $SUDO grep -q "kind: Routr$" "$LIVE/config/routr.yaml" \
+  && record OPS-003 "config/routr.yaml is the release's file with the inventory's override merged" ok \
+  || record OPS-003 "config/routr.yaml is the release's file with the inventory's override merged" fail "$($SUDO cat "$LIVE/config/routr.yaml")"
 $SUDO cp "$STATE/tls/ca.pem" "$WORK/ca.pem" && $SUDO chmod 644 "$WORK/ca.pem"
 check OPS-003 "the dashboard answers 200 through the generated CA" \
   sh -c "[ \"\$(curl -s --cacert '$WORK/ca.pem' -o /dev/null -w '%{http_code}' https://127.0.0.1:18443/)\" = 200 ]"
@@ -201,15 +202,15 @@ else
   record OPS-005 "a second apply changes nothing" fail "$(grep -A3 'fatal:' "$WORK/apply-a2.log" | tail -4)"
 fi
 
-# Only config/routr-one.yaml changes (its override): only routr is recreated.
+# Only config/routr.yaml changes (its override): only routr is recreated.
 containers >"$WORK/containers-before"
 if play "$A" "$WORK/apply-routr.log" -e throwaway_routr_logs_level=debug; then
   containers >"$WORK/containers-after"
   moved="$(comm -3 "$WORK/containers-before" "$WORK/containers-after" | awk '{print $1}' | sort -u | tr '\n' ' ')"
-  [ "$moved" = "routr " ] && record OPS-005 "a changed config/routr-one.yaml recreates only routr" ok \
-    || record OPS-005 "a changed config/routr-one.yaml recreates only routr" fail "recreated: ${moved:-none}"
+  [ "$moved" = "routr " ] && record OPS-005 "a changed config/routr.yaml recreates only routr" ok \
+    || record OPS-005 "a changed config/routr.yaml recreates only routr" fail "recreated: ${moved:-none}"
 else
-  record OPS-005 "a changed config/routr-one.yaml recreates only routr" fail "$(grep -A3 'fatal:' "$WORK/apply-routr.log" | tail -4)"
+  record OPS-005 "a changed config/routr.yaml recreates only routr" fail "$(grep -A3 'fatal:' "$WORK/apply-routr.log" | tail -4)"
 fi
 
 # A release whose SHA256SUMS does not match: nothing reaches the live folder (after OPS-005,
@@ -555,8 +556,8 @@ print("ok" if s["schema"] == 1 and s["users"]["total"] >= 1 and s["billing"]["pr
     *) record OPS-009 "fonoster_ops can't read users.email" fail "$denied" ;;
   esac
 
-  # A finished call Routr just wrote: owned by uid 5000, modified now.
-  $SUDO install -o 5000 -g 5000 -m 0644 "$OPS_FIXTURE" "/var/lib/fonoster/routr-traces/$OPS_FILE"
+  # A finished call Routr just wrote: owned by uid 1000 in the folder's group 5000, modified now.
+  $SUDO install -o 1000 -g 5000 -m 0644 "$OPS_FIXTURE" "/var/lib/fonoster/routr-traces/$OPS_FILE"
   n="$(ops_wait_alert)"
   [ "$n" = 1 ] && record OPS-009 "a call in the traces yields exactly one alert within 150 s" ok \
     || record OPS-009 "a call in the traces yields exactly one alert within 150 s" fail "alerts: $n; $(compose logs --no-color --tail 20 apiserver 2>&1 | grep 'ops:')"

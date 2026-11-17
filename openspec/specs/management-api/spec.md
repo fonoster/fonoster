@@ -126,3 +126,34 @@ INVALID_ARGUMENT and Routr's text unless the prefix is cleared in the same updat
 - **WHEN** that Trunk is updated with `calledNumberFormat: NUMBER_FORMAT_UNSPECIFIED` without `calledNumberPrefix: ""`
 - **THEN** the call fails with INVALID_ARGUMENT whose message contains `calledNumberPrefix needs calledNumberFormat e164-without-plus, national or international`, and the Trunk is unchanged
 - **AND** the same update with `calledNumberPrefix: ""` succeeds and get returns NUMBER_FORMAT_UNSPECIFIED and no prefix
+
+### Requirement: A new SIP agent is enabled and not private
+
+An Agent created without `enabled` SHALL be stored enabled, and one created without `privacy`
+SHALL be stored with `privacy: NONE` (Routr 3's defaults, which sipnet keeps by not sending the
+fields). Routr refuses registrations and calls from a disabled Agent and sends `Privacy: id` for a
+private one, so these defaults keep a new Agent working.
+
+#### Scenario: Omitted fields take the defaults
+- **WHEN** an Agent is created with only `name` and `username`
+- **THEN** get returns `enabled: true` and `privacy: NONE`
+
+### Requirement: SIP resources reach Routr with its API key
+
+sipnet SHALL call Routr's Data API with `routr.apiKey` as a Bearer token. A key Routr doesn't
+hold SHALL fail the request with an error, never OK or an empty result, and nothing SHALL be
+stored.
+
+#### Scenario: A wrong key is refused
+- **WHEN** an Agent is created through sipnet with a key Routr doesn't hold
+- **THEN** the call returns an error and no Agent with that username exists
+
+### Requirement: The Roomr Peer is created once
+
+On start, the API server SHALL create the Peer the Roomr nodes register under, with its
+Credentials, when `routr.roomrPeer.password` is set. A start that finds the Peer already there
+SHALL change nothing.
+
+#### Scenario: A second start changes nothing
+- **WHEN** the Peer setup runs twice
+- **THEN** Routr holds one Peer with that username and one set of its Credentials, linked

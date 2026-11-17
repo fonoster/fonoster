@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
-import { ROUTR_API_ENDPOINT } from "../envs";
+import { ROUTR_API_ENDPOINT, ROUTR_API_KEY } from "../envs";
 
 const routrConfig = {
   endpoint: ROUTR_API_ENDPOINT,
-  insecure: true
+  insecure: true,
+  apiKey: ROUTR_API_KEY
 };
 
 let numbers: InstanceType<typeof SDK.Numbers> | undefined;
