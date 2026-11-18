@@ -315,6 +315,49 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     });
   });
 
+  it("names Routr's own address in localnets, on a network of the fixed SIP addresses without the gateway", function () {
+    // Routr 3 reads a localnets entry whose address is its network's first address as a network,
+    // not as its own address, and decides "local" by a peer's source address. So the entry is
+    // Routr's address on a network that holds every fixed SIP address, but not the bridge gateway
+    // (the source of published-port traffic with userland-proxy on) or the dynamic range.
+    const sub = (s: string) =>
+      s.replace(/\$\{SUBNET_PREFIX(:-[^}]*)?\}/g, "10.216.30");
+    const toInt = (ip: string) =>
+      ip.split(".").reduce((n, o) => n * 256 + Number(o), 0) >>> 0;
+    const cidr = (net: string) => {
+      const [ip, bits] = sub(net).split("/");
+      const mask = (~0 << (32 - Number(bits))) >>> 0;
+      return { ip: toInt(ip), base: (toInt(ip) & mask) >>> 0, mask };
+    };
+    const within = (net: ReturnType<typeof cidr>, ip: number) =>
+      (ip & net.mask) >>> 0 === net.base;
+    const fixed = (file: string) =>
+      [...sub(read(file)).matchAll(/ipv4_address: (\S+)/g)].map((m) =>
+        toInt(m[1])
+      );
+
+    const localnets: string[] = parse(read("ops/bundle/config/routr.yaml")).spec
+      .edgeport.localnets;
+    expect(localnets).to.have.length(1);
+    const local = cidr(localnets[0]);
+    expect(local.ip).to.equal(
+      toInt(sub(compose.services.routr.networks.default.ipv4_address))
+    );
+    expect(local.ip, "the network's first address").not.to.equal(local.base);
+    for (const ip of [
+      ...fixed("ops/bundle/compose.yaml"),
+      ...fixed("ops/rebuild/compose.yaml")
+    ])
+      expect(within(local, ip), `fixed address ${ip}`).to.equal(true);
+    const { subnet, ip_range } = compose.networks.default.ipam.config[0];
+    expect(within(local, cidr(subnet).base + 1), "the gateway").to.equal(false);
+    const range = cidr(ip_range);
+    expect(
+      within(local, range.base) || within(range, local.base),
+      "the dynamic range"
+    ).to.equal(false);
+  });
+
   it("turns the bundled Postgres off with compose.external-db.yaml, Routr still migrated before it starts", function () {
     const ext = overlay("compose.external-db.yaml").services;
     expect(read("ops/bundle/compose.external-db.yaml")).to.match(
