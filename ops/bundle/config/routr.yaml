@@ -17,7 +17,10 @@ spec:
     # The address Routr writes in Via and Record-Route for parties outside localnets: one that
     # carriers and softphones reach.
     externalAddrs: ["${HOST_IP}"]
-    localnets: ["${SUBNET_PREFIX:-10.216.30}.40/29"]
+    # Routr's own address (.40) on a network that holds the fixed SIP addresses (.40-.47) but not
+    # the bridge gateway (.1), so peers source-NATed to the gateway stay outside. Never the
+    # network's first address: Routr reads that as a network, not as its own address.
+    localnets: ["${SUBNET_PREFIX:-10.216.30}.40/28"]
     methods: [REGISTER, MESSAGE, INVITE, ACK, BYE, CANCEL]
     securityContext:
       client:

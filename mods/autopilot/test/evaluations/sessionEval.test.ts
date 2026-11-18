@@ -176,6 +176,23 @@ describe("@autopilot[evaluations] session engine", function () {
     expect(b.errorMessage).to.contain("Expected similar response");
   });
 
+  it("sends the scenario's call metadata to the model in the system prompt", async function () {
+    const withMetadata = {
+      ...scenario([step("How much do I owe?", "RD$12,450.")]),
+      telephonyContext: {
+        ...scenario([]).telephonyContext,
+        metadata: { firstName: "Ana", balance: "RD$12,450" }
+      }
+    };
+    await run([withMetadata], { script: [{ content: "RD$12,450." }] });
+    const [system] = harness.llm.conversations[0].messages;
+    expect(system).to.deep.equal({
+      role: "system",
+      content:
+        "You are a receptionist.\n\n[Additional Parameters (metadata)]\n- firstName: Ana\n- balance: RD$12,450"
+    });
+  });
+
   it("checks tool calls from the structured tool messages", async function () {
     const { reports } = await run(
       [

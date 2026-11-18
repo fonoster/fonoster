@@ -1,0 +1,12 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -207,7 +207,7 @@
+         });
+       if (this.settings.initialDtmf)
+         await this.session.playDtmf(this.settings.initialDtmf);
+-      const firstMessage = this.firstMessage();
++      const firstMessage = this.settings.firstMessage;
+       if (firstMessage) {
+         const r = await this.session.say(firstMessage, this.speechOptions());
+         this.history.push({ role: "assistant", content: r.heardText });

@@ -378,5 +378,8 @@
   "BIL-059": "Anyone in a workspace reads whether billing paused its calls",
   "APB-051": "AppBridge adds at most 50 ms from speak to first audio",
   "APB-052": "AppBridge adds at most 50 ms from caller audio to STT",
-  "APB-053": "Clear silences the call within 40 ms"
+  "APB-053": "Clear silences the call within 40 ms",
+  "APT-026": "Call metadata reaches the system prompt",
+  "APT-027": "The call's first message replaces the agent's",
+  "APT-028": "A handoff keeps the agent's first message"
 }
