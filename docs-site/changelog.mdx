@@ -11,6 +11,9 @@ New releases are listed newest first. For releases up to 0.27, see the
 
 ## Autopilot
 
+- **Autopilot agents now read call metadata.** The keys you pass to `createCall` are added to the
+  system prompt, and `metadata.firstMessage` replaces the first message for that call. See
+  [Outbound calls](/telephony/outbound-calls#use-the-metadata).
 - **Fonoster Cloud agents can now run on Anthropic, Google and Groq**, along with more OpenAI
   models. See [Providers and models](/reference/providers#on-fonoster-cloud). Self-hosted installs
   keep the same base catalog and can add these vendors to it.

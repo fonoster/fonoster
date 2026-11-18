@@ -299,3 +299,31 @@ the signed app and that app belongs to the signed workspace.
 
 - **WHEN** the hosted Autopilot's config has no `publicUrl`
 - **THEN** it refuses to start, naming `publicUrl`
+
+### Requirement: Per-call metadata
+
+When `session.start` carries `metadata` with at least one key (from `Calls.createCall`), Autopilot
+SHALL append it to the agent's system prompt, in the same system message, as a
+`[Additional Parameters (metadata)]` block with one `- key: value` line per key (a string value as
+given, any other value as its JSON), on every language-model request of the call. The block MUST
+NOT enter the conversation history. A non-empty string `metadata.firstMessage` SHALL replace the
+agent's first message for that call, except when the session was started by a handoff. With no
+metadata, the system prompt and first message SHALL be the agent's own.
+
+#### Scenario: Metadata reaches the system prompt
+
+- **WHEN** `session.start` carries `metadata: { firstName: Ana, balance: "RD$12,450" }`
+- **AND** the caller speaks
+- **THEN** the language-model request's system message is the system prompt followed by
+  `[Additional Parameters (metadata)]`, `- firstName: Ana` and `- balance: RD$12,450`
+
+#### Scenario: The call's first message replaces the agent's
+
+- **WHEN** `session.start` carries `metadata.firstMessage: "Hola Ana"` and the agent's first message is "Hello"
+- **THEN** Autopilot greets with "Hola Ana" and never says "Hello"
+
+#### Scenario: A handoff keeps the agent's first message
+
+- **WHEN** a session started by a handoff carries `metadata.firstMessage: "Hola Ana"` and the agent's first message is "Hello"
+- **THEN** Autopilot greets with "Hello" and never says "Hola Ana"
+- **AND** the metadata block is still in the system prompt

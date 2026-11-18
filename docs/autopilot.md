@@ -76,8 +76,8 @@ to the call record with the transcript and recording.
 
 | Setting | Meaning |
 | --- | --- |
-| `conversationSettings.firstMessage` | Spoken when the call starts (optional) |
-| `systemPrompt`, `goodbyeMessage`, `systemErrorMessage` | As before |
+| `conversationSettings.firstMessage` | Spoken when the call starts (optional); a call's `metadata.firstMessage` replaces it, except after a handoff |
+| `systemPrompt`, `goodbyeMessage`, `systemErrorMessage` | As before; a call's `metadata` (from `Calls.createCall`) is appended to the system prompt as `[Additional Parameters (metadata)]` |
 | `initialDtmf` | Digits sent after answering (optional) |
 | `maxSessionDuration` | Ends the call with the goodbye (default 30 minutes) |
 | `transferOptions` | `{ phoneNumber, message }`; offers the `transfer` tool |
