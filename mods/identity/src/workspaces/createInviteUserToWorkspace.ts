@@ -106,18 +106,9 @@ function createInviteUserToWorkspace(
     const { ref: workspaceRef } = workspace;
     const { request } = call;
     const { email, name, role } = request;
-    // Brand logins are created by our portal. They must be active immediately
-    // and must not depend on the invite email being delivered.
-    const serviceLogin = /^[a-z0-9-]+\.voice@users\.intelli-verse-x\.ai$/i.test(
-      email
-    );
-
-    logger.verbose("inviting user to workspace", {
-      workspaceRef,
-      email,
-      role,
-      serviceLogin
-    });
+    // Legacy synthetic brand login (pre owner-email).
+    const isSyntheticVoiceLogin =
+      /^[a-z0-9-]+\.voice@users\.intelli-verse-x\.ai$/i.test(email);
 
     const isAdmin = await createIsAdminMember(prisma)(workspaceRef, adminRef);
 
@@ -126,6 +117,19 @@ function createInviteUserToWorkspace(
     }
 
     let user = await findUserByEmail(prisma, email);
+
+    // Portal creates the user (owner Gmail or *.voice@) then invites.
+    // Those must be ACTIVE immediately — do not wait for invite email / SES.
+    // Fresh emails (no user yet) stay on the normal PENDING + invite-mail path.
+    const serviceLogin = isSyntheticVoiceLogin || Boolean(user);
+
+    logger.verbose("inviting user to workspace", {
+      workspaceRef,
+      email,
+      role,
+      serviceLogin,
+      existingUser: Boolean(user)
+    });
 
     const isMember = await createIsWorkspaceMember(prisma)(
       workspaceRef,
