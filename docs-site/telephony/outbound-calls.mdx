@@ -161,10 +161,34 @@ await session.say(`Hi ${name}, I'm calling about your ${reason}.`);
 
 Keep it small, and don't put secrets in it.
 
-<Note>
-  Autopilot agents don't read `metadata` on live calls yet. The agent's system prompt and first
-  message are the same for every call.
-</Note>
+An Autopilot agent reads the metadata too. Fonoster adds each key to the agent's system prompt on
+every turn, under `[Additional Parameters (metadata)]`, one `- key: value` line per key, so your
+prompt can refer to those values by key name. Set `metadata.firstMessage` to replace the agent's
+first message for this call. Without metadata, the prompt and first message are the agent's own.
+
+This call greets Ana by name.
+
+```javascript
+await calls.createCall({
+  from: "+18095550123",
+  to: "+18095550188",
+  appRef: "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
+  metadata: {
+    name: "Ana Pérez",
+    reason: "appointment reminder",
+    firstMessage: "Hi Ana, I'm calling about your appointment tomorrow."
+  }
+});
+```
+
+The agent's system prompt then ends with this block.
+
+```text
+[Additional Parameters (metadata)]
+- name: Ana Pérez
+- reason: appointment reminder
+- firstMessage: Hi Ana, I'm calling about your appointment tomorrow.
+```
 
 ## Detect voicemail
 

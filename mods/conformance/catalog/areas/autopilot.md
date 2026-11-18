@@ -411,3 +411,43 @@ The full stack of APT-020 with the fake TTS answering 401. The greeting's `speak
 sends a fatal `error` related to it, records `call.failed` and hangs up.
 
 **Pass.** One synthesis request, a fatal `provider_unavailable` error naming the provider, the call hung up at once, and a record with status `failed`, reason `provider_auth_failed` and provider `fake`; the call ends with reason `error` and the workspace gets one `call.failed` webhook. **Fail.** A second request, a silent call that goes on, or a record that says `completed`.
+
+### APT-026 Call metadata reaches the system prompt
+
+- **Spec:** autopilot / Per-call metadata / Metadata reaches the system prompt
+- **Priority:** P1
+- **Proof:** Build the system message from the system prompt only (`systemPrompt()` in `Agent.ts`); the tests must go red on call-metadata-in-prompt and the eval case.
+- **Fault:** faults/APT-026.patch
+- **Test:** mods/autopilot/test/session/conformance.test.ts, mods/autopilot/test/session/hosted.test.ts, mods/autopilot/test/evaluations/sessionEval.test.ts
+- **Runs:** scenarios/autopilot/call-metadata-in-prompt.yaml
+
+An outbound call carries `metadata` from `Calls.createCall`; Autopilot appends it to the system
+prompt, in the same system message, as the `[Additional Parameters (metadata)]` block. A session
+eval with `telephonyContext.metadata` sends the same block.
+
+**Pass.** The system message is the system prompt, a blank line and the block with one `- key: value` line per key. **Fail.** No block, a second system message, or the block in the history.
+
+### APT-027 The call's first message replaces the agent's
+
+- **Spec:** autopilot / Per-call metadata / The call's first message replaces the agent's
+- **Priority:** P1
+- **Proof:** Greet with the agent's first message only (`firstMessage()` in `Agent.ts`); the tests must go red on call-metadata-first-message.
+- **Fault:** faults/APT-027.patch
+- **Test:** mods/autopilot/test/session/conformance.test.ts, mods/autopilot/test/session/hosted.test.ts
+- **Runs:** scenarios/autopilot/call-metadata-first-message.yaml
+
+**Pass.** Autopilot speaks `metadata.firstMessage`, and the next request's history holds it as the assistant's greeting, without the agent's own first message. **Fail.** The agent's first message is spoken, or both are.
+
+### APT-028 A handoff keeps the agent's first message
+
+- **Spec:** autopilot / Per-call metadata / A handoff keeps the agent's first message
+- **Priority:** P1
+- **Proof:** Replay the call's `metadata.firstMessage` on a handoff (drop the handoff check in `firstMessage()` in `Agent.ts`); the tests must go red on call-metadata-handoff.
+- **Fault:** faults/APT-028.patch
+- **Test:** mods/autopilot/test/session/conformance.test.ts, mods/autopilot/test/session/hosted.test.ts
+- **Runs:** scenarios/autopilot/call-metadata-handoff.yaml
+
+Every session on a call gets the call's `metadata`, including one started by a handoff, so an
+agent reached that way must not replay the opening greeting partway through the call.
+
+**Pass.** Autopilot greets with the agent's first message and the metadata block is in the system prompt. **Fail.** It says `metadata.firstMessage`.

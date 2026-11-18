@@ -207,11 +207,9 @@ export class Agent {
         });
       if (this.settings.initialDtmf)
         await this.session.playDtmf(this.settings.initialDtmf);
-      if (this.settings.firstMessage) {
-        const r = await this.session.say(
-          this.settings.firstMessage,
-          this.speechOptions()
-        );
+      const firstMessage = this.firstMessage();
+      if (firstMessage) {
+        const r = await this.session.say(firstMessage, this.speechOptions());
         this.history.push({ role: "assistant", content: r.heardText });
       }
       this.send({ type: "SPOKEN", source: "greeting" });
@@ -659,10 +657,38 @@ export class Agent {
 
   private messages(context: ChatMessage[] = []): ChatMessage[] {
     return [
-      { role: "system", content: this.settings.systemPrompt },
+      { role: "system", content: this.systemPrompt() },
       ...context,
       ...this.history
     ];
+  }
+
+  /**
+   * The agent's system prompt with the call's metadata (from `Calls.createCall`) appended as
+   * the 0.23 `[Additional Parameters (metadata)]` block. It stays in the first system message so
+   * the prompt prefix is the same on every request of the call (#1435).
+   */
+  private systemPrompt(): string {
+    const lines = Object.entries(this.session.metadata ?? {}).map(
+      ([key, value]) =>
+        `- ${key}: ${typeof value === "string" ? value : JSON.stringify(value)}`
+    );
+    return lines.length
+      ? `${this.settings.systemPrompt}\n\n[Additional Parameters (metadata)]\n${lines.join("\n")}`
+      : this.settings.systemPrompt;
+  }
+
+  /**
+   * The call's `metadata.firstMessage` replaces the agent's greeting, except in a session started
+   * by a handoff: every session on a call gets the call's metadata, and replaying the opening
+   * greeting partway through the call would be wrong (#1435).
+   */
+  private firstMessage(): string | undefined {
+    const fromCall = this.session.metadata?.firstMessage;
+    const handedOff = (this.session.handoffPayload ?? null) !== null;
+    return !handedOff && typeof fromCall === "string" && fromCall
+      ? fromCall
+      : this.settings.firstMessage;
   }
 
   /** Knowledge for this turn, as a system message for the request only (never in history). */

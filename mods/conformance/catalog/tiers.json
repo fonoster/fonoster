@@ -394,6 +394,26 @@
     "pri": "P0",
     "trials": null
   },
+  "API-080": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-081": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-082": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-083": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
   "APB-001": {
     "tier": "pr",
     "pri": "P0",
@@ -787,6 +807,21 @@
     "pri": "P1",
     "trials": null
   },
+  "APT-026": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-027": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-028": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
   "BIL-001": {
     "tier": "pr",
     "pri": "P0",
@@ -1175,6 +1210,11 @@
   "DSH-068": {
     "tier": "pr",
     "pri": "P1",
+    "trials": null
+  },
+  "DSH-069": {
+    "tier": "nightly",
+    "pri": "P0",
     "trials": null
   },
   "DSH-018": {
