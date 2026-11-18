@@ -1,0 +1,12 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -657,7 +657,7 @@
+ 
+   private messages(context: ChatMessage[] = []): ChatMessage[] {
+     return [
+-      { role: "system", content: this.systemPrompt() },
++      { role: "system", content: this.settings.systemPrompt },
+       ...context,
+       ...this.history
+     ];

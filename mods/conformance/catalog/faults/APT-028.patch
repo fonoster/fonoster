@@ -1,0 +1,12 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -686,7 +686,7 @@
+   private firstMessage(): string | undefined {
+     const fromCall = this.session.metadata?.firstMessage;
+     const handedOff = (this.session.handoffPayload ?? null) !== null;
+-    return !handedOff && typeof fromCall === "string" && fromCall
++    return typeof fromCall === "string" && fromCall
+       ? fromCall
+       : this.settings.firstMessage;
+   }

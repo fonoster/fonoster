@@ -29,11 +29,13 @@ different: it nests the agent and its `testCases` under `intelligence.config`. S
 ### Conversation settings
 
 <ParamField path="conversationSettings.systemPrompt" type="string" required>
-  Instructions the model gets on every turn. The caller never hears it.
+  Instructions the model gets on every turn. The caller never hears it. The call's metadata is
+  appended to it; see [Outbound calls](/telephony/outbound-calls#use-the-metadata).
 </ParamField>
 
 <ParamField path="conversationSettings.firstMessage" type="string">
-  What the agent says when the call connects. Leave it out to let the caller speak first.
+  What the agent says when the call connects. Leave it out to let the caller speak first. A
+  call's `metadata.firstMessage`, from `createCall`, replaces it for that call.
 </ParamField>
 
 <ParamField path="conversationSettings.goodbyeMessage" type="string" required>

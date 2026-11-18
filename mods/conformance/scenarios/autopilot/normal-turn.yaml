@@ -34,3 +34,6 @@ steps:
   - expect: { type: speak, id: "${rid}", last: true }
   - assert:
       providers.llm.last_messages: { $includes: [{ role: user, content: "What are your hours?" }] }
+  # A call without metadata keeps the system prompt exactly as the agent wrote it.
+  - assert:
+      providers.llm.last_messages: { $includes: [{ role: system, content: "You are the receptionist of a dental clinic." }] }
