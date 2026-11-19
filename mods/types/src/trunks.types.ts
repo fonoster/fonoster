@@ -86,9 +86,10 @@ type CreateTrunkRequest = {
   name: string;
   sendRegister: boolean;
   inboundUri: string;
-  accessControlListRef?: string;
-  inboundCredentialsRef?: string;
-  outboundCredentialsRef?: string;
+  /** null, "" or left out: created without it. */
+  accessControlListRef?: string | null;
+  inboundCredentialsRef?: string | null;
+  outboundCredentialsRef?: string | null;
   uris?: TrunkURI[];
 } & TrunkNumberFormats;
 

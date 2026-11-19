@@ -45,9 +45,10 @@ type CreateNumberRequest = {
   city: string;
   country: string;
   countryIsoCode: string;
-  trunkRef?: string;
-  appRef?: string;
-  agentAor?: string;
+  /** null, "" or left out: created without it. */
+  trunkRef?: string | null;
+  appRef?: string | null;
+  agentAor?: string | null;
   aliases?: string[];
 };
 
