@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import net from "node:net";
 import {
   enableWhatsAppSipCalling,
   getAccessKeyIdFromCall,
@@ -50,7 +49,13 @@ import {
   convertToRoutrNumberUpdate
 } from "./convertToRoutrNumber";
 import { NumberRouting } from "./engineRouting";
-import { findAny, findOwned, generatePassword } from "./linkShared";
+import {
+  findAny,
+  findOwned,
+  generatePassword,
+  isTlsHostname,
+  SipEndpoint
+} from "./linkShared";
 import { whatsAppLinkErrorToGrpc } from "./whatsAppLinkErrorToGrpc";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -61,9 +66,6 @@ const META_SIP_PORT = 5061;
 
 /** Routr's media relay negotiates SRTP with SDES toward trunks over TLS (routr.yaml). */
 const SRTP_KEY_EXCHANGE = "SDES";
-
-/** A public SIP endpoint of the install, as `regions.public[].endpoints.sip` declares it. */
-type SipEndpoint = { host: string; port: number; transport: string };
 
 /**
  * Trunk fields Routr has and the Fonoster Trunk proto doesn't: they reach Routr through the SDK's
@@ -90,9 +92,6 @@ type LinkWhatsAppDeps = {
   sipEndpoints: SipEndpoint[];
   whatsapp?: WhatsAppLink;
 };
-
-const isTlsHostname = (endpoint: SipEndpoint) =>
-  endpoint.transport?.toLowerCase() === "tls" && net.isIP(endpoint.host) === 0;
 
 /**
  * Links a WhatsApp Business number: one credential, one TLS trunk to Meta and the Number, all per

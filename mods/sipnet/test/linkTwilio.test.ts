@@ -42,6 +42,19 @@ const ACCESS_KEY_ID = "GRahn02s8tgdfghz72vb0fz538qpb5z35p";
 const LABEL = ACCESS_KEY_ID.toLowerCase();
 const PSTN_ROOT = "pstn.fonoster.local";
 const INBOUND_URI = `${LABEL}.${PSTN_ROOT}`;
+const TLS_ORIGINATION_URI = `sip:${INBOUND_URI};transport=tls`;
+const TLS_URI = {
+  host: `${LABEL}.pstn.twilio.com`,
+  port: 5061,
+  transport: "TLS",
+  enabled: true,
+  weight: 10,
+  priority: 10
+};
+const SIP_ENDPOINTS = [
+  { host: "sip.fonoster.local", port: 5060, transport: "udp" },
+  { host: "sip.fonoster.local", port: 5061, transport: "tls" }
+];
 const PHONE_NUMBER = "+18095550123";
 const TEL_URL = `tel:${PHONE_NUMBER}`;
 const APP_REF = "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00";
@@ -119,6 +132,7 @@ async function setup(
     trunks?: Resource[];
     credentials?: Resource[];
     signalingAddresses?: string[];
+    sipEndpoints?: { host: string; port: number; transport: string }[];
   } = {}
 ) {
   const { linkTwilio } = await import("../src/numbers/linkTwilio");
@@ -147,6 +161,7 @@ async function setup(
       "198.51.100.0/24",
       "sip.fonoster.local"
     ],
+    sipEndpoints: options.sipEndpoints ?? SIP_ENDPOINTS,
     twilio
   });
 
@@ -201,16 +216,7 @@ describe("@sipnet[sipnet/linkTwilio]", function () {
       outboundCredentialsRef: credential.ref,
       extended: owned
     });
-    expect(trunk.uris).to.deep.equal([
-      {
-        host: `${LABEL}.pstn.twilio.com`,
-        port: 5060,
-        transport: "UDP",
-        enabled: true,
-        weight: 10,
-        priority: 10
-      }
-    ]);
+    expect(trunk.uris).to.deep.equal([TLS_URI]);
 
     expect(number).to.deep.include({
       name: "Front desk",
@@ -230,7 +236,7 @@ describe("@sipnet[sipnet/linkTwilio]", function () {
       {
         phoneNumber: PHONE_NUMBER,
         label: LABEL,
-        originationUri: `sip:${INBOUND_URI}`,
+        originationUri: TLS_ORIGINATION_URI,
         aclEntries: ["203.0.113.10", "198.51.100.0/24"],
         sipCredential: {
           username: credential.username,
@@ -250,6 +256,87 @@ describe("@sipnet[sipnet/linkTwilio]", function () {
       ref: number.ref,
       trunkRef: trunk.ref
     });
+  });
+
+  it("points a new trunk at Twilio over TLS on 5061 with a TLS origination URI (Secure Trunking)", async function () {
+    // Arrange
+    const { trunks, twilio, invoke } = await setup();
+
+    // Act
+    await invoke();
+
+    // Assert
+    const [trunk] = [...trunks.store.values()];
+    expect(trunk.uris).to.deep.equal([TLS_URI]);
+    expect(twilio.provisionTwilioTrunk).to.have.been.calledOnceWith(
+      sinon.match.any,
+      sinon.match({ originationUri: TLS_ORIGINATION_URI })
+    );
+  });
+
+  it("moves a trunk an earlier link made from UDP 5060 to TLS 5061 and keeps its ref (Secure Trunking)", async function () {
+    // Arrange
+    const { trunks, credentials, invoke } = await setup({
+      trunks: [
+        {
+          ref: "trunk-udp",
+          name: "Twilio Trunk",
+          inboundUri: INBOUND_URI,
+          sendRegister: false,
+          outboundCredentialsRef: "credentials-old",
+          uris: [{ ...TLS_URI, port: 5060, transport: "UDP" }],
+          extended: owned
+        }
+      ],
+      credentials: [
+        {
+          ref: "credentials-old",
+          name: `Twilio ${LABEL}`,
+          username: "fonoster-00000000",
+          extended: owned
+        }
+      ]
+    });
+
+    // Act
+    const callback = await invoke();
+
+    // Assert
+    const [credential] = [...credentials.store.values()];
+    const trunk = trunks.store.get("trunk-udp");
+    expect(trunks.createTrunk).to.not.have.been.called;
+    expect(trunks.store.size).to.equal(1);
+    expect(trunk?.uris).to.deep.equal([TLS_URI]);
+    expect(trunk?.outboundCredentialsRef).to.equal(credential.ref);
+    expect(credential.ref).to.not.equal("credentials-old");
+    expect(callback.firstCall.args[1].trunkRef).to.equal("trunk-udp");
+  });
+
+  it("refuses with FAILED_PRECONDITION when the install has no SIP over TLS endpoint (Secure Trunking)", async function () {
+    // Arrange
+    const { numbers, trunks, credentials, twilio, invoke } = await setup({
+      sipEndpoints: [
+        { host: "sip.fonoster.local", port: 5060, transport: "udp" },
+        { host: "203.0.113.10", port: 5061, transport: "tls" }
+      ]
+    });
+
+    // Act
+    const callback = await invoke();
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly({
+      code: grpc.status.FAILED_PRECONDITION,
+      message:
+        "This install has no public SIP over TLS address for Twilio to send calls to"
+    });
+    expect(twilio.provisionTwilioTrunk).to.not.have.been.called;
+    expect(twilio.assignTwilioNumberToTrunk).to.not.have.been.called;
+    expect(credentials.createCredentials).to.not.have.been.called;
+    expect(trunks.createTrunk).to.not.have.been.called;
+    expect(trunks.updateTrunk).to.not.have.been.called;
+    expect(numbers.createNumber).to.not.have.been.called;
+    expect(numbers.updateNumber).to.not.have.been.called;
   });
 
   it("checks the appRef and refs against the caller's workspace", async function () {

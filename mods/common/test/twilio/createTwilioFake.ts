@@ -58,6 +58,9 @@ const PERMISSIONS = {
     "twilio/voice/sip.trunks/list",
     "twilio/voice/sip.trunks/create",
     "twilio/voice/sip.trunks/delete",
+    // Not in the recording: named after Twilio's pattern for the calls a re-link makes
+    "twilio/voice/sip.trunks/update",
+    "twilio/voice/sip.trunks.origination-urls/delete",
     // The recording never reaches these two: a Restricted key stops at the trunk's IP ACL
     "twilio/voice/sip.trunks.origination-urls/list",
     "twilio/voice/sip.trunks.origination-urls/create",
@@ -99,6 +102,8 @@ type Trunk = {
   sid: string;
   friendlyName: string;
   domainName: string;
+  /** Secure Trunking (TLS and SRTP); Twilio's default is off */
+  secure?: boolean;
   aclSids: string[];
   credentialListSids: string[];
   originationUrls: OriginationUrl[];
@@ -253,6 +258,7 @@ const json = {
     account_sid: a.sid,
     domain_name: t.domainName,
     friendly_name: t.friendlyName,
+    secure: t.secure ?? false,
     sid: t.sid
   }),
   originationUrl: (a: Account, t: Trunk, o: OriginationUrl) => ({
@@ -504,12 +510,24 @@ function createTwilioFake() {
           sid: sid("TK"),
           friendlyName: String(r.data?.FriendlyName),
           domainName,
+          secure: String(r.data?.Secure) === "true",
           aclSids: [],
           credentialListSids: [],
           originationUrls: []
         };
         a.trunks.push(trunk);
         return { statusCode: 201, body: json.trunk(a, trunk) };
+      }
+    ),
+    route(
+      "POST",
+      `${TRUNKING}/Trunks/:id`,
+      "twilio/voice/sip.trunks/update",
+      (a, [tk], r) => {
+        const trunk = find(a.trunks, tk);
+        if (r.data?.Secure !== undefined)
+          trunk.secure = String(r.data.Secure) === "true";
+        return { statusCode: 200, body: json.trunk(a, trunk) };
       }
     ),
     route(
@@ -578,6 +596,18 @@ function createTwilioFake() {
         };
         trunk.originationUrls.push(url);
         return { statusCode: 201, body: json.originationUrl(a, trunk, url) };
+      }
+    ),
+    route(
+      "DELETE",
+      `${TRUNKING}/Trunks/:id/OriginationUrls/:id`,
+      "twilio/voice/sip.trunks.origination-urls/delete",
+      (a, [tk, ou]) => {
+        const trunk = find(a.trunks, tk);
+        trunk.originationUrls = trunk.originationUrls.filter(
+          (o) => o.sid !== ou
+        );
+        return { statusCode: 204, body: "" };
       }
     ),
     route(

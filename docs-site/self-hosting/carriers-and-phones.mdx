@@ -94,13 +94,14 @@ dig +short acme.pstn.example.com acme.sip.example.com
 Carriers and phones need these ports open in any firewall in front of this machine, such as your
 cloud provider's:
 
-| Port            | Protocol | For                                               |
-| --------------- | -------- | ------------------------------------------------- |
-| `5060`          | UDP, TCP | SIP                                               |
-| `5061`          | TCP      | SIP over TLS (carriers that require it, WhatsApp) |
-| `10000`–`11999` | UDP      | Call audio (RTP)                                  |
+| Port            | Protocol | For                                                       |
+| --------------- | -------- | --------------------------------------------------------- |
+| `5060`          | UDP, TCP | SIP                                                       |
+| `5061`          | TCP      | SIP over TLS (carriers that require it, Twilio, WhatsApp) |
+| `10000`–`11999` | UDP      | Call audio (RTP)                                          |
 
 Port `5061` is off by default; [SIP over TLS](/self-hosting/https#sip-over-tls) turns it on.
+Linking Twilio numbers needs it on.
 Trunks reached over TLS negotiate SRTP with `AES_CM_128_HMAC_SHA1_80`, the one suite Routr offers.
 
 With `ufw` on the machine itself:
@@ -112,7 +113,11 @@ ufw allow 5060/udp && ufw allow 5060/tcp && ufw allow 10000:11999/udp
 To link Twilio numbers, the API server also needs outbound HTTPS to `api.twilio.com` and
 `trunking.twilio.com`. The SIP address Twilio allows comes from your install's public signaling
 addresses (`regions.public[].endpoints.signalingAddresses`), so list this machine's public IPv4
-address there.
+address there. Linking turns on Twilio Secure Trunking, so the install must also accept SIP over
+TLS on `5061` with a certificate covering `*.pstn.<domain>` (see
+[SIP over TLS](/self-hosting/https#sip-over-tls)), with the TLS endpoint listed in
+`regions.public[].endpoints.sip` with `transport: tls` and a DNS name as host. Without it, the link
+is refused.
 
 To link WhatsApp numbers, the install must accept SIP over TLS on `5061` with a certificate
 covering `*.pstn.<domain>` (one hostname per linked WhatsApp number, all one label under `pstn.`;

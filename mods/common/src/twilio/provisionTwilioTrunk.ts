@@ -55,8 +55,9 @@ function parseAclEntries(aclEntries: string[]): AclEntry[] {
 
 /**
  * Sets up the Twilio side of a number link: the trunk `Trunk-<label>` on
- * `<label>.pstn.twilio.com`, the IP ACL `ACL-<label>`, the origination URL and the credential
- * list `CL-<label>`. Every step finds its resource before creating it, so a re-run converges.
+ * `<label>.pstn.twilio.com` with Secure Trunking (TLS and SRTP) on, the IP ACL `ACL-<label>`, the
+ * origination URL and the credential list `CL-<label>`. Every step finds its resource before
+ * creating it, so a re-run converges; an origination URL an earlier link made is replaced.
  * It checks that the number is in the account but does not move it (assignTwilioNumberToTrunk).
  */
 async function provisionTwilioTrunk(
@@ -96,16 +97,27 @@ async function provisionTwilioTrunk(
     () => client.trunking.v1.trunks(trunk).originationUrls.list()
   );
 
+  const originationName = `Origination-${label}`;
+
   if (!originationUrls.some((url) => url.sipUrl === originationUri)) {
     await runStep("trunking.trunks.originationUrls.create", () =>
       client.trunking.v1.trunks(trunk).originationUrls.create({
-        friendlyName: `Origination-${label}`,
+        friendlyName: originationName,
         sipUrl: originationUri,
         priority: 10,
         weight: 10,
         enabled: true
       })
     );
+  }
+
+  // Only after the new URL exists, so the trunk always has somewhere to send calls
+  for (const url of originationUrls) {
+    if (url.friendlyName === originationName && url.sipUrl !== originationUri) {
+      await runStep("trunking.trunks.originationUrls.remove", () =>
+        client.trunking.v1.trunks(trunk).originationUrls(url.sid).remove()
+      );
+    }
   }
 
   const credentialListSid = await findOrCreateCredentialList(
@@ -147,13 +159,19 @@ async function findOrCreateTrunk(
   const existing = trunks.find((trunk) => trunk.domainName === domainName);
 
   if (existing) {
+    if (!existing.secure) {
+      await runStep("trunking.trunks.update", () =>
+        client.trunking.v1.trunks(existing.sid).update({ secure: true })
+      );
+    }
     return existing.sid;
   }
 
   const created = await runStep("trunking.trunks.create", () =>
     client.trunking.v1.trunks.create({
       friendlyName: `Trunk-${label}`,
-      domainName
+      domainName,
+      secure: true
     })
   );
 
