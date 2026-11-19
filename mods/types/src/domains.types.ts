@@ -41,7 +41,8 @@ type DomainExtended = RenameAndConvertToTimestamp<Domain> & {
 type CreateDomainRequest = {
   name: string;
   domainUri: string;
-  accessControlListRef?: string;
+  /** null, "" or left out: created without it. */
+  accessControlListRef?: string | null;
   egressPolicies?: { rule: string; numberRef: string }[];
 };
 

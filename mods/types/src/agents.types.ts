@@ -57,8 +57,9 @@ type CreateAgentRequest = {
   enabled: boolean;
   maxContacts: number;
   expires: number;
-  domainRef?: string;
-  credentialsRef?: string;
+  /** null, "" or left out: created without it. */
+  domainRef?: string | null;
+  credentialsRef?: string | null;
 };
 
 type CreateAgentRequestExtended = CreateAgentRequest & {

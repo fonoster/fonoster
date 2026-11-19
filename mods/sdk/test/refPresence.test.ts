@@ -203,4 +203,62 @@ describe("@sdk[refPresence] an empty ref clears, an absent one keeps", function 
       credentialsRef: "c"
     });
   });
+
+  it("createNumber and createTrunk send no ref for null", async function () {
+    let number: NodeNumbers.CreateNumberRequest | undefined;
+    let trunk: NodeTrunks.CreateTrunkRequest | undefined;
+    const client = {
+      getMetadata: () => ({}),
+      getNumbersClient: () => ({
+        createNumber: (
+          req: NodeNumbers.CreateNumberRequest,
+          _m: unknown,
+          cb: (e: null, r: unknown) => void
+        ) => {
+          number = NodeNumbers.CreateNumberRequest.deserializeBinary(
+            req.serializeBinary()
+          );
+          cb(null, new NodeNumbers.CreateNumberResponse());
+        }
+      }),
+      getTrunksClient: () => ({
+        createTrunk: (
+          req: NodeTrunks.CreateTrunkRequest,
+          _m: unknown,
+          cb: (e: null, r: unknown) => void
+        ) => {
+          trunk = NodeTrunks.CreateTrunkRequest.deserializeBinary(
+            req.serializeBinary()
+          );
+          cb(null, { toObject: () => ({ ref: "trunk-1" }) });
+        }
+      })
+    } as unknown as FonosterClient;
+
+    await new Numbers(client).createNumber({
+      name: "Outbound",
+      telUrl: "tel:+18095550111",
+      city: "Santiago",
+      country: "Dominican Republic",
+      countryIsoCode: "DO",
+      trunkRef: null,
+      appRef: null
+    });
+    await new Trunks(client).createTrunk({
+      name: "Carrier",
+      inboundUri: "carrier.pstn.fonoster.local",
+      accessControlListRef: null,
+      inboundCredentialsRef: null,
+      outboundCredentialsRef: null
+    });
+
+    expect(number!.getName()).to.equal("Outbound");
+    expect(number!.getTrunkRef()).to.equal("");
+    expect(number!.getAppRef()).to.equal("");
+    expect(number!.getIngressHandlerCase()).to.equal(0);
+    expect(trunk!.getName()).to.equal("Carrier");
+    expect(trunk!.getAccessControlListRef()).to.equal("");
+    expect(trunk!.getInboundCredentialsRef()).to.equal("");
+    expect(trunk!.getOutboundCredentialsRef()).to.equal("");
+  });
 });
