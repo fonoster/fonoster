@@ -72,10 +72,12 @@ async function openFromMenu({ user }: View) {
   };
 }
 
-const pickRoute = async ({ user }: View, drawer: HTMLElement) =>
-  user.click(
+const pickRoute = async ({ user }: View, drawer: HTMLElement) => {
+  await user.click(await within(drawer).findByRole("radio", { name: "Agent" }));
+  await user.click(
     await within(drawer).findByRole("radio", { name: /Billing reminders/ })
   );
+};
 
 /** The token side: a route, the phone number ID and the token. */
 async function fillToken(view: View, drawer: HTMLElement) {
@@ -148,7 +150,7 @@ describe("link a WhatsApp number", () => {
     ).toBeInTheDocument();
     expect(
       form.getByText(
-        "A number already in your workspace moves to its WhatsApp trunk and the route you choose."
+        "A number already in your workspace moves to its WhatsApp trunk. A route you choose replaces its current one."
       )
     ).toBeInTheDocument();
 
@@ -190,6 +192,27 @@ describe("link a WhatsApp number", () => {
     await view.user.click(within(drawer).getByRole("button", { name: "Done" }));
     await waitFor(() =>
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    );
+  });
+
+  it("links with no route and says only that it's linked", async () => {
+    const view = setup();
+    const { drawer } = await openFromMenu(view);
+    const form = within(drawer);
+    await view.user.type(
+      form.getByLabelText("Phone number ID"),
+      PHONE_NUMBER_ID
+    );
+    await view.user.type(form.getByLabelText("Access token"), ACCESS_TOKEN);
+    await submit(view, drawer);
+
+    await waitFor(() => expect(view.linkWhatsApp).toHaveBeenCalledTimes(1));
+    expect(view.linkWhatsApp).toHaveBeenCalledWith({
+      phoneNumberId: PHONE_NUMBER_ID,
+      accessToken: ACCESS_TOKEN
+    });
+    expect(await screen.findByTestId("link-whatsapp-done")).toHaveTextContent(
+      "+52 551 234 5678 (Acme Dental) is linked."
     );
   });
 
@@ -270,18 +293,18 @@ describe("link a WhatsApp number", () => {
     );
   });
 
-  it("checks the route, the phone number ID and the token before calling", async () => {
+  it("checks the phone number ID and the token before calling, not the route", async () => {
     const view = setup();
     const { drawer } = await openFromMenu(view);
     const form = within(drawer);
     await view.user.type(form.getByLabelText("Phone number ID"), "abc");
     await submit(view, drawer);
 
-    expect(await form.findByText("Choose where calls go.")).toBeInTheDocument();
     expect(
-      form.getByText("Enter the phone number ID from WhatsApp Manager.")
+      await form.findByText("Enter the phone number ID from WhatsApp Manager.")
     ).toBeInTheDocument();
     expect(form.getByText("Enter the access token.")).toBeInTheDocument();
+    expect(form.queryByText("Choose where calls go.")).not.toBeInTheDocument();
     expect(view.linkWhatsApp).not.toHaveBeenCalled();
   });
 

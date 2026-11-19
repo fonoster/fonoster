@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import type { Capabilities } from "~/lib/client";
 import { communityCapabilities, regionsCapabilities } from "~/lib/fixtures";
 import { WorkspaceProvider } from "~/lib/workspace";
@@ -185,7 +185,7 @@ describe("SIP agents", () => {
         "Lowercase letters, numbers, dots, underscores and hyphens only"
       )
     ).toBeInTheDocument();
-    expect(screen.getByText("Pick a domain")).toBeInTheDocument();
+    expect(screen.queryByText("Pick a domain")).not.toBeInTheDocument();
     expect(screen.getByText("Between 1 and 100")).toBeInTheDocument();
     expect(agents.createAgent).not.toHaveBeenCalled();
 
@@ -223,15 +223,46 @@ describe("SIP agents", () => {
     expect(screen.getByLabelText("Username")).toBeDisabled();
     await user.click(screen.getByLabelText("Enabled"));
     await user.click(screen.getByRole("button", { name: "Save" }));
+    // Unchanged refs aren't sent, so the API keeps them.
     expect(agents.updateAgent).toHaveBeenCalledWith({
       ref: "ag-1",
       name: "María Rodríguez",
-      domainRef: "dm-1",
-      credentialsRef: "cr-1",
       privacy: "PRIVATE",
       maxContacts: 3,
       enabled: false
     });
+  });
+
+  it("removes a SIP agent's domain and credentials with None", async () => {
+    const { user, agents } = setup([maria]);
+    await user.click(await screen.findByText("María Rodríguez"));
+    await user.click(screen.getByLabelText("Domain"));
+    await user.click(await screen.findByRole("option", { name: "None" }));
+    await user.click(screen.getByLabelText("Credentials"));
+    await user.click(await screen.findByRole("option", { name: "None" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(agents.updateAgent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ref: "ag-1",
+        domainRef: "",
+        credentialsRef: ""
+      })
+    );
+  });
+
+  it("creates a SIP agent with no domain", async () => {
+    const { user, agents } = setup();
+    await user.click(
+      await screen.findByRole("button", { name: "Create SIP agent" })
+    );
+    await user.type(screen.getByLabelText("Name"), "Front desk");
+    await user.type(screen.getByLabelText("Username"), "desk");
+    await user.click(screen.getByRole("button", { name: "Create SIP agent" }));
+    await waitFor(() => expect(agents.createAgent).toHaveBeenCalledTimes(1));
+    expect(agents.createAgent.mock.calls[0][0]).not.toHaveProperty("domainRef");
+    expect(agents.createAgent.mock.calls[0][0]).not.toHaveProperty(
+      "credentialsRef"
+    );
   });
 
   it("toggles a SIP agent from the list", async () => {

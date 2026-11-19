@@ -80,3 +80,61 @@ describe("@sipnet[numbers/updateNumber] aliases", function () {
     expect(sent.clearAliases).to.equal(true);
   });
 });
+
+describe("@sipnet[numbers/updateNumber] an empty ref clears, an absent one keeps", function () {
+  afterEach(function () {
+    return sandbox.restore();
+  });
+
+  async function sent(request: Record<string, unknown>) {
+    const { updateNumber } = await import("../src/numbers/updateNumber");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
+    const numbers = {
+      updateNumber: sandbox.stub().resolves({ ref: "123" }),
+      getNumber: getExtendedFieldsHelper(sandbox)
+    } as unknown as NumbersApi;
+    const callback = sandbox.stub();
+    await updateNumber(numbers, sandbox.stub(), undefined, sandbox.stub())(
+      { metadata, request: { ref: "123", ...request } },
+      callback
+    );
+    expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
+    return (numbers.updateNumber as sinon.SinonStub).firstCall.args[0];
+  }
+
+  it("removes the Trunk with trunkRef \"\"", async function () {
+    const request = await sent({ trunkRef: "" });
+    expect(request.trunkRef).to.equal("");
+    expect(request).to.not.have.property("aorLink");
+    expect(request).to.not.have.property("clearExtraHeaders");
+  });
+
+  it("removes the route with appRef \"\"", async function () {
+    const request = await sent({ appRef: "" });
+    expect(request.aorLink).to.equal("");
+    expect(request.clearExtraHeaders).to.equal(true);
+  });
+
+  it("removes the route with agentAor \"\"", async function () {
+    const request = await sent({ agentAor: "" });
+    expect(request.aorLink).to.equal("");
+    expect(request.clearExtraHeaders).to.equal(true);
+  });
+
+  it("drops the app's header when the route moves to a SIP agent", async function () {
+    const request = await sent({ agentAor: "sip:maria@acme.sip.fonoster.ai" });
+    expect(request.aorLink).to.equal("sip:maria@acme.sip.fonoster.ai");
+    expect(request.clearExtraHeaders).to.equal(true);
+  });
+
+  it("keeps the Trunk and the route on a rename", async function () {
+    const request = await sent({ name: "Renamed" });
+    expect(request.name).to.equal("Renamed");
+    expect(request).to.not.have.property("trunkRef");
+    expect(request).to.not.have.property("aorLink");
+    expect(request).to.not.have.property("clearExtraHeaders");
+    expect(request).to.not.have.property("extraHeaders");
+  });
+});

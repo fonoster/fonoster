@@ -52,10 +52,13 @@ const COUNT = new Intl.NumberFormat("en-US");
 function useRange(): [Range, (range: Range) => void] {
   const [params, setParams] = useSearchParams();
   const value = params.get("range");
-  const range = RANGES.some((r) => r.value === value) ? (value as Range) : "7d";
+  const range = RANGES.some((r) => r.value === value)
+    ? (value as Range)
+    : "30d";
   return [
     range,
-    (next) => setParams(next === "7d" ? {} : { range: next }, { replace: true })
+    (next) =>
+      setParams(next === "30d" ? {} : { range: next }, { replace: true })
   ];
 }
 

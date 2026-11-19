@@ -1114,3 +1114,15 @@ The API server's Peer setup (`upsertRoomrPeer`), run twice against Routr 3.
 sipnet's CreateAgent handler built with a key Routr 3 doesn't hold.
 
 **Pass.** The call returns an error and no response, and the username is still free (creating it with the right key works). **Fail.** OK, an empty response, or the Agent stored.
+
+### API-084 An empty ref clears, an absent one keeps
+
+- **Spec:** management-api / An empty reference clears it / An empty ref clears, an absent one keeps
+- **Priority:** P0
+- **Proof:** Make sipnet ignore an empty route (`convertToRoutrNumberUpdate` in `sipnet/src/numbers/convertToRoutrNumber.ts`); the Number keeps its app and the test goes red.
+- **Fault:** faults/API-084.patch
+- **Test:** mods/conformance/test/api/clearRefs.api.ts
+
+A Number on a Trunk routed to an app, and an Agent on a Domain, through each client against Routr 3.
+
+**Pass.** After an update with only a new name, get returns the Trunk and the app; after `trunkRef: ""` and `appRef: ""`, get returns no Trunk, no `appRef` and no `agentAor`; after `domainRef: ""`, the Agent has no Domain. **Fail.** A rename drops a ref, or an empty ref leaves the old one.

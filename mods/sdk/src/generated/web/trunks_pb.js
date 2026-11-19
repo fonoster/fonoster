@@ -2319,9 +2319,9 @@ ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 name: jspb.Message.getFieldWithDefault(msg, 2, ""),
 sendRegister: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
 inboundUri: jspb.Message.getFieldWithDefault(msg, 4, ""),
-accessControlListRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
-inboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
-outboundCredentialsRef: jspb.Message.getFieldWithDefault(msg, 7, ""),
+accessControlListRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f,
+inboundCredentialsRef: (f = jspb.Message.getField(msg, 6)) == null ? undefined : f,
+outboundCredentialsRef: (f = jspb.Message.getField(msg, 7)) == null ? undefined : f,
 urisList: jspb.Message.toObjectList(msg.getUrisList(),
     proto.fonoster.trunks.v1beta2.TrunkURI.toObject, includeInstance),
 calledNumberFormat: (f = jspb.Message.getField(msg, 9)) == null ? undefined : f,
@@ -2470,22 +2470,22 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.serializeBinaryToWriter = funct
       f
     );
   }
-  f = message.getAccessControlListRef();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 5));
+  if (f != null) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getInboundCredentialsRef();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 6));
+  if (f != null) {
     writer.writeString(
       6,
       f
     );
   }
-  f = message.getOutboundCredentialsRef();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 7));
+  if (f != null) {
     writer.writeString(
       7,
       f
@@ -2616,7 +2616,25 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.getAccessControlListR
  * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
  */
 proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.setAccessControlListRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 5, value);
+  return jspb.Message.setField(this, 5, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearAccessControlListRef = function() {
+  return jspb.Message.setField(this, 5, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.hasAccessControlListRef = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 
@@ -2634,7 +2652,25 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.getInboundCredentials
  * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
  */
 proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.setInboundCredentialsRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 6, value);
+  return jspb.Message.setField(this, 6, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearInboundCredentialsRef = function() {
+  return jspb.Message.setField(this, 6, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.hasInboundCredentialsRef = function() {
+  return jspb.Message.getField(this, 6) != null;
 };
 
 
@@ -2652,7 +2688,25 @@ proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.getOutboundCredential
  * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
  */
 proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.setOutboundCredentialsRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 7, value);
+  return jspb.Message.setField(this, 7, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.trunks.v1beta2.UpdateTrunkRequest} returns this
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.clearOutboundCredentialsRef = function() {
+  return jspb.Message.setField(this, 7, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.trunks.v1beta2.UpdateTrunkRequest.prototype.hasOutboundCredentialsRef = function() {
+  return jspb.Message.getField(this, 7) != null;
 };
 
 

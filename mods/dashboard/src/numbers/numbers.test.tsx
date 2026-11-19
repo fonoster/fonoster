@@ -97,7 +97,6 @@ describe("numbers", () => {
     expect(sdk.numbers.updateNumber).toHaveBeenCalledWith({
       ref: "n2",
       name: "Billing inbound",
-      trunkRef: "tk-77d9e1",
       agentAor: "sip:juan@acme.sip.fonoster.local"
     });
   });
@@ -122,8 +121,64 @@ describe("numbers", () => {
     expect(sdk.numbers.updateNumber).toHaveBeenCalledWith({
       ref: "n5",
       name: "Main line",
-      trunkRef: "tk-77d9e1",
       appRef: "ap-55e2f0"
+    });
+  });
+
+  it("takes a number off its trunk and route with None", async () => {
+    const { user, sdk } = setup();
+    await user.click(await screen.findByText("Billing inbound"));
+    const drawer = await screen.findByRole("dialog");
+    await user.click(within(drawer).getByRole("radio", { name: "None" }));
+    await user.click(within(drawer).getByLabelText("Trunk"));
+    await user.click(await screen.findByRole("option", { name: "None" }));
+    await user.click(within(drawer).getByRole("button", { name: "Save" }));
+
+    expect(sdk.numbers.updateNumber).toHaveBeenCalledWith({
+      ref: "n2",
+      name: "Billing inbound",
+      trunkRef: "",
+      appRef: ""
+    });
+  });
+
+  it("keeps the trunk and route on a rename", async () => {
+    const { user, sdk } = setup();
+    await user.click(await screen.findByText("Billing inbound"));
+    const drawer = await screen.findByRole("dialog");
+    await user.clear(within(drawer).getByLabelText("Name"));
+    await user.type(within(drawer).getByLabelText("Name"), "Billing");
+    await user.click(within(drawer).getByRole("button", { name: "Save" }));
+
+    expect(sdk.numbers.updateNumber).toHaveBeenCalledWith({
+      ref: "n2",
+      name: "Billing"
+    });
+  });
+
+  it("adds a number with no trunk and no route", async () => {
+    const { user, sdk } = setup();
+    await user.click(
+      await screen.findByRole("button", { name: "Create number" })
+    );
+    const drawer = await screen.findByRole("dialog");
+    await user.type(within(drawer).getByLabelText("Number"), "+1 809 555 0111");
+    await user.type(within(drawer).getByLabelText("Name"), "Outbound");
+    await user.type(within(drawer).getByLabelText("City"), "Santiago");
+    await user.click(within(drawer).getByLabelText("Country"));
+    await user.click(
+      await screen.findByRole("option", { name: "Dominican Republic" })
+    );
+    await user.click(
+      within(drawer).getByRole("button", { name: "Create number" })
+    );
+
+    expect(sdk.numbers.createNumber).toHaveBeenCalledWith({
+      name: "Outbound",
+      telUrl: "tel:+18095550111",
+      city: "Santiago",
+      country: "Dominican Republic",
+      countryIsoCode: "DO"
     });
   });
 
@@ -150,6 +205,7 @@ describe("numbers", () => {
     );
     await user.click(within(drawer).getByLabelText("Trunk"));
     await user.click(await screen.findByRole("option", { name: "Claro" }));
+    await user.click(within(drawer).getByRole("radio", { name: "Agent" }));
     await user.click(
       within(drawer).getByRole("radio", { name: /Appointment booking/ })
     );

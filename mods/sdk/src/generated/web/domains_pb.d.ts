@@ -164,6 +164,8 @@ export class UpdateDomainRequest extends jspb.Message {
 
   getAccessControlListRef(): string;
   setAccessControlListRef(value: string): UpdateDomainRequest;
+  hasAccessControlListRef(): boolean;
+  clearAccessControlListRef(): UpdateDomainRequest;
 
   getEgressPoliciesList(): Array<EgressPolicy>;
   setEgressPoliciesList(value: Array<EgressPolicy>): UpdateDomainRequest;
@@ -182,8 +184,13 @@ export namespace UpdateDomainRequest {
   export type AsObject = {
     ref: string,
     name: string,
-    accessControlListRef: string,
+    accessControlListRef?: string,
     egressPoliciesList: Array<EgressPolicy.AsObject>,
+  }
+
+  export enum AccessControlListRefCase { 
+    _ACCESS_CONTROL_LIST_REF_NOT_SET = 0,
+    ACCESS_CONTROL_LIST_REF = 3,
   }
 }
 

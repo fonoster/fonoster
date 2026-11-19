@@ -197,9 +197,13 @@ export class UpdateAgentRequest extends jspb.Message {
 
   getDomainRef(): string;
   setDomainRef(value: string): UpdateAgentRequest;
+  hasDomainRef(): boolean;
+  clearDomainRef(): UpdateAgentRequest;
 
   getCredentialsRef(): string;
   setCredentialsRef(value: string): UpdateAgentRequest;
+  hasCredentialsRef(): boolean;
+  clearCredentialsRef(): UpdateAgentRequest;
 
   getMaxContacts(): number;
   setMaxContacts(value: number): UpdateAgentRequest;
@@ -221,10 +225,20 @@ export namespace UpdateAgentRequest {
     name: string,
     privacy: Privacy,
     enabled: boolean,
-    domainRef: string,
-    credentialsRef: string,
+    domainRef?: string,
+    credentialsRef?: string,
     maxContacts: number,
     expires: number,
+  }
+
+  export enum DomainRefCase { 
+    _DOMAIN_REF_NOT_SET = 0,
+    DOMAIN_REF = 5,
+  }
+
+  export enum CredentialsRefCase { 
+    _CREDENTIALS_REF_NOT_SET = 0,
+    CREDENTIALS_REF = 6,
   }
 }
 

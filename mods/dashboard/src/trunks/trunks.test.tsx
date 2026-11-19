@@ -160,9 +160,10 @@ describe("trunk page", () => {
       name: "Claro",
       inboundUri: "claro.pstn.fonoster.local",
       sendRegister: true,
-      accessControlListRef: undefined,
+      // Moved to None: "" removes it. Unchanged: not sent, so it's kept.
+      accessControlListRef: "",
       inboundCredentialsRef: "cr2",
-      outboundCredentialsRef: "cr1",
+      outboundCredentialsRef: undefined,
       uris: [
         {
           host: "sip.claro.com.do",

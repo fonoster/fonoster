@@ -356,7 +356,7 @@ test("[DSH-020] creates a SIP agent, refuses invalid fields, and disables it fro
     )
   ).toBeVisible();
   await expect(page.getByText("Between 1 and 100")).toBeVisible();
-  await expect(page.getByText("Pick a domain")).toBeVisible();
+  await expect(page.getByText("Pick a domain")).toHaveCount(0);
   expect(api.callsTo("Agents/CreateAgent")).toHaveLength(0);
 
   await page.getByLabel("Username", { exact: true }).fill("maria");

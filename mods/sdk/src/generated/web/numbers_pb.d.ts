@@ -186,6 +186,8 @@ export class UpdateNumberRequest extends jspb.Message {
 
   getTrunkRef(): string;
   setTrunkRef(value: string): UpdateNumberRequest;
+  hasTrunkRef(): boolean;
+  clearTrunkRef(): UpdateNumberRequest;
 
   getAgentAor(): string;
   setAgentAor(value: string): UpdateNumberRequest;
@@ -215,7 +217,7 @@ export namespace UpdateNumberRequest {
   export type AsObject = {
     ref: string,
     name: string,
-    trunkRef: string,
+    trunkRef?: string,
     agentAor: string,
     appRef: string,
     aliasesList: Array<string>,
@@ -226,6 +228,11 @@ export namespace UpdateNumberRequest {
     INGRESS_HANDLER_NOT_SET = 0,
     AGENT_AOR = 4,
     APP_REF = 5,
+  }
+
+  export enum TrunkRefCase { 
+    _TRUNK_REF_NOT_SET = 0,
+    TRUNK_REF = 3,
   }
 }
 

@@ -23,6 +23,7 @@ import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 import { parseAliases } from "../../../utils/parseAliases";
+import { refChange } from "../../../utils/refChange";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "modify the configuration of a Number";
@@ -99,7 +100,12 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     }
 
     try {
-      await numbers.updateNumber(answers as unknown as UpdateNumberRequest);
+      // A ref is sent only when it changed: "" removes it, absent keeps it
+      await numbers.updateNumber({
+        ...answers,
+        trunkRef: refChange(answers.trunkRef, applicationFromDB.trunk?.ref),
+        appRef: refChange(answers.appRef, applicationFromDB.appRef)
+      } as unknown as UpdateNumberRequest);
 
       this.log("Done!");
     } catch (e) {

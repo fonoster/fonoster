@@ -59,7 +59,8 @@ const createNumberRequestSchema = z
 const updateNumberRequestSchema = z
   .object({
     name: nameSchema.optional(),
-    agentAor: sipUriSchema.optional(),
+    // "" in agentAor or appRef removes the Number's route
+    agentAor: sipUriSchema.or(z.literal("")).optional(),
     appRef: z.string().optional(),
     aliases: aliasesSchema.optional(),
     clearAliases: z.boolean().optional()

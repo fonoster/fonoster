@@ -343,7 +343,7 @@ The seed creates a second workspace of the same user, `Other`, with an app. The 
 - **Fault:** faults/DSH-020.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
-**Pass.** A username with capitals or spaces, Max contacts 101 and no domain are refused with nothing sent; `CreateAgent` carries the username, domain, credentials and max contacts; the row shows `sip:maria@acme.sip.fonoster.local`; the switch sends `enabled: false` with no form opened; the saved username is disabled. **Fail.** An invalid agent sent, a wrong request, or a switch that opens a form or saves the wrong value.
+**Pass.** A username with capitals or spaces and Max contacts 101 are refused with nothing sent, and no domain is not an error; `CreateAgent` carries the username, domain, credentials and max contacts; the row shows `sip:maria@acme.sip.fonoster.local`; the switch sends `enabled: false` with no form opened; the saved username is disabled. **Fail.** An invalid agent sent, a wrong request, or a switch that opens a form or saves the wrong value.
 
 ### DSH-021 Create an ACL of addresses and ranges
 

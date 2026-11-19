@@ -159,11 +159,11 @@ message UpdateTrunkRequest {
   // The URI for inbound requests
   string inbound_uri = 4;
   // Reference to the AccessControlList
-  string access_control_list_ref = 5;
+  optional string access_control_list_ref = 5;
   // Reference to the inbound Credentials
-  string inbound_credentials_ref = 6;
+  optional string inbound_credentials_ref = 6;
   // Reference to the outbound Credentials
-  string outbound_credentials_ref = 7;
+  optional string outbound_credentials_ref = 7;
   // The list of URIs for the Trunk
   repeated TrunkURI uris = 8;
   // How the called number is written on outbound calls to the carrier

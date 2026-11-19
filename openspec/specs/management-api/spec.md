@@ -157,3 +157,15 @@ SHALL change nothing.
 #### Scenario: A second start changes nothing
 - **WHEN** the Peer setup runs twice
 - **THEN** Routr holds one Peer with that username and one set of its Credentials, linked
+
+### Requirement: An empty reference clears it
+
+An update SHALL remove a reference sent as `""`: a Number's `trunkRef`, a Number's route
+(`appRef` or `agentAor`), an Agent's `domainRef` or `credentialsRef`, a Trunk's
+`accessControlListRef`, `inboundCredentialsRef` or `outboundCredentialsRef`, and a Domain's
+`accessControlListRef`. An update that leaves a reference out SHALL keep it. A Number created or
+linked without a Trunk or a route SHALL be stored without them.
+
+#### Scenario: An empty ref clears, an absent one keeps
+- **WHEN** a Number on a Trunk routed to an app is updated with only a new name, then with `trunkRef: ""` and `appRef: ""`, and an Agent on a Domain is updated with `domainRef: ""`
+- **THEN** get returns the Trunk and the app after the rename, the Number without a Trunk, `appRef` or `agentAor` after the clear, and the Agent without a Domain

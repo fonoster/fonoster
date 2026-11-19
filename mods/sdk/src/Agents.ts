@@ -177,7 +177,8 @@ class Agents {
    * @param {Privacy} request.privacy - The privacy of the Agent
    * @param {boolean} request.enabled - The status of the Agent
    * @param {number} request.maxContacts - The maximum number of contacts the Agent can have
-   * @param {string} request.domainRef - The reference of the Domain to associate the Agent
+   * @param {string} request.domainRef - The reference of the Domain to associate the Agent. Send "" to remove it; leave it out to keep it.
+   * @param {string} request.credentialsRef - The Credentials of the Agent. Send "" to remove it; leave it out to keep it.
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Agent
    * @example
    * const agents = new SDK.Agents(client); // Existing client object

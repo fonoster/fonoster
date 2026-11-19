@@ -87,6 +87,7 @@ async function fillBasics(
 ) {
   const form = within(drawer);
   await user.type(form.getByLabelText("Number"), phoneNumber);
+  await user.click(await form.findByRole("radio", { name: "Agent" }));
   await user.click(
     await form.findByRole("radio", { name: /Billing reminders/ })
   );
@@ -225,7 +226,7 @@ describe("link a Twilio number", () => {
     });
   });
 
-  it("checks the route, the Account SID and the Auth Token before calling", async () => {
+  it("checks the Account SID and the Auth Token before calling, not the route", async () => {
     const view = setup();
     const { drawer } = await openFromMenu(view);
     const form = within(drawer);
@@ -234,17 +235,45 @@ describe("link a Twilio number", () => {
     await view.user.click(form.getByRole("radio", { name: "Auth Token" }));
     await submit(view, drawer);
 
-    expect(await form.findByText("Choose where calls go.")).toBeInTheDocument();
     expect(
-      form.getByText("Enter an Account SID that starts with AC.")
+      await form.findByText("Enter an Account SID that starts with AC.")
     ).toBeInTheDocument();
     expect(form.getByText("Enter the Auth Token.")).toBeInTheDocument();
+    expect(form.queryByText("Choose where calls go.")).not.toBeInTheDocument();
     expect(view.linkTwilio).not.toHaveBeenCalled();
+  });
+
+  it("links with no route and says only that it's linked", async () => {
+    const view = setup();
+    const { drawer } = await openFromMenu(view);
+    const form = within(drawer);
+    expect(form.getByRole("radio", { name: "None" })).toHaveAttribute(
+      "aria-checked",
+      "true"
+    );
+    await view.user.type(form.getByLabelText("Number"), "+18095550123");
+    await view.user.type(
+      form.getByLabelText("Twilio Account SID"),
+      "AC0123456789abcdef0123456789abcdef"
+    );
+    await fillApiKey(view, drawer);
+    await submit(view, drawer);
+
+    await waitFor(() => expect(view.linkTwilio).toHaveBeenCalledTimes(1));
+    const request = view.linkTwilio.mock.calls[0][0];
+    expect(request).not.toHaveProperty("appRef");
+    expect(request).not.toHaveProperty("agentAor");
+    expect(
+      await screen.findByText("+1 809 555 0123 linked.")
+    ).toBeInTheDocument();
   });
 
   it("says to create a route target first when there is none", async () => {
     const view = setup({ noRoutes: true });
     const { drawer } = await openFromMenu(view);
+    await view.user.click(
+      await within(drawer).findByRole("radio", { name: "Agent" })
+    );
     expect(
       await within(drawer).findByText(
         "Create an agent, an app or a SIP agent first."
@@ -410,7 +439,7 @@ describe("link a Twilio number", () => {
     await view.user.type(form.getByLabelText("Number"), "+18095550177");
     expect(
       await form.findByText(
-        "This number is in your workspace, routed to Billing reminders on the Altice trunk. Linking moves it to Twilio Trunk and the route you choose."
+        "This number is in your workspace, routed to Billing reminders on the Altice trunk. Linking moves it to Twilio Trunk. A route you choose replaces its current one."
       )
     ).toBeInTheDocument();
 
@@ -418,7 +447,7 @@ describe("link a Twilio number", () => {
     await view.user.type(form.getByLabelText("Number"), "+18095550999");
     expect(
       await form.findByText(
-        "This number is in your workspace. Linking moves it to Twilio Trunk and the route you choose."
+        "This number is in your workspace. Linking moves it to Twilio Trunk. A route you choose replaces its current one."
       )
     ).toBeInTheDocument();
   });

@@ -95,7 +95,7 @@ message UpdateDomainRequest {
   // The name of the Domain
   string name = 2;
   // Reference to the Access Control List
-  string access_control_list_ref = 3;
+  optional string access_control_list_ref = 3;
   // Optional list of egress policies
   repeated EgressPolicy egress_policies = 4;
 }

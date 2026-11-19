@@ -77,7 +77,6 @@ const schema = z
   .superRefine((values, ctx) => {
     const fail = (path: string, message: string) =>
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
-    if (!values.route) fail("route", "Choose where calls go.");
     if (values.credentialKind === "token") {
       if (!/^[0-9]{5,32}$/.test(values.phoneNumberId))
         fail(
@@ -135,7 +134,7 @@ const SECRET_INPUT = {
   "data-lpignore": "true"
 } as const;
 
-type Done = { response: LinkWhatsAppResponse; route: string };
+type Done = { response: LinkWhatsAppResponse; route?: string };
 
 /**
  * Link a WhatsApp Business number. With a Meta access token Fonoster turns on
@@ -197,7 +196,7 @@ export function LinkWhatsAppDrawer({
 
   const onSubmit = form.handleSubmit(async (values) => {
     setFailure(undefined);
-    const route = values.route!;
+    const route = values.route;
     const request: LinkWhatsAppRequest = {
       ...(values.credentialKind === "token"
         ? {
@@ -209,7 +208,11 @@ export function LinkWhatsAppDrawer({
             ...(values.sipPassword ? { sipPassword: values.sipPassword } : {})
           }),
       ...(values.name ? { name: values.name } : {}),
-      ...(route.kind === "sip" ? { agentAor: route.to } : { appRef: route.to })
+      ...(route
+        ? route.kind === "sip"
+          ? { agentAor: route.to }
+          : { appRef: route.to }
+        : {})
     };
     let response: LinkWhatsAppResponse;
     try {
@@ -220,7 +223,7 @@ export function LinkWhatsAppDrawer({
     }
     // The secrets have done their work; the Done state replaces the form.
     form.reset(EMPTY);
-    setDone({ response, route: nameRoute(route) });
+    setDone({ response, route: route && nameRoute(route) });
   });
 
   const fieldError = (on: Failure["on"]) =>
@@ -316,14 +319,6 @@ export function LinkWhatsAppDrawer({
                     />
                   )}
                 />
-                {errors.route?.message && (
-                  <p
-                    role="alert"
-                    className="font-display text-[11px] text-destructive"
-                  >
-                    {errors.route.message}
-                  </p>
-                )}
               </div>
               <Field label="Name" error={errors.name?.message}>
                 {(a11y) => (
@@ -423,8 +418,8 @@ export function LinkWhatsAppDrawer({
                   </Alert>
                 )}
                 <Alert variant="note">
-                  A number already in your workspace moves to its WhatsApp trunk
-                  and the route you choose.
+                  A number already in your workspace moves to its WhatsApp
+                  trunk. A route you choose replaces its current one.
                 </Alert>
               </div>
             </fieldset>
@@ -444,7 +439,7 @@ function DoneState({ response, route }: Done) {
   return (
     <div className="flex flex-col gap-[22px]" data-testid="link-whatsapp-done">
       <p className="font-display text-[13px] text-foreground">
-        {who} is linked to {route}.
+        {route ? `${who} is linked to ${route}.` : `${who} is linked.`}
       </p>
       {response.metaConfigured ? (
         <p className="font-display text-[13px] text-muted-foreground">

@@ -1762,7 +1762,7 @@ proto.fonoster.numbers.v1beta2.UpdateNumberRequest.toObject = function(includeIn
   var f, obj = {
 ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-trunkRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+trunkRef: (f = jspb.Message.getField(msg, 3)) == null ? undefined : f,
 agentAor: (f = jspb.Message.getField(msg, 4)) == null ? undefined : f,
 appRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f,
 aliasesList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f,
@@ -1874,8 +1874,8 @@ proto.fonoster.numbers.v1beta2.UpdateNumberRequest.serializeBinaryToWriter = fun
       f
     );
   }
-  f = message.getTrunkRef();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 3));
+  if (f != null) {
     writer.writeString(
       3,
       f
@@ -1962,7 +1962,25 @@ proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.getTrunkRef = funct
  * @return {!proto.fonoster.numbers.v1beta2.UpdateNumberRequest} returns this
  */
 proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.setTrunkRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.numbers.v1beta2.UpdateNumberRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.clearTrunkRef = function() {
+  return jspb.Message.setField(this, 3, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.numbers.v1beta2.UpdateNumberRequest.prototype.hasTrunkRef = function() {
+  return jspb.Message.getField(this, 3) != null;
 };
 
 

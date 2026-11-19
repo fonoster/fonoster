@@ -53,7 +53,8 @@ function plural(count: number, other: boolean) {
 
 /**
  * "When this number is called, send it to": a segmented choice between
- * agents, apps and SIP agents, and a searchable list of the chosen kind.
+ * none, agents, apps and SIP agents, and a searchable list of the chosen kind.
+ * None leaves the number without a route (onChange(undefined)).
  */
 export function RoutePicker({
   value,
@@ -66,7 +67,7 @@ export function RoutePicker({
   error
 }: {
   value?: Route;
-  onChange: (route: Route) => void;
+  onChange: (route: Route | undefined) => void;
   apps: Application[];
   sipAgents: Agent[];
   /** All numbers, to say how many already use each target. */
@@ -77,18 +78,19 @@ export function RoutePicker({
   error?: unknown;
 }) {
   const labelId = useId();
-  const [kind, setKind] = useState<RouteKind>(value?.kind ?? "agent");
+  const [kind, setKind] = useState<RouteKind | "none">(value?.kind ?? "none");
   const [query, setQuery] = useState("");
   // Follow the value when it's set from outside (e.g. apps finished loading).
   useEffect(() => {
     if (value?.kind) setKind(value.kind);
   }, [value?.kind]);
-  const noun = ROUTE_KINDS.find((k) => k.value === kind)!.noun;
+  const noun = ROUTE_KINDS.find((k) => k.value === kind)?.noun ?? "";
 
   const options = useMemo<Option[]>(() => {
     const others = numbers.filter((n) => n.ref !== currentRef);
     const count = (match: (n: INumber) => boolean) =>
       plural(others.filter(match).length, Boolean(currentRef));
+    if (kind === "none") return [];
     if (kind === "sip") {
       return sipAgents.flatMap((user) => {
         const aor = sipAgentAor(user);
@@ -123,84 +125,95 @@ export function RoutePicker({
       </span>
       <Segmented
         labelledBy={labelId}
-        options={ROUTE_KINDS.map((k) => ({
-          value: k.value,
-          label: k.label,
-          icon: ROUTE_ICONS[k.value]
-        }))}
+        options={[
+          { value: "none" as const, label: "None" },
+          ...ROUTE_KINDS.map((k) => ({
+            value: k.value,
+            label: k.label,
+            icon: ROUTE_ICONS[k.value]
+          }))
+        ]}
         value={kind}
         onChange={(next) => {
           setKind(next);
           setQuery("");
+          if (next === "none") onChange(undefined);
         }}
       />
-      <div className="overflow-hidden rounded-control border border-input bg-background">
-        <label className="flex h-10 items-center gap-2 border-b border-border px-3">
-          <Search className="size-3.5 text-muted-foreground" aria-hidden />
-          <span className="sr-only">Search {noun}</span>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={`Search ${noun}`}
-            className="h-full flex-1 bg-transparent text-[13px] outline-none placeholder:text-text-muted"
-          />
-        </label>
-        <div
-          role="radiogroup"
-          aria-label={ROUTE_KINDS.find((k) => k.value === kind)!.label}
-          className="flex max-h-56 flex-col overflow-y-auto p-1"
-        >
-          {loading ? (
-            [0, 1, 2].map((i) => <Skeleton key={i} className="m-2 h-7 w-3/4" />)
-          ) : error ? (
-            <p className="px-3 py-4 text-[13px] text-destructive">
-              {errorMessage(error)}
-            </p>
-          ) : visible.length === 0 ? (
-            <p className="px-3 py-4 font-display text-[13px] text-muted-foreground">
-              {term
-                ? `No ${noun} match “${query.trim()}”.`
-                : apps.length === 0 && sipAgents.length === 0
-                  ? "Create an agent, an app or a SIP agent first."
-                  : `No ${noun} yet.`}
-            </p>
-          ) : (
-            visible.map((option) => {
-              const OptionIcon = ROUTE_ICONS[kind];
-              const checked = value?.kind === kind && value.to === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={checked}
-                  onClick={() => onChange({ kind, to: option.value })}
-                  className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-[6px] px-3 py-2 text-left outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring",
-                    checked && "bg-accent"
-                  )}
-                >
-                  <OptionIcon
-                    className="size-4 shrink-0 text-muted-foreground"
-                    aria-hidden
-                  />
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="truncate text-[13px] text-foreground">
-                      {option.name}
+      {kind !== "none" && (
+        <div className="overflow-hidden rounded-control border border-input bg-background">
+          <label className="flex h-10 items-center gap-2 border-b border-border px-3">
+            <Search className="size-3.5 text-muted-foreground" aria-hidden />
+            <span className="sr-only">Search {noun}</span>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={`Search ${noun}`}
+              className="h-full flex-1 bg-transparent text-[13px] outline-none placeholder:text-text-muted"
+            />
+          </label>
+          <div
+            role="radiogroup"
+            aria-label={ROUTE_KINDS.find((k) => k.value === kind)?.label}
+            className="flex max-h-56 flex-col overflow-y-auto p-1"
+          >
+            {loading ? (
+              [0, 1, 2].map((i) => (
+                <Skeleton key={i} className="m-2 h-7 w-3/4" />
+              ))
+            ) : error ? (
+              <p className="px-3 py-4 text-[13px] text-destructive">
+                {errorMessage(error)}
+              </p>
+            ) : visible.length === 0 ? (
+              <p className="px-3 py-4 font-display text-[13px] text-muted-foreground">
+                {term
+                  ? `No ${noun} match “${query.trim()}”.`
+                  : apps.length === 0 && sipAgents.length === 0
+                    ? "Create an agent, an app or a SIP agent first."
+                    : `No ${noun} yet.`}
+              </p>
+            ) : (
+              visible.map((option) => {
+                const OptionIcon = ROUTE_ICONS[kind as RouteKind];
+                const checked =
+                  value?.kind === kind && value.to === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    onClick={() =>
+                      onChange({ kind: kind as RouteKind, to: option.value })
+                    }
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-[6px] px-3 py-2 text-left outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring",
+                      checked && "bg-accent"
+                    )}
+                  >
+                    <OptionIcon
+                      className="size-4 shrink-0 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-[13px] text-foreground">
+                        {option.name}
+                      </span>
+                      <span className="truncate font-mono text-[11px] text-muted-foreground">
+                        {option.sub}
+                      </span>
                     </span>
-                    <span className="truncate font-mono text-[11px] text-muted-foreground">
-                      {option.sub}
-                    </span>
-                  </span>
-                  {checked && (
-                    <Check className="size-4 text-foreground" aria-hidden />
-                  )}
-                </button>
-              );
-            })
-          )}
+                    {checked && (
+                      <Check className="size-4 text-foreground" aria-hidden />
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

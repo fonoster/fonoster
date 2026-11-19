@@ -52,30 +52,37 @@ function convertToRoutrNumber(
   };
 }
 
+/**
+ * A route ("appRef" or "agentAor") replaces the stored one and its app header; "" in either
+ * removes the route. Without either, the route is kept. `trunkRef` "" removes the Trunk and an
+ * absent one keeps it.
+ */
 function convertToRoutrNumberUpdate(
   number: UpdateNumberRequest,
   appPeerAor: string = ROUTR_DEFAULT_PEER_AOR
 ) {
-  let aorLink: string | undefined;
-  let extraHeaders: { name: string; value: string }[] = [];
+  const route: {
+    aorLink?: string;
+    extraHeaders?: { name: string; value: string }[];
+    clearExtraHeaders?: boolean;
+  } = {};
 
   if (number.appRef) {
-    aorLink = appPeerAor;
-    extraHeaders.push({
-      name: APP_REF_HEADER,
-      value: number.appRef
-    });
+    route.aorLink = appPeerAor;
+    route.extraHeaders = [{ name: APP_REF_HEADER, value: number.appRef }];
   } else if (number.agentAor) {
-    extraHeaders = null;
-    aorLink = number.agentAor;
+    route.aorLink = number.agentAor;
+    route.clearExtraHeaders = true;
+  } else if (number.appRef === "" || number.agentAor === "") {
+    route.aorLink = "";
+    route.clearExtraHeaders = true;
   }
 
   return {
     ref: number.ref,
-    name: number.name,
-    aorLink,
-    extraHeaders,
-    trunkRef: number.trunkRef,
+    ...(number.name !== undefined ? { name: number.name } : {}),
+    ...route,
+    ...(number.trunkRef !== undefined ? { trunkRef: number.trunkRef } : {}),
     // A non-empty list replaces the aliases, an empty one keeps them; clearAliases removes them
     ...(number.aliases?.length ? { aliases: number.aliases } : {}),
     ...(number.clearAliases ? { clearAliases: true } : {})
