@@ -50,7 +50,10 @@ You need:
     If the number is already in your workspace, linking moves it to Twilio Trunk and the route you
     choose. A new number is named after itself; rename it under **Numbers**.
 
-    On your own install, Twilio sends calls to your install's public SIP address. Set it up first:
+    On your own install, Twilio sends calls to your install's public SIP over TLS address. Set it
+    up first: linking needs SIP over TLS on `5061` with a certificate covering `*.pstn.<domain>`
+    (see [SIP over TLS](/self-hosting/https#sip-over-tls)) and a `tls` endpoint in
+    `regions.public[].endpoints.sip`, or the link is refused. See
     [Connect carriers and phones](/self-hosting/carriers-and-phones).
   </Tab>
   <Tab title="CLI">
@@ -140,31 +143,33 @@ your workspace's access key ID in lowercase, shown here as `wo7d2kq9x4m1c8b3n6p0
 <img
   className="block dark:hidden rounded-xl"
   src="/images/link-twilio/what-it-creates-light.png"
-  alt="In your Twilio account, the number +1 809 555 0123 moves onto an Elastic SIP trunk with an IP ACL for Fonoster's address and an origination URL sip:wo7d….pstn.fonoster.com. In your Fonoster workspace, a Twilio Trunk with inbound URI wo7d….pstn.fonoster.com carries the same number, which points at the Front desk agent. Incoming calls flow from Twilio to Fonoster; outbound calls flow back to wo7d….pstn.twilio.com."
+  alt="In your Twilio account, the number +1 809 555 0123 moves onto an Elastic SIP trunk with an IP ACL for Fonoster's address and an origination URL sip:wo7d….pstn.fonoster.ai;transport=tls, with Secure Trunking on. In your Fonoster workspace, a Twilio Trunk with inbound URI wo7d….pstn.fonoster.ai carries the same number, which points at the Front desk agent. Incoming calls flow from Twilio to Fonoster; outbound calls flow back to wo7d….pstn.twilio.com over TLS on port 5061."
 />
 <img
   className="hidden dark:block rounded-xl"
   src="/images/link-twilio/what-it-creates-dark.png"
-  alt="In your Twilio account, the number +1 809 555 0123 moves onto an Elastic SIP trunk with an IP ACL for Fonoster's address and an origination URL sip:wo7d….pstn.fonoster.com. In your Fonoster workspace, a Twilio Trunk with inbound URI wo7d….pstn.fonoster.com carries the same number, which points at the Front desk agent. Incoming calls flow from Twilio to Fonoster; outbound calls flow back to wo7d….pstn.twilio.com."
+  alt="In your Twilio account, the number +1 809 555 0123 moves onto an Elastic SIP trunk with an IP ACL for Fonoster's address and an origination URL sip:wo7d….pstn.fonoster.ai;transport=tls, with Secure Trunking on. In your Fonoster workspace, a Twilio Trunk with inbound URI wo7d….pstn.fonoster.ai carries the same number, which points at the Front desk agent. Incoming calls flow from Twilio to Fonoster; outbound calls flow back to wo7d….pstn.twilio.com over TLS on port 5061."
 />
 
 **In Twilio:**
 
 - An Elastic SIP trunk named `Trunk-<access key ID>`, with the termination domain
-  `<access key ID>.pstn.twilio.com`. Fonoster sends your outbound calls there.
+  `<access key ID>.pstn.twilio.com` and Secure Trunking on, so calls use TLS for signaling and SRTP
+  for audio. Fonoster sends your outbound calls there.
 - An IP access control list named `ACL-<access key ID>` on that trunk, holding Fonoster's
   signaling address. Twilio only accepts outbound calls from addresses on this list.
 - A SIP credential list named `CL-<access key ID>` on that trunk, holding the username and password
   Fonoster signs outbound calls with.
-- An origination URL `sip:<access key ID>.pstn.fonoster.com` on the trunk. Twilio sends calls to
-  your number there.
+- An origination URL `sip:<access key ID>.pstn.<domain>;transport=tls` on the trunk, such as
+  `sip:wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3.pstn.fonoster.ai;transport=tls` on Fonoster Cloud. Twilio
+  sends calls to your number there, over TLS on port `5061`.
 - Your number moves onto the trunk. Twilio then sends its calls over SIP, not to the number's voice
   webhook.
 
 **In Fonoster:**
 
-- A trunk named **Twilio Trunk**, with the inbound URI `<access key ID>.pstn.fonoster.com` and an
-  outbound URI pointing at the Twilio termination domain.
+- A trunk named **Twilio Trunk**, with the inbound URI `<access key ID>.pstn.<domain>` and an
+  outbound URI pointing at the Twilio termination domain over TLS on port `5061`.
 - A credential named `Twilio <access key ID>` on that trunk, matching the one in the Twilio
   credential list.
 - The number, on that trunk, pointing at the application you picked.
@@ -172,7 +177,8 @@ your workspace's access key ID in lowercase, shown here as `wo7d2kq9x4m1c8b3n6p0
 To link more Twilio numbers, link each one. Fonoster reuses the trunks on both sides and adds the
 number.
 
-Numbers linked before this release get the credential when you link them again.
+Numbers linked before this release stay on UDP and get no credential until you link them again.
+Linking again moves both trunks to TLS and SRTP.
 
 ## Change where calls go
 
@@ -186,6 +192,10 @@ On a self-hosted Fonoster, the server you're signed in to sets the address Twili
 and the addresses Twilio accepts calls from, so the command needs no extra flags. Set your
 install's public SIP address first: see [Carriers and phones](/self-hosting/carriers-and-phones).
 
+Linking needs SIP over TLS on port `5061` with a certificate covering `*.pstn.<domain>`, and a
+`tls` endpoint with a DNS name in `regions.public[].endpoints.sip`. Without it, the link is refused.
+See [SIP over TLS](/self-hosting/https#sip-over-tls).
+
 ## Troubleshooting
 
 - **`<number> isn't in Twilio account AC…1234`.** Check the number's E.164 format and the Account
@@ -193,6 +203,9 @@ install's public SIP address first: see [Carriers and phones](/self-hosting/carr
 - **`Twilio didn't accept these credentials`.** Check the SID and the key or Auth Token.
 - **`This Twilio key can't …`.** Use a Standard API key or your Auth Token.
 - **`Twilio is unavailable; try again`.** Try again in a few minutes.
+- **`This install has no public SIP over TLS address for Twilio to send calls to`.** Your install
+  doesn't list a `tls` endpoint with a DNS name in `regions.public[].endpoints.sip`. Turn on
+  [SIP over TLS](/self-hosting/https#sip-over-tls), then link again.
 - **The number rings but nothing answers.** Check that the number points at an application under
   **Numbers**.
 - **Outbound calls fail.** Twilio rejects calls from addresses outside the trunk's access control

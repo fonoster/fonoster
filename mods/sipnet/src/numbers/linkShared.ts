@@ -17,10 +17,18 @@
  * limitations under the License.
  */
 import { randomInt } from "node:crypto";
+import net from "node:net";
 import { ListRequest, ListResponse } from "@fonoster/types";
 import { filterByAccessKeyId } from "../resources/paginationUtils";
 
 const PAGE_SIZE = 100;
+
+/** A public SIP endpoint of the install, as `regions.public[].endpoints.sip` declares it. */
+type SipEndpoint = { host: string; port: number; transport: string };
+
+/** A TLS endpoint named by a hostname, the only kind a carrier's certificate check can pass. */
+const isTlsHostname = (endpoint: SipEndpoint) =>
+  endpoint.transport?.toLowerCase() === "tls" && net.isIP(endpoint.host) === 0;
 const PASSWORD_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -87,4 +95,4 @@ function findAny<T extends Listed>(
   return findWhere(list, match);
 }
 
-export { findAny, findOwned, generatePassword };
+export { findAny, findOwned, generatePassword, isTlsHostname, SipEndpoint };

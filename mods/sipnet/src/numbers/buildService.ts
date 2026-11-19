@@ -24,8 +24,9 @@ import { ClientOptions } from "../types";
 import { createNumber } from "./createNumber";
 import { NumberRouting } from "./engineRouting";
 import { getNumber } from "./getNumber";
+import { SipEndpoint } from "./linkShared";
 import { linkTwilio } from "./linkTwilio";
-import { linkWhatsApp, SipEndpoint } from "./linkWhatsApp";
+import { linkWhatsApp } from "./linkWhatsApp";
 import { listNumbers } from "./listNumbers";
 import { deleteNumber } from "./operations";
 import { updateNumber } from "./updateNumber";
@@ -33,7 +34,7 @@ import { updateNumber } from "./updateNumber";
 /**
  * `routing` picks the peer app-linked numbers point at (default: the roomr peer). `carrierLinks`
  * is what the carrier links read from the install: its PSTN root, its public signaling addresses
- * (LinkTwilio) and its public SIP endpoints (LinkWhatsApp takes the TLS one).
+ * (LinkTwilio) and its public SIP endpoints (both links need the TLS one).
  */
 function buildService(
   clientOptions: ClientOptions,
@@ -85,7 +86,8 @@ function buildService(
         checkNumberPreconditions,
         routing,
         checkRefs,
-        ...twilioLink
+        ...twilioLink,
+        sipEndpoints
       }),
       linkWhatsApp: linkWhatsApp({
         numbers: client,
