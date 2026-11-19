@@ -75,7 +75,10 @@ export function toSessionApp(app: Application): SessionApp {
       voice: str(speech.voice),
       language: str(speech.language),
       sttModel: str(speech.sttModel) || undefined,
-      patience: (str(speech.patience) || "") as SessionApp["speech"]["patience"]
+      patience: (str(speech.patience) ||
+        "") as SessionApp["speech"]["patience"],
+      ttsModel: str(speech.ttsModel) || undefined,
+      speed: Number(speech.speed) || undefined
     },
     audio: audioOf(app.audio),
     fallback: {
@@ -116,7 +119,15 @@ export function toRequest(
       voice: app.speech.voice || undefined,
       language: app.speech.language || undefined,
       sttModel: app.speech.sttModel || undefined,
-      patience: app.speech.patience || undefined
+      patience: app.speech.patience || undefined,
+      // An app's page owns these: always sent, so a cleared one clears the saved one
+      // (mergeUpdate keeps keys left out). An agent's are its page's: left out, so kept.
+      ...(autopilot
+        ? {}
+        : {
+            ttsModel: app.speech.ttsModel || undefined,
+            speed: app.speech.speed || undefined
+          })
     },
     audio:
       app.protocol === "fonoster"

@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 /**
- * Picker filtering by catalog compatibility (add-provider-registry 4.2): what fits the app's
- * language, which voices have a TTS model in the catalog, and which language models have the
- * features an agent needs. Mirrors the registry's checker (mods/common registry/features.ts).
+ * Picker filtering by catalog compatibility (add-provider-registry 4.2): what fits a language,
+ * and which language models have the features an agent needs. Mirrors the registry's checker (mods/common registry/features.ts).
  */
 import type { Catalog, CatalogEntry } from "./types";
 
@@ -47,32 +46,6 @@ function keep(all: CatalogEntry[], fit: CatalogEntry[], value?: string) {
   if (!value || fit.some((e) => e.id === value)) return fit;
   const saved = all.find((e) => e.id === value);
   return saved ? [...fit, { ...saved, incompatible: true }] : fit;
-}
-
-export function compatibleVoices(
-  catalog: Catalog,
-  language?: string,
-  value?: string
-): CatalogEntry[] {
-  const tts = new Set(catalog.ttsModels.map((m) => m.id));
-  const fit = catalog.voices.filter(
-    (v) =>
-      (!v.models?.length || !tts.size || v.models.some((m) => tts.has(m))) &&
-      fitsLanguage(v, language)
-  );
-  return keep(catalog.voices, fit, value);
-}
-
-export function compatibleSttModels(
-  catalog: Catalog,
-  language?: string,
-  value?: string
-): CatalogEntry[] {
-  return keep(
-    catalog.sttModels,
-    catalog.sttModels.filter((m) => fitsLanguage(m, language)),
-    value
-  );
 }
 
 export function compatibleLlmModels(

@@ -27,6 +27,9 @@ import {
 } from "react-router-dom";
 import { Panel } from "~/agents/parts";
 import { RefChip } from "~/agents/agent-detail";
+import { useCatalog } from "~/agents/agents.service";
+import { EMPTY_CATALOG, type AgentCatalog } from "~/agents/catalog";
+import type { VoiceValue } from "~/agents/speech-pickers";
 import { TalkDrawer } from "~/agents/talk/talk-drawer";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import { Alert } from "~/components/ui/alert";
@@ -40,22 +43,19 @@ import {
   AppTile,
   CallHandlingFields,
   ConnectionFields,
-  EMPTY_CATALOG,
   isApp,
+  missingVoice,
   PROTOCOL_LABELS,
   SecretControls,
   SigningSecretDialog,
   SpeechFields,
   validateApp,
+  voiceValue,
+  withVoice,
   type Draft,
   type SetDraft
 } from "./apps";
-import type {
-  AppNumber,
-  Catalog,
-  CallRecordSummary,
-  SessionApp
-} from "./types";
+import type { AppNumber, CallRecordSummary, SessionApp } from "./types";
 
 /** How many calls the Recent calls card shows. */
 const RECENT_CALLS = 3;
@@ -72,7 +72,6 @@ export function AppDetail() {
   const base = `/w/${workspaceRef}/apps`;
   const loaded = useSessionQuery(["apps", ref, "detail"], async (api) => ({
     app: await api.getApp(ref),
-    catalog: await api.getCatalog().catch(() => EMPTY_CATALOG),
     apps: await api.listApps(),
     numbers: await api.listNumbers().catch(() => [] as AppNumber[]),
     calls: await api
@@ -81,7 +80,10 @@ export function AppDetail() {
       .catch(() => [] as CallRecordSummary[])
   }));
 
-  if (loaded.loading && !loaded.data) {
+  // The voice row reads the saved voice against the catalog, so both load first.
+  const catalog = useCatalog();
+
+  if ((loaded.loading && !loaded.data) || catalog.isPending) {
     return (
       <div className="flex flex-col gap-4 px-4 pt-2 sm:px-8" aria-busy>
         <Skeleton className="h-4 w-40" />
@@ -117,7 +119,7 @@ export function AppDetail() {
     <AppEditor
       key={app.ref}
       app={app}
-      catalog={loaded.data!.catalog}
+      catalog={catalog.data ?? EMPTY_CATALOG}
       otherApps={loaded.data!.apps.filter((a) => a.ref !== app.ref)}
       numbers={loaded.data!.numbers.filter((n) => n.appRef === app.ref)}
       calls={loaded
@@ -137,7 +139,7 @@ function AppEditor({
   calls
 }: {
   app: SessionApp;
-  catalog: Catalog;
+  catalog: AgentCatalog;
   otherApps: SessionApp[];
   numbers: AppNumber[];
   calls: CallRecordSummary[];
@@ -147,6 +149,9 @@ function AppEditor({
   const { workspaceRef } = useParams();
   const base = `/w/${workspaceRef}/apps`;
   const [app, setApp] = useState<Draft>(saved);
+  const [voice, setVoiceState] = useState(() =>
+    voiceValue(saved.speech, catalog)
+  );
   const [dirty, setDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleting, setDeleting] = useState(false);
@@ -175,6 +180,10 @@ function AppEditor({
     setApp((a) => ({ ...a, [key]: value }));
     setDirty(true);
   };
+  const setVoice = (next: VoiceValue) => {
+    setVoiceState(next);
+    setDirty(true);
+  };
 
   // Warn before leaving the page with unsaved changes.
   useEffect(() => {
@@ -186,10 +195,14 @@ function AppEditor({
 
   const save = () => {
     const found = validateApp(app);
+    if (missingVoice(voice)) found.voice = "Pick a voice";
     setErrors(found);
     if (Object.keys(found).length) return;
     const { signingSecretHint: _hint, ...rest } = app;
-    saveApp.mutate(rest, { onSuccess: () => setDirty(false) });
+    saveApp.mutate(
+      { ...rest, speech: withVoice(rest.speech, voice) },
+      { onSuccess: () => setDirty(false) }
+    );
   };
 
   const invalid = Object.keys(errors).length > 0;
@@ -281,9 +294,17 @@ function AppEditor({
           {app.protocol === "fonoster" && (
             <Panel
               title="Speech"
-              description="Optional. Used when your server doesn't pick a voice or model for the call."
+              description="Optional. Used when your server doesn't pick a voice or model for the call. Twilio apps run their own speech and don't show this card."
             >
-              <SpeechFields app={app} set={set} catalog={catalog} />
+              <SpeechFields
+                app={app}
+                set={set}
+                catalog={catalog}
+                loading={false}
+                voice={voice}
+                setVoice={setVoice}
+                voiceError={errors.voice}
+              />
             </Panel>
           )}
           <Panel

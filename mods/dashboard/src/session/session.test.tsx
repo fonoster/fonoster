@@ -22,7 +22,9 @@ import { useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { formatStarted } from "~/calls/format";
 import { toast } from "~/components/ui/sonner";
-import { renderScreen } from "~/test/render";
+import { WorkspaceProvider } from "~/lib/workspace";
+import { fakeAuth, renderScreen } from "~/test/render";
+import { testWorkspace } from "~/test/workspace";
 import { CallsScreen, AppsScreen } from ".";
 import { SessionApiProvider } from "./api";
 
@@ -43,13 +45,33 @@ function render(element: ReactElement, path: string, route: string) {
   };
 }
 
-const apps = (route: string, api = createMockSessionApi()) => ({
+/** A signed-in session whose SDK lists these catalog items (the app page's speech pickers). */
+const withCatalog = (items: unknown[] = []) =>
+  fakeAuth({
+    status: "signedIn",
+    sdk: {
+      ...fakeAuth().sdk,
+      providers: { listCatalog: vi.fn().mockResolvedValue({ items }) }
+    } as never
+  });
+
+const apps = (
+  route: string,
+  api = createMockSessionApi(),
+  catalogItems: unknown[] = []
+) => ({
   api,
   ...renderScreen(
-    <SessionApiProvider value={api}>
-      <AppsScreen />
-    </SessionApiProvider>,
-    { path: "/w/:workspaceRef/apps/*", route }
+    <WorkspaceProvider value={testWorkspace}>
+      <SessionApiProvider value={api}>
+        <AppsScreen />
+      </SessionApiProvider>
+    </WorkspaceProvider>,
+    {
+      path: "/w/:workspaceRef/apps/*",
+      route,
+      auth: withCatalog(catalogItems)
+    }
   )
 });
 
@@ -150,11 +172,17 @@ describe("apps", () => {
       );
     }
     const { user } = renderScreen(
-      <SessionApiProvider value={createMockSessionApi()}>
-        <AppsScreen />
-        <HistoryState />
-      </SessionApiProvider>,
-      { path: "/w/:workspaceRef/apps/*", route: "/w/ws-1/apps" }
+      <WorkspaceProvider value={testWorkspace}>
+        <SessionApiProvider value={createMockSessionApi()}>
+          <AppsScreen />
+          <HistoryState />
+        </SessionApiProvider>
+      </WorkspaceProvider>,
+      {
+        path: "/w/:workspaceRef/apps/*",
+        route: "/w/ws-1/apps",
+        auth: withCatalog()
+      }
     );
     await user.click(await screen.findByRole("button", { name: /Create app/ }));
     const create = await screen.findByRole("dialog", { name: "New app" });
@@ -252,7 +280,7 @@ describe("apps", () => {
     );
   });
 
-  it("shows speech settings only for Fonoster apps, provider first", async () => {
+  it("shows speech settings only for Fonoster apps, voice and transcriber rows", async () => {
     const { user } = apps("/w/ws-1/apps/pipecat-bot");
     // pipecat-bot speaks Twilio: its own server does speech.
     expect(
@@ -262,8 +290,12 @@ describe("apps", () => {
     await user.click(screen.getByLabelText("Protocol"));
     await user.click(await screen.findByRole("option", { name: "Fonoster" }));
     const speech = await screen.findByRole("region", { name: "Speech" });
-    expect(within(speech).getByLabelText("Voice provider")).toBeInTheDocument();
-    expect(within(speech).getByLabelText("Model provider")).toBeInTheDocument();
+    expect(
+      within(speech).getByRole("button", { name: /^Voice/ })
+    ).toBeInTheDocument();
+    expect(
+      within(speech).getByRole("button", { name: /^Transcriber/ })
+    ).toBeInTheDocument();
   });
 
   it("shows the numbers that reach an app and its recent calls", async () => {

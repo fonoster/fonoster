@@ -1,11 +1,10 @@
-diff --git a/mods/dashboard/src/agents/tabs/configure-tab.tsx b/mods/dashboard/src/agents/tabs/configure-tab.tsx
-index 751efaf05..087e2d3c1 100644
---- a/mods/dashboard/src/agents/tabs/configure-tab.tsx
-+++ b/mods/dashboard/src/agents/tabs/configure-tab.tsx
-@@ -151,7 +151,7 @@ function PickerRow({
+diff --git a/mods/dashboard/src/agents/speech-pickers.tsx b/mods/dashboard/src/agents/speech-pickers.tsx
+--- a/mods/dashboard/src/agents/speech-pickers.tsx
++++ b/mods/dashboard/src/agents/speech-pickers.tsx
+@@ -71,7 +71,7 @@ const voiceCount = (n: number) => `${n} ${n === 1 ? "voice" : "voices"}`;
  
  /** Keeps a saved value the workspace can no longer pick, marked as such. */
- function withUnavailable(options: SelectOption[], value: string) {
+ export function withUnavailable(options: SelectOption[], value: string) {
 -  return value && !options.some((o) => o.value === value)
 +  return false && !options.some((o) => o.value === value)
      ? [{ value, label: `${value} (unavailable)` }, ...options]

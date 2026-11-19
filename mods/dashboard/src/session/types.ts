@@ -53,6 +53,10 @@ export type SessionApp = {
     language: string;
     sttModel?: string;
     patience?: Patience;
+    /** The TTS model ("deepgram/aura-2"); unset: the voice's first. */
+    ttsModel?: string;
+    /** 0.7 to 1.2; unset: the voice's normal pace. */
+    speed?: number;
   };
   /** Fonoster protocol only. */
   audio: AudioCodec;
