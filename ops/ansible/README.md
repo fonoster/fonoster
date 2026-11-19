@@ -111,8 +111,8 @@ routr_tls_digitalocean_token: "{{ vault_digitalocean_token }}"   # vault.yml
   write the same files (`certbot delete --cert-name <name>` and the hook under
   `/etc/letsencrypt/renewal-hooks/deploy/`, or list the hook in `certbot_retired_hooks`), or its
   next renewal overwrites the wildcard.
-- A changed `routr_tls_domains` is not reissued by the play once lego has a certificate: run
-  `/usr/local/sbin/fonoster-routr-tls --renew-force` on the host after the apply.
+- Once lego has a certificate, the play doesn't reissue it for a changed `routr_tls_domains`; the
+  next timer run does (lego sees the new names), or now with `systemctl start fonoster-routr-tls`.
 
 ### Removing the old interop watch
 
