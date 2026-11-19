@@ -41,8 +41,19 @@ import { Select } from "~/components/ui/select";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
+import { SPEED, ttsValues, voiceOf } from "~/agents/agent-form";
+import { languageName, summaryOf, type AgentCatalog } from "~/agents/catalog";
+import {
+  formatSpeed,
+  NO_VOICE,
+  PickerRow,
+  ProviderModelPicker,
+  VoicePicker,
+  voiceSummary,
+  withUnavailable,
+  type VoiceValue
+} from "~/agents/speech-pickers";
 import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
-import { compatibleSttModels, compatibleVoices } from "./compat";
 import { CreateAppDialog } from "./create-app-dialog";
 import { MissingKeysWarning } from "./missing-keys";
 import {
@@ -52,7 +63,6 @@ import {
 } from "./noise-cancelling";
 import type {
   AudioCodec,
-  Catalog,
   CatalogEntry,
   CatalogWarning,
   ListenerTrack,
@@ -99,15 +109,6 @@ export const STREAMS_DOCS_URL = `${DOCS_URL}streams/bring-your-app`;
 export function AppTile({ size = "sm" }: { size?: "sm" | "lg" }) {
   return <IconTile icon={Code} size={size} />;
 }
-
-export const EMPTY_CATALOG: Catalog = {
-  voices: [],
-  languages: [],
-  sttModels: [],
-  ttsModels: [],
-  llmModels: [],
-  providers: []
-};
 
 /** An app is any application that isn't an Autopilot agent. */
 export const isApp = (app: Pick<SessionApp, "type">) =>
@@ -399,72 +400,6 @@ export function AppsList({ creating: startCreating = false }) {
   );
 }
 
-/** A catalog picker, or a text box while the catalog has nothing of that kind. */
-function CatalogField({
-  label,
-  hint,
-  value,
-  entries,
-  placeholder,
-  incompatibleHint,
-  choose,
-  onChange
-}: {
-  label: string;
-  hint?: string;
-  value: string;
-  entries: CatalogEntry[];
-  /** The text box's example id when there's no catalog. */
-  placeholder: string;
-  incompatibleHint?: string;
-  /** The select's prompt while nothing is picked. */
-  choose?: string;
-  onChange: (value: string) => void;
-}) {
-  const known = entries.find((e) => e.id === value);
-  return (
-    <Field
-      label={label}
-      hint={
-        known?.state === "deprecated"
-          ? `Deprecated${known.replacement ? `: use ${known.replacement}` : ""}. It will be retired.`
-          : known?.incompatible
-            ? (incompatibleHint ?? "Doesn't fit the other settings.")
-            : hint
-      }
-    >
-      {(p) =>
-        entries.length ? (
-          <Select
-            {...p}
-            value={value}
-            placeholder={choose ?? `Choose a ${label.toLowerCase()}`}
-            options={[
-              ...entries.map((e) => ({
-                value: e.id,
-                label:
-                  e.state === "deprecated"
-                    ? `${e.label} (deprecated)`
-                    : e.incompatible
-                      ? `${e.label} (doesn't fit)`
-                      : e.label
-              }))
-            ]}
-            onValueChange={onChange}
-          />
-        ) : (
-          <Input
-            {...p}
-            placeholder={placeholder}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-          />
-        )
-      }
-    </Field>
-  );
-}
-
 /** A titled group of fields, styled like the other drawers' fieldsets. */
 function Group({
   title,
@@ -574,53 +509,94 @@ export function ConnectionFields({ app, set, errors, columns }: FieldsProps) {
 }
 
 /**
- * Speech for Fonoster-protocol apps, laid out like an agent's Model & voice: the voice's
- * provider and voice, the transcriber's provider and model, then language and patience.
- * Twilio apps bring their own speech, so their pages don't show this.
+ * Speech for Fonoster-protocol apps: the agent's Voice and Transcriber pickers, each with None
+ * first since an app may do its own speech, plus Patience. Twilio apps bring their own speech,
+ * so their pages don't show this.
  */
 export function SpeechFields({
   app,
   set,
-  catalog
-}: Omit<FieldsProps, "errors"> & { catalog: Catalog }) {
+  catalog,
+  loading,
+  voice,
+  setVoice,
+  voiceError
+}: Omit<FieldsProps, "errors"> & {
+  catalog: AgentCatalog;
+  loading: boolean;
+  voice: VoiceValue;
+  setVoice: (voice: VoiceValue) => void;
+  voiceError?: string;
+}) {
+  const { sttModel = "", language, patience } = app.speech;
+  const modelLanguages = (model: string) =>
+    catalog.stt.find((o) => o.id === model)?.languages ?? [];
+  const languages = sttModel
+    ? modelLanguages(sttModel)
+    : catalogLanguages(catalog);
+  const changeModel = (model: string) => {
+    const offered = modelLanguages(model);
+    set("speech", {
+      ...app.speech,
+      sttModel: model || undefined,
+      // Keep the language when the new model speaks it, else its first.
+      language:
+        model && offered.length && !offered.includes(language)
+          ? offered[0]
+          : language
+    });
+  };
+  const meta = [language.toLowerCase(), patience && `${patience} patience`]
+    .filter(Boolean)
+    .join(" · ");
   return (
-    <div className="flex flex-col gap-6">
-      <SpeechGroup title="Voice">
-        <ProviderCatalogField
-          label="Voice"
-          value={app.speech.voice}
-          entries={compatibleVoices(
-            catalog,
-            app.speech.language,
-            app.speech.voice
-          )}
-          providers={catalog.providers}
-          placeholder="deepgram/aura-2-thalia-en"
-          incompatibleHint="This voice doesn't speak the selected language."
-          onChange={(v) => set("speech", { ...app.speech, voice: v })}
+    <div className="flex flex-col gap-3">
+      <PickerRow
+        label="Voice"
+        value={voice.provider ? voiceSummary(catalog, voice) : "None"}
+        meta={voice.provider ? formatSpeed(voice.speed) : undefined}
+      >
+        <VoicePicker
+          catalog={catalog}
+          loading={loading}
+          value={voice}
+          error={voiceError}
+          allowNone
+          onChange={setVoice}
         />
-      </SpeechGroup>
-      <SpeechGroup title="Transcriber">
-        <ProviderCatalogField
+      </PickerRow>
+      <PickerRow
+        label="Transcriber"
+        value={sttModel ? summaryOf(catalog, catalog.stt, sttModel) : "None"}
+        meta={meta || undefined}
+      >
+        <ProviderModelPicker
           label="Model"
-          value={app.speech.sttModel ?? ""}
-          entries={compatibleSttModels(
-            catalog,
-            app.speech.language,
-            app.speech.sttModel
+          catalog={catalog}
+          options={catalog.stt}
+          value={sttModel}
+          allowNone
+          onChange={changeModel}
+        />
+        <Field label="Language">
+          {(p) => (
+            <Select
+              {...p}
+              value={language}
+              placeholder="Choose a language"
+              options={withUnavailable(
+                languages.map((code) => ({
+                  value: code,
+                  label: languageName(code)
+                })),
+                language
+              )}
+              onValueChange={(v) =>
+                set("speech", { ...app.speech, language: v })
+              }
+            />
           )}
-          providers={catalog.providers}
-          placeholder="deepgram/nova-3"
-          incompatibleHint="This model doesn't understand the selected language."
-          onChange={(v) => set("speech", { ...app.speech, sttModel: v })}
-        />
-        <CatalogField
-          label="Language"
-          value={app.speech.language}
-          entries={catalog.languages}
-          placeholder="en-US"
-          onChange={(v) => set("speech", { ...app.speech, language: v })}
-        />
+        </Field>
         <Field
           label="Patience"
           hint="How long Fonoster waits before deciding the caller finished."
@@ -628,7 +604,7 @@ export function SpeechFields({
           {(p) => (
             <Select
               {...p}
-              value={app.speech.patience || "default"}
+              value={patience || "default"}
               options={PATIENCE}
               onValueChange={(v) =>
                 set("speech", {
@@ -639,123 +615,46 @@ export function SpeechFields({
             />
           )}
         </Field>
-      </SpeechGroup>
+      </PickerRow>
     </div>
   );
 }
 
-/** A titled pair of columns inside the Speech card. */
-function SpeechGroup({
-  title,
-  children
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <fieldset className="flex flex-col gap-3">
-      <legend className="mb-3 text-[13px] font-medium text-foreground">
-        {title}
-      </legend>
-      <div className="grid items-start gap-x-4 gap-y-[22px] sm:grid-cols-2">
-        {children}
-      </div>
-    </fieldset>
+/** Every language the catalog names, for an app on the default transcriber. */
+function catalogLanguages(catalog: AgentCatalog): string[] {
+  const all = [catalog.stt, catalog.tts, catalog.voices, catalog.llm].flatMap(
+    (options) => options.flatMap((o) => o.languages)
   );
+  return [...new Set(all)].sort();
 }
 
-/** "deepgram/nova-3" → "deepgram". */
-const providerOf = (id: string) =>
-  id.includes("/") ? id.slice(0, id.indexOf("/")) : "";
-
-/**
- * A provider, then one of its catalog items, as on an agent's page; None (the
- * default) leaves it unset, since an app may do its own speech. Without a catalog
- * it's one text box for the full id.
- */
-function ProviderCatalogField({
-  label,
-  value,
-  entries,
-  providers,
-  placeholder,
-  incompatibleHint,
-  onChange
-}: {
-  label: string;
-  value: string;
-  entries: CatalogEntry[];
-  providers: CatalogEntry[];
-  placeholder: string;
-  incompatibleHint?: string;
-  onChange: (value: string) => void;
-}) {
-  const [provider, setProvider] = useState(providerOf(value));
-  if (!entries.length) {
-    return (
-      <div className="sm:col-span-2">
-        <CatalogField
-          label={label}
-          hint="A catalog id: provider/name."
-          value={value}
-          entries={entries}
-          placeholder={placeholder}
-          onChange={onChange}
-        />
-      </div>
-    );
-  }
-  const ids = [...new Set(entries.map((e) => providerOf(e.id)))].filter(
-    Boolean
-  );
-  // Speech is optional for an app (unlike an agent): None leaves it unset.
-  const options = [
-    { value: NONE, label: "None" },
-    ...(provider && !ids.includes(provider) ? [provider] : []).map((id) => ({
-      value: id,
-      label: `${id} (unavailable)`
-    })),
-    ...ids.map((id) => ({
-      value: id,
-      label: providers.find((p) => p.id === id)?.label || id
-    }))
-  ];
-  return (
-    <>
-      <Field label="Provider">
-        {(p) => (
-          <Select
-            {...p}
-            aria-label={`${label} provider`}
-            value={provider || NONE}
-            options={options}
-            onValueChange={(next) => {
-              const chosen = next === NONE ? "" : next;
-              setProvider(chosen);
-              onChange(
-                chosen
-                  ? (entries.find((e) => providerOf(e.id) === chosen)?.id ?? "")
-                  : ""
-              );
-            }}
-          />
-        )}
-      </Field>
-      {provider ? (
-        <CatalogField
-          label={label}
-          value={value}
-          entries={entries.filter((e) => providerOf(e.id) === provider)}
-          placeholder={placeholder}
-          incompatibleHint={incompatibleHint}
-          onChange={onChange}
-        />
-      ) : (
-        <span aria-hidden className="hidden sm:block" />
-      )}
-    </>
-  );
+/** The voice row for a saved app: None without a voice, else read as an agent's (ttsValues). */
+export function voiceValue(
+  speech: Draft["speech"],
+  catalog: AgentCatalog
+): VoiceValue {
+  return speech.voice ? ttsValues(speech, catalog) : NO_VOICE;
 }
+
+/** The speech to save with the voice row's values; None clears the voice, model and speed. */
+export function withVoice(
+  speech: Draft["speech"],
+  tts: VoiceValue
+): Draft["speech"] {
+  if (!tts.provider)
+    return { ...speech, voice: "", ttsModel: undefined, speed: undefined };
+  return {
+    ...speech,
+    voice: voiceOf(tts),
+    ttsModel: tts.model || undefined,
+    // 1.0× is the voice's normal pace: saved as unset.
+    speed: tts.speed === SPEED.normal ? undefined : tts.speed
+  };
+}
+
+/** A vendor with neither a picked voice nor a typed ID, as on an agent's page. */
+export const missingVoice = (tts: VoiceValue) =>
+  Boolean(tts.provider && !tts.voice && !tts.voiceId.trim());
 
 /**
  * Fallback, listeners, recording, noise cancelling and answering-machine detection. Agents set

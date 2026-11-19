@@ -267,7 +267,10 @@ function toolToValues(raw: unknown): ToolValues {
  * The voice row's values for a saved voice. With the catalog, a voice it doesn't offer shows as a
  * typed voice ID; the model is the saved one, else the voice's first.
  */
-function ttsValues(speech: Json, catalog?: AgentCatalog): AgentValues["tts"] {
+export function ttsValues(
+  speech: Json,
+  catalog?: AgentCatalog
+): AgentValues["tts"] {
   const voice = str(speech.voice) || DEFAULT_VOICE;
   const model =
     str(speech.ttsModel) || (catalog ? firstModelOf(catalog, voice) : "");
@@ -283,7 +286,7 @@ function ttsValues(speech: Json, catalog?: AgentCatalog): AgentValues["tts"] {
 }
 
 /** The voice to save: the typed ID (with its provider) or the list's voice. */
-function voiceOf(tts: AgentValues["tts"]): string {
+export function voiceOf(tts: AgentValues["tts"]): string {
   const id = tts.voiceId.trim();
   if (!id) return tts.voice;
   return tts.provider ? `${tts.provider}/${id}` : id;

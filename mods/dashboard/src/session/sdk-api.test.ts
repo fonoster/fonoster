@@ -559,4 +559,55 @@ describe("SDK adapter saves", () => {
       speech: { ttsModel: "deepgram/aura-2", silenceTimeoutMs: 9000 }
     });
   });
+
+  const streamApp = {
+    ...agent,
+    ref: "st-2",
+    type: "STREAM",
+    url: "wss://bot.example.com",
+    intelligence: undefined,
+    speech: {
+      voice: "deepgram/flux-fernanda-es",
+      ttsModel: "deepgram/aura-2",
+      speed: 1.1,
+      language: "es-MX"
+    }
+  } as unknown as Application;
+
+  it("an app's TTS model and speed are read and sent", async () => {
+    const draft = toSessionApp(streamApp);
+    expect(draft.speech).toMatchObject({
+      ttsModel: "deepgram/aura-2",
+      speed: 1.1
+    });
+    const { api, updateApplication } = fakeSdk(streamApp);
+    const { signingSecretHint: _h, ...edit } = draft;
+    await api.saveApp({
+      ...edit,
+      speech: { ...edit.speech, ttsModel: "deepgram/flux", speed: 0.9 }
+    });
+    expect(updateApplication.mock.calls[0][0].speech).toMatchObject({
+      ttsModel: "deepgram/flux",
+      speed: 0.9
+    });
+  });
+
+  it("an app's cleared voice, TTS model and speed clear the saved ones", async () => {
+    const { api, updateApplication } = fakeSdk(streamApp);
+    const { signingSecretHint: _h, ...edit } = toSessionApp(streamApp);
+    await api.saveApp({
+      ...edit,
+      speech: {
+        ...edit.speech,
+        voice: "",
+        ttsModel: undefined,
+        speed: undefined
+      }
+    });
+    const { speech } = updateApplication.mock.calls[0][0];
+    expect(speech.voice).toBeUndefined();
+    expect(speech.ttsModel).toBeUndefined();
+    expect(speech.speed).toBeUndefined();
+    expect(speech.language).toBe("es-MX");
+  });
 });

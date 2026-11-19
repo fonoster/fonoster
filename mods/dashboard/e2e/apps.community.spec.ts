@@ -183,8 +183,12 @@ async function savedIt(page: Page) {
 }
 
 async function choose(page: Page, label: string, option: string) {
-  await page.getByRole("combobox", { name: label }).click();
+  const select = page.getByRole("combobox", { name: label });
+  await select.click();
   await page.getByRole("option", { name: option, exact: true }).click();
+  // The select hands focus back to its trigger as it closes; wait for that, so a key pressed
+  // next goes where the test puts focus instead of reopening this select.
+  await expect(select).toBeFocused();
 }
 
 test("[DSH-029] creates an app, shows its secret once, saves its recording policy, rotates the secret and deletes it", async ({
