@@ -38,6 +38,8 @@ New releases are listed newest first. For releases up to 0.27, see the
 
 ## Telephony
 
+- **Linking a Twilio number now turns on Twilio Secure Trunking (TLS and SRTP).** Link existing
+  numbers again to move them. See [Link a Twilio number](/telephony/link-twilio#what-linking-sets-up).
 - **Recording is set only on the application, `off` or `on`.** `consent` and its prompt are gone,
   and there is no workspace or install default. Applications left on **Workspace default** are no
   longer recorded: set recording to on for each application that needs it. See
@@ -108,6 +110,8 @@ New releases are listed newest first. For releases up to 0.27, see the
 
 ## Self-hosting
 
+- Linking Twilio numbers needs SIP over TLS on `5061`. See
+  [SIP over TLS](/self-hosting/https#sip-over-tls).
 - `fonoster-registry sync-voices deepgram|elevenlabs -f <file>` writes a vendor's voices into a
   catalog file, for the vendor's text-to-speech models already in it. Review the change, then
   `plan` and `apply` it.

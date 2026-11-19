@@ -54,6 +54,8 @@ const NO_TRUNK_KEY = {
 const NUMBER = "+18095550123";
 const VOICE_URL = "https://demo.twilio.com/welcome/voice/";
 const LABEL = "wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3";
+const UDP_ORIGINATION = `sip:${LABEL}.pstn.fonoster.ai`;
+const TLS_ORIGINATION = `${UDP_ORIGINATION};transport=tls`;
 
 const authToken: TwilioCredentials = {
   accountSid: ACCOUNT_SID,
@@ -76,7 +78,7 @@ const params = (
 ) => ({
   phoneNumber: NUMBER,
   label: LABEL,
-  originationUri: `sip:${LABEL}.pstn.fonoster.com`,
+  originationUri: TLS_ORIGINATION,
   aclEntries: ["203.0.113.10/32"],
   sipCredential
 });
@@ -104,6 +106,7 @@ async function link(
 function expectOneCompleteLink(account: Account, usernames: string[]) {
   expect(account.trunks).to.have.length(1);
   const [trunk] = account.trunks;
+  expect(trunk.secure).to.equal(true);
   expect(trunk.friendlyName).to.equal(`Trunk-${LABEL}`);
   expect(trunk.domainName).to.equal(`${LABEL}.pstn.twilio.com`);
   expect(account.numbers[0].trunkSid).to.equal(trunk.sid);
@@ -118,7 +121,7 @@ function expectOneCompleteLink(account: Account, usernames: string[]) {
 
   expect(trunk.originationUrls).to.have.length(1);
   expect(trunk.originationUrls[0]).to.include({
-    sipUrl: `sip:${LABEL}.pstn.fonoster.com`,
+    sipUrl: TLS_ORIGINATION,
     priority: 10,
     weight: 10
   });
@@ -297,7 +300,7 @@ describe("@common[twilio/provisionTwilioTrunk]", function () {
         {
           sid: "OU00000000000000000000000000000001",
           friendlyName: `Origination-${LABEL}`,
-          sipUrl: `sip:${LABEL}.pstn.fonoster.com`,
+          sipUrl: UDP_ORIGINATION,
           priority: 10,
           weight: 10,
           enabled: true
@@ -443,5 +446,95 @@ describe("@common[twilio/provisionTwilioTrunk]", function () {
     expect(
       account.trunks.filter((t) => t.domainName.startsWith(LABEL))
     ).to.have.length(1);
+  });
+
+  it("creates the trunk with Secure Trunking and a TLS origination URL", async function () {
+    // Act
+    await link(fake, authToken);
+
+    // Assert
+    expect(account.trunks).to.have.length(1);
+    const [trunk] = account.trunks;
+    expect(trunk.secure).to.equal(true);
+    expect(trunk.originationUrls).to.have.length(1);
+    expect(trunk.originationUrls[0]).to.include({
+      friendlyName: `Origination-${LABEL}`,
+      sipUrl: TLS_ORIGINATION,
+      priority: 10,
+      weight: 10,
+      enabled: true
+    });
+  });
+
+  it("turns on Secure Trunking and replaces the UDP origination on a trunk an earlier link made", async function () {
+    // Arrange: what a link before Secure Trunking left
+    account.trunks.push({
+      sid: "TK00000000000000000000000000000001",
+      friendlyName: `Trunk-${LABEL}`,
+      domainName: `${LABEL}.pstn.twilio.com`,
+      secure: false,
+      aclSids: [],
+      credentialListSids: [],
+      originationUrls: [
+        {
+          sid: "OU00000000000000000000000000000001",
+          friendlyName: `Origination-${LABEL}`,
+          sipUrl: UDP_ORIGINATION,
+          priority: 10,
+          weight: 10,
+          enabled: true
+        }
+      ]
+    });
+    account.numbers[0].trunkSid = "TK00000000000000000000000000000001";
+
+    // Act
+    const result = await link(fake, authToken);
+
+    // Assert
+    expect(result.twilioTrunkSid).to.equal(
+      "TK00000000000000000000000000000001"
+    );
+    expectOneCompleteLink(account, ["fonoster-3f9a1c2b"]);
+    const created = fake.requests.findIndex(
+      (r) =>
+        r.method.toLowerCase() === "post" && r.uri.endsWith("/OriginationUrls")
+    );
+    const removed = fake.requests.findIndex(
+      (r) =>
+        r.method.toLowerCase() === "delete" &&
+        r.uri.endsWith("/OriginationUrls/OU00000000000000000000000000000001")
+    );
+    expect(created).to.be.greaterThan(-1);
+    expect(removed).to.be.greaterThan(created);
+  });
+
+  it("changes nothing on a re-run of a Secure Trunking link", async function () {
+    // Arrange
+    await link(fake, authToken);
+    const [trunk] = account.trunks;
+    const urlSid = trunk.originationUrls[0].sid;
+    const before = fake.requests.length;
+
+    // Act
+    await link(fake, authToken);
+
+    // Assert
+    expect(account.trunks).to.have.length(1);
+    expect(account.trunks[0].sid).to.equal(trunk.sid);
+    expect(account.trunks[0].secure).to.equal(true);
+    expect(account.trunks[0].originationUrls.map((o) => o.sid)).to.deep.equal([
+      urlSid
+    ]);
+    const trunkWrites = fake.requests
+      .slice(before)
+      .filter(
+        (r) =>
+          r.method.toLowerCase() !== "get" &&
+          /trunking\.twilio\.com\/v1\/Trunks(\/[A-Za-z0-9]+)?(\/OriginationUrls.*)?$/.test(
+            r.uri
+          )
+      );
+    expect(trunkWrites).to.deep.equal([]);
   });
 });

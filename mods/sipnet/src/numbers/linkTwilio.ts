@@ -48,12 +48,20 @@ import {
   convertToRoutrNumberUpdate
 } from "./convertToRoutrNumber";
 import { NumberRouting } from "./engineRouting";
-import { findOwned, generatePassword } from "./linkShared";
+import {
+  findOwned,
+  generatePassword,
+  isTlsHostname,
+  SipEndpoint
+} from "./linkShared";
 import { twilioLinkErrorToGrpc } from "./twilioLinkErrorToGrpc";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 const TWILIO_PSTN_URI_BASE = "pstn.twilio.com";
+
+/** Secure Trunking: Twilio takes SIP over TLS on 5061 and SRTP (SDES) only. */
+const TWILIO_TLS_URI = { port: 5061, transport: Transport.TLS };
 type TwilioLink = {
   provisionTwilioTrunk: typeof provisionTwilioTrunk;
   assignTwilioNumberToTrunk: typeof assignTwilioNumberToTrunk;
@@ -71,6 +79,8 @@ type LinkTwilioDeps = {
   pstnRoot: string;
   /** The install's public signaling addresses; only IPv4 literals are allowed in Twilio. */
   signalingAddresses: string[];
+  /** The install's public SIP endpoints; Twilio sends calls to the TLS one. */
+  sipEndpoints: SipEndpoint[];
   twilio?: TwilioLink;
 };
 
@@ -92,6 +102,7 @@ function linkTwilio(deps: LinkTwilioDeps) {
     routing,
     checkRefs,
     pstnRoot,
+    sipEndpoints,
     twilio = {
       provisionTwilioTrunk,
       assignTwilioNumberToTrunk,
@@ -142,6 +153,15 @@ function linkTwilio(deps: LinkTwilioDeps) {
     }
     await checkRefs?.(accessKeyId, numberRefs(request));
 
+    if (!sipEndpoints.some(isTlsHostname)) {
+      callback({
+        code: status.FAILED_PRECONDITION,
+        message:
+          "This install has no public SIP over TLS address for Twilio to send calls to"
+      });
+      return;
+    }
+
     if (aclEntries.length === 0) {
       callback({
         code: status.FAILED_PRECONDITION,
@@ -162,7 +182,8 @@ function linkTwilio(deps: LinkTwilioDeps) {
         {
           phoneNumber,
           label,
-          originationUri: `sip:${inboundUri}`,
+          // `sips:` isn't supported; Twilio uses 5061 for `transport=tls`
+          originationUri: `sip:${inboundUri};transport=tls`,
           aclEntries,
           sipCredential
         }
@@ -184,11 +205,22 @@ function linkTwilio(deps: LinkTwilioDeps) {
       (t) => t.inboundUri === inboundUri
     );
 
+    // A re-link also moves a trunk an earlier link put on UDP 5060
+    const uris = [
+      {
+        host: `${label}.${TWILIO_PSTN_URI_BASE}`,
+        ...TWILIO_TLS_URI,
+        enabled: true,
+        weight: 10,
+        priority: 10
+      }
+    ];
+
     let trunkRef: string;
     if (trunk) {
       await trunks.updateTrunk(
         mergeTrunkUpdate(
-          { ref: trunk.ref, outboundCredentialsRef: credentialsRef },
+          { ref: trunk.ref, outboundCredentialsRef: credentialsRef, uris },
           trunk
         )
       );
@@ -199,16 +231,7 @@ function linkTwilio(deps: LinkTwilioDeps) {
         inboundUri,
         sendRegister: false,
         outboundCredentialsRef: credentialsRef,
-        uris: [
-          {
-            host: `${label}.${TWILIO_PSTN_URI_BASE}`,
-            port: 5060,
-            transport: Transport.UDP,
-            enabled: true,
-            weight: 10,
-            priority: 10
-          }
-        ],
+        uris,
         extended: { accessKeyId }
       } as CreateTrunkRequestExtended));
     }
