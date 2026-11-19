@@ -192,13 +192,17 @@ class Numbers {
    * @param {string} request.name - The name of the Number
    * @param {string[]} request.aliases - Replaces the Number's aliases; an empty list keeps them
    * @param {boolean} request.clearAliases - Removes every alias; wins over aliases
+   * @param {string} request.trunkRef - The Trunk of the Number. Send "" to remove it; leave it out to keep it.
+   * @param {string} request.appRef - The Application that answers the Number (or agentAor). "" in either removes the route; leaving both out keeps it.
+   * @param {string} request.agentAor - The SIP agent that answers the Number (or appRef)
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Number
    * @example
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
-   *   name: "My Number"
+   *   name: "My Number",
+   *   trunkRef: "" // no Trunk
    * };
    *
    * numbers

@@ -41,8 +41,7 @@ import {
   useUpdateDomain,
   type DomainRow
 } from "./domains.service";
-
-const NONE = "__none";
+import { NONE, refField } from "~/lib/refs";
 
 function isRegex(value: string) {
   try {
@@ -163,8 +162,13 @@ export function DomainDrawer({
       await update.mutateAsync({
         ref: domain.ref,
         name: values.name,
-        // An empty ref asks the API to drop the ACL.
-        accessControlListRef: aclRef ?? "",
+        // Sent only when it changed: "" removes the ACL, absent keeps it.
+        ...refField(
+          "accessControlListRef",
+          aclRef,
+          domain.accessControlList?.ref ||
+            (domain as { accessControlListRef?: string }).accessControlListRef
+        ),
         egressPolicies
       });
     } else {

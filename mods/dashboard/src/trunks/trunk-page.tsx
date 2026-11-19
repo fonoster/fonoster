@@ -51,6 +51,7 @@ import { OutboundUris } from "./outbound-uris";
 import {
   NONE,
   offersNumberFormats,
+  refUpdates,
   toRequest,
   toValues,
   trunkSchema,
@@ -296,7 +297,11 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
     const request = toRequest(values);
     try {
       if (trunk) {
-        await update.mutateAsync({ ref: trunk.ref, ...request });
+        await update.mutateAsync({
+          ref: trunk.ref,
+          ...request,
+          ...refUpdates(values, trunk)
+        });
       } else {
         const created = await create.mutateAsync(request);
         navigate(`../${created.ref}`, { relative: "path", replace: true });

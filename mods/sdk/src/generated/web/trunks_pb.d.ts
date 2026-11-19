@@ -277,12 +277,18 @@ export class UpdateTrunkRequest extends jspb.Message {
 
   getAccessControlListRef(): string;
   setAccessControlListRef(value: string): UpdateTrunkRequest;
+  hasAccessControlListRef(): boolean;
+  clearAccessControlListRef(): UpdateTrunkRequest;
 
   getInboundCredentialsRef(): string;
   setInboundCredentialsRef(value: string): UpdateTrunkRequest;
+  hasInboundCredentialsRef(): boolean;
+  clearInboundCredentialsRef(): UpdateTrunkRequest;
 
   getOutboundCredentialsRef(): string;
   setOutboundCredentialsRef(value: string): UpdateTrunkRequest;
+  hasOutboundCredentialsRef(): boolean;
+  clearOutboundCredentialsRef(): UpdateTrunkRequest;
 
   getUrisList(): Array<TrunkURI>;
   setUrisList(value: Array<TrunkURI>): UpdateTrunkRequest;
@@ -323,14 +329,29 @@ export namespace UpdateTrunkRequest {
     name: string,
     sendRegister: boolean,
     inboundUri: string,
-    accessControlListRef: string,
-    inboundCredentialsRef: string,
-    outboundCredentialsRef: string,
+    accessControlListRef?: string,
+    inboundCredentialsRef?: string,
+    outboundCredentialsRef?: string,
     urisList: Array<TrunkURI.AsObject>,
     calledNumberFormat?: NumberFormat,
     calledNumberPrefix?: string,
     callerNumberFormat?: NumberFormat,
     callerNumberPrefix?: string,
+  }
+
+  export enum AccessControlListRefCase { 
+    _ACCESS_CONTROL_LIST_REF_NOT_SET = 0,
+    ACCESS_CONTROL_LIST_REF = 5,
+  }
+
+  export enum InboundCredentialsRefCase { 
+    _INBOUND_CREDENTIALS_REF_NOT_SET = 0,
+    INBOUND_CREDENTIALS_REF = 6,
+  }
+
+  export enum OutboundCredentialsRefCase { 
+    _OUTBOUND_CREDENTIALS_REF_NOT_SET = 0,
+    OUTBOUND_CREDENTIALS_REF = 7,
   }
 
   export enum CalledNumberFormatCase { 

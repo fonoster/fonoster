@@ -22,6 +22,7 @@ import { confirm, input, number, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
+import { refChange } from "../../../utils/refChange";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "add a new SIP Agent to the network";
@@ -102,7 +103,15 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     }
 
     try {
-      await agents.updateAgent(answers as unknown as UpdateAgentRequest);
+      // A ref is sent only when it changed: "" removes it, absent keeps it
+      await agents.updateAgent({
+        ...answers,
+        domainRef: refChange(answers.domainRef, agentFromDB.domain?.ref),
+        credentialsRef: refChange(
+          answers.credentialsRef,
+          agentFromDB.credentials?.ref
+        )
+      } as unknown as UpdateAgentRequest);
       this.log("Done!");
     } catch (e) {
       errorHandler(e, this.error.bind(this));

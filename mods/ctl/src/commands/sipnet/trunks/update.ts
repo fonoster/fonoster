@@ -23,6 +23,7 @@ import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 import { askNumberFormats } from "../../../utils/numberFormatQuestions";
+import { refChange } from "../../../utils/refChange";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "modify the configuration of a Trunk";
@@ -141,12 +142,30 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     }
 
     try {
+      // A ref is sent only when it changed: "" removes it, absent keeps it
+      const outbound = outboundAnswers as { outboundCredentialsRef?: string };
       await trunks.updateTrunk({
         ref,
         name,
         sendRegister: true,
         ...inboundAnswers,
         ...outboundAnswers,
+        accessControlListRef: refChange(
+          inboundAnswers.accessControlListRef,
+          trunkFromDB.accessControlListRef
+        ),
+        inboundCredentialsRef: refChange(
+          inboundAnswers.inboundCredentialsRef,
+          trunkFromDB.inboundCredentialsRef
+        ),
+        ...("outboundCredentialsRef" in outbound
+          ? {
+              outboundCredentialsRef: refChange(
+                outbound.outboundCredentialsRef,
+                trunkFromDB.outboundCredentialsRef
+              )
+            }
+          : {}),
         ...numberFormats
       } as unknown as UpdateTrunkRequest);
 

@@ -152,7 +152,8 @@ A number sends every call to one destination:
 | Stream | Fonoster opens a WebSocket to your server. | `appRef`: the stream's ref |
 | SIP agent | The softphone or desk phone signed in as that SIP agent rings. | `agentAor`: the SIP agent's address, such as `sip:maria@acme.sip.fonoster.com` |
 
-Set `appRef` or `agentAor`, not both. A number with neither doesn't take calls.
+Set `appRef` or `agentAor`, not both. A number with neither doesn't take calls, which is fine for a
+number that only places calls: an outbound call names its app (`appRef`) when you make it.
 
 One agent or stream can answer as many numbers as you like. To move a number to a different
 destination, change it on the number:
@@ -180,8 +181,11 @@ destination, change it on the number:
 </Tabs>
 
 You can change a number's name, trunk, aliases and destination. With the SDK, `aliases` replaces
-the number's aliases and `clearAliases: true` removes them all; an update without either keeps them. To change the number itself, its city or
-its country, remove it and add it again.
+the number's aliases and `clearAliases: true` removes them all; an update without either keeps them.
+To take a number off its trunk or remove its destination, choose **None** in the dashboard or the
+CLI, or send an empty string with the SDK: `trunkRef: ""`, or `appRef: ""` for the destination. A field
+you leave out keeps its value. To change the number itself, its city or its country, remove it and add
+it again.
 
 ## Check it
 

@@ -40,8 +40,7 @@ import {
   useUpdateSipAgent,
   type SipAgentRow
 } from "./sip-agents.service";
-
-const NONE = "__none";
+import { NONE, refField } from "~/lib/refs";
 
 // Same rules as the API (common/src/validators/sipnet/agents.ts).
 export const sipAgentSchema = z.object({
@@ -54,7 +53,7 @@ export const sipAgentSchema = z.object({
       /^[a-z0-9._-]+$/,
       "Lowercase letters, numbers, dots, underscores and hyphens only"
     ),
-  domainRef: z.string().min(1, "Pick a domain"),
+  domainRef: z.string(),
   credentialsRef: z.string(),
   privacy: z.enum(["NONE", "PRIVATE"]),
   maxContacts: z
@@ -97,7 +96,7 @@ export function SipAgentDrawer({
     defaultValues: {
       name: "",
       username: "",
-      domainRef: "",
+      domainRef: NONE,
       credentialsRef: NONE,
       privacy: "NONE",
       maxContacts: "1",
@@ -111,7 +110,7 @@ export function SipAgentDrawer({
     form.reset({
       name: sipAgent?.name ?? "",
       username: sipAgent?.username ?? "",
-      domainRef: sipAgent?.domain?.ref ?? "",
+      domainRef: sipAgent?.domain?.ref ?? NONE,
       credentialsRef: sipAgent?.credentials?.ref ?? NONE,
       privacy: sipAgent?.privacy ?? "NONE",
       maxContacts: String(sipAgent?.maxContacts ?? 1),
@@ -123,11 +122,14 @@ export function SipAgentDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, sipAgent?.ref]);
 
-  const domainOptions = domains.rows.map((domain) => ({
-    value: domain.ref,
-    label: domain.domainUri,
-    description: domain.name
-  }));
+  const domainOptions = [
+    { value: NONE, label: "None" },
+    ...domains.rows.map((domain) => ({
+      value: domain.ref,
+      label: domain.domainUri,
+      description: domain.name
+    }))
+  ];
   const credentialOptions = [
     { value: NONE, label: "None" },
     ...credentials.items.map((item) => ({
@@ -140,26 +142,31 @@ export function SipAgentDrawer({
   const onSubmit = form.handleSubmit(async (values) => {
     const common = {
       name: values.name,
-      domainRef: values.domainRef,
       privacy: asPrivacy(values.privacy),
       maxContacts: Number(values.maxContacts),
       enabled: values.enabled
     };
-    const credentialsRef =
-      values.credentialsRef === NONE ? undefined : values.credentialsRef;
     if (sipAgent) {
       await update.mutateAsync({
         ref: sipAgent.ref,
         ...common,
-        // An empty ref asks the API to drop the credentials.
-        credentialsRef: credentialsRef ?? ""
+        // A ref is sent only when it changed: "" removes it, absent keeps it.
+        ...refField("domainRef", values.domainRef, sipAgent.domain?.ref),
+        ...refField(
+          "credentialsRef",
+          values.credentialsRef,
+          sipAgent.credentials?.ref
+        )
       });
     } else {
       await create.mutateAsync({
         ...common,
         username: values.username,
         expires: DEFAULT_EXPIRES,
-        ...(credentialsRef ? { credentialsRef } : {})
+        ...(values.domainRef !== NONE ? { domainRef: values.domainRef } : {}),
+        ...(values.credentialsRef !== NONE
+          ? { credentialsRef: values.credentialsRef }
+          : {})
       });
     }
     onOpenChange(false);
@@ -246,7 +253,7 @@ export function SipAgentDrawer({
             label="Domain"
             error={errors.domainRef?.message}
             hint={
-              domains.isSuccess && domainOptions.length === 0
+              domains.isSuccess && domains.rows.length === 0
                 ? "Add a domain first."
                 : undefined
             }

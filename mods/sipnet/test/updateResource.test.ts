@@ -73,6 +73,42 @@ describe("@sipnet[resources/updateResource]", function () {
     expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
   });
 
+  it("sends an empty ref to Routr, unchecked, to remove it", async function () {
+    // Arrange
+    const { updateResource } = await import("../src/resources/updateResource");
+    const { createCheckRefs, domainRefs, refsChecker } = await import(
+      "../src/resources/checkRefs"
+    );
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
+    const domains = {
+      updateDomain: sandbox.stub().resolves({ ref: "123" }),
+      getDomain: getExtendedFieldsHelper(sandbox)
+    } as unknown as DomainsApi;
+    const getAcl = sandbox.stub().rejects(new Error("no lookup for an empty ref"));
+    const update = updateResource<Domain, UpdateDomainRequest, DomainsApi>(
+      domains,
+      "Domain",
+      V.updateDomainRequestSchema,
+      refsChecker(createCheckRefs({ Acl: getAcl }), domainRefs)
+    );
+    const callback = sandbox.stub();
+
+    // Act
+    await update(
+      { metadata, request: { ref: "123", accessControlListRef: "" } },
+      callback
+    );
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
+    expect(getAcl).to.not.have.been.called;
+    expect(
+      (domains.updateDomain as sinon.SinonStub).firstCall.args[0]
+    ).to.include({ accessControlListRef: "" });
+  });
+
   it("should throw an error if the sipnet resource doesn't exists", async function () {
     // Arrange
     const { updateResource } = await import("../src/resources/updateResource");

@@ -75,7 +75,6 @@ const schema = z
         "phoneNumber",
         "Enter the number in E.164 format, e.g. +18095550100"
       );
-    if (!values.route) fail("route", "Choose where calls go.");
     if (!values.accountSid.startsWith("AC"))
       fail("accountSid", "Enter an Account SID that starts with AC.");
     if (values.credentialKind === "apiKey") {
@@ -132,7 +131,7 @@ function inWorkspaceWarning(
   ]
     .filter(Boolean)
     .join(" ");
-  return `This number is in your workspace${where ? `, ${where}` : ""}. Linking moves it to Twilio Trunk and the route you choose.`;
+  return `This number is in your workspace${where ? `, ${where}` : ""}. Linking moves it to Twilio Trunk. A route you choose replaces its current one.`;
 }
 
 /** Hide the secret boxes from browsers' and password managers' autofill. */
@@ -205,11 +204,15 @@ export function LinkTwilioDrawer({
 
   const onSubmit = form.handleSubmit(async (values) => {
     setFailure(undefined);
-    const route = values.route!;
+    const route = values.route;
     const telUrl = toTelUrl(toE164(values.phoneNumber)!);
     const request: LinkTwilioRequest = {
       phoneNumber: telUrl.slice(4),
-      ...(route.kind === "sip" ? { agentAor: route.to } : { appRef: route.to }),
+      ...(route
+        ? route.kind === "sip"
+          ? { agentAor: route.to }
+          : { appRef: route.to }
+        : {}),
       credentials:
         values.credentialKind === "apiKey"
           ? {
@@ -226,7 +229,9 @@ export function LinkTwilioDrawer({
       return;
     }
     toast.success(
-      `${formatNumber(telUrl)} linked. Calls now go to ${nameRoute(route)}.`
+      route
+        ? `${formatNumber(telUrl)} linked. Calls now go to ${nameRoute(route)}.`
+        : `${formatNumber(telUrl)} linked.`
     );
     onOpenChange(false);
   });
@@ -333,14 +338,6 @@ export function LinkTwilioDrawer({
                   />
                 )}
               />
-              {errors.route?.message && (
-                <p
-                  role="alert"
-                  className="font-display text-[11px] text-destructive"
-                >
-                  {errors.route.message}
-                </p>
-              )}
             </div>
             <Field
               label="Twilio Account SID"

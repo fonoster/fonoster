@@ -513,6 +513,34 @@ describe("@sipnet[sipnet/linkWhatsApp]", function () {
     );
   });
 
+  it("keeps the route of a number already in the workspace when no route is given", async function () {
+    // Arrange
+    const { numbers, invoke } = await setup({
+      numbers: [
+        {
+          ref: "number-existing",
+          name: "Old name",
+          telUrl: TEL_URL,
+          aorLink: ROUTR_DEFAULT_PEER_AOR,
+          extraHeaders: [{ name: APP_REF_HEADER, value: APP_REF }],
+          extended: owned
+        }
+      ]
+    });
+
+    // Act
+    await invoke({ appRef: undefined });
+
+    // Assert
+    const sent = numbers.updateNumber.firstCall.args[0];
+    expect(sent).to.not.have.property("aorLink");
+    expect(sent).to.not.have.property("clearExtraHeaders");
+    expect(numbers.store.get("number-existing")).to.deep.include({
+      aorLink: ROUTR_DEFAULT_PEER_AOR,
+      extraHeaders: [{ name: APP_REF_HEADER, value: APP_REF }]
+    });
+  });
+
   it("refuses a number another workspace already linked, before any write", async function () {
     // Arrange
     const { numbers, trunks, credentials, invoke } = await setup({

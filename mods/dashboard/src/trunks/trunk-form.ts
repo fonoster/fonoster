@@ -23,6 +23,7 @@ import type {
   Trunk
 } from "@fonoster/types";
 import { z } from "zod";
+import { refUpdate } from "~/lib/refs";
 
 type TrunkURI = NonNullable<CreateTrunkRequest["uris"]>[number];
 
@@ -202,6 +203,25 @@ export function toValues(trunk?: Trunk): TrunkValues {
 }
 
 const ref = (value: string) => (value === NONE ? undefined : value);
+
+/** An edit's refs: each one only when it changed, "" when it moved to None. */
+export function refUpdates(values: TrunkValues, trunk: Trunk) {
+  const before = trunkRefs(trunk);
+  return {
+    accessControlListRef: refUpdate(
+      ref(values.accessControlListRef),
+      before.accessControlListRef
+    ),
+    inboundCredentialsRef: refUpdate(
+      ref(values.inboundCredentialsRef),
+      before.inboundCredentialsRef
+    ),
+    outboundCredentialsRef: refUpdate(
+      ref(values.outboundCredentialsRef),
+      before.outboundCredentialsRef
+    )
+  };
+}
 
 export function toRequest(values: TrunkValues): CreateTrunkRequest {
   return {

@@ -29,6 +29,7 @@ import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { errorMessage } from "~/lib/errors";
+import { NONE, refField } from "~/lib/refs";
 import { cn } from "~/lib/utils";
 import { useAllTrunks } from "~/trunks/trunks.service";
 import { COUNTRY_OPTIONS, countryName } from "./countries";
@@ -87,7 +88,7 @@ const EMPTY: Values = {
   telUrl: "",
   city: "",
   countryIsoCode: "",
-  trunkRef: "",
+  trunkRef: NONE,
   aliases: "",
   route: undefined
 };
@@ -127,7 +128,7 @@ export function NumberDrawer({
         ? {
             ...EMPTY,
             name: number.name,
-            trunkRef: number.trunk?.ref ?? "",
+            trunkRef: number.trunk?.ref ?? NONE,
             aliases: number.aliases?.join(", ") ?? "",
             route: routeOf(number, appList)
           }
@@ -149,10 +150,10 @@ export function NumberDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appList]);
 
-  const trunkOptions = (trunks.data ?? []).map((t) => ({
-    value: t.ref,
-    label: t.name
-  }));
+  const trunkOptions = [
+    { value: NONE, label: "None" },
+    ...(trunks.data ?? []).map((t) => ({ value: t.ref, label: t.name }))
+  ];
 
   const routing = (value?: Route) =>
     value
@@ -161,10 +162,21 @@ export function NumberDrawer({
         : { appRef: value.to }
       : {};
 
+  // An edit sends the route only when it changed; None sends "" to remove it.
+  const routeUpdate = (value: Route | undefined, before: INumber) => {
+    const was = routeOf(before, appList);
+    if (value?.to === was?.to) return {};
+    if (value) return routing(value);
+    return was?.kind === "sip" ? { agentAor: "" } : { appRef: "" };
+  };
+
   // Aliases belong to a Trunk: the field shows, and is sent, only once one is chosen.
   const trunkRef = form.watch("trunkRef");
+  const onTrunk = trunkRef !== NONE;
   const aliases = (values: Values) =>
-    values.trunkRef ? aliasesRequest(values.aliases, number?.aliases) : {};
+    values.trunkRef !== NONE
+      ? aliasesRequest(values.aliases, number?.aliases)
+      : {};
 
   // Routr refuses an alias another Number of the Trunk has: say so under Aliases, not on top.
   const duplicateAlias = duplicateAliasMessage(
@@ -178,8 +190,8 @@ export function NumberDrawer({
         await update.mutateAsync({
           ref: number.ref,
           name: values.name,
-          ...(values.trunkRef ? { trunkRef: values.trunkRef } : {}),
-          ...routing(values.route),
+          ...refField("trunkRef", values.trunkRef, number.trunk?.ref),
+          ...routeUpdate(values.route, number),
           ...aliases(values)
         });
       } else {
@@ -189,7 +201,7 @@ export function NumberDrawer({
           city: values.city,
           country: countryName(values.countryIsoCode),
           countryIsoCode: values.countryIsoCode,
-          ...(values.trunkRef ? { trunkRef: values.trunkRef } : {}),
+          ...(values.trunkRef !== NONE ? { trunkRef: values.trunkRef } : {}),
           ...routing(values.route),
           ...aliases(values)
         });
@@ -326,7 +338,7 @@ export function NumberDrawer({
               />
             )}
           </Field>
-          {trunkRef && (
+          {onTrunk && (
             <Field
               label="Aliases"
               error={errors.aliases?.message}

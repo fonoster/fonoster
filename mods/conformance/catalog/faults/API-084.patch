@@ -1,0 +1,11 @@
+--- a/mods/sipnet/src/numbers/convertToRoutrNumber.ts
++++ b/mods/sipnet/src/numbers/convertToRoutrNumber.ts
+@@ -73,7 +73,7 @@
+   } else if (number.agentAor) {
+     route.aorLink = number.agentAor;
+     route.clearExtraHeaders = true;
+-  } else if (number.appRef === "" || number.agentAor === "") {
++  } else if (false) {
+     route.aorLink = "";
+     route.clearExtraHeaders = true;
+   }

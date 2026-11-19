@@ -114,7 +114,7 @@ message UpdateNumberRequest {
   // The name of the Number
   string name = 2;
   // Reference to the trunk this number is associated with
-  string trunk_ref = 3;
+  optional string trunk_ref = 3;
   // This dictates how the number will handle incoming calls
   oneof ingress_handler {
     // The call will be forwarded to this agent

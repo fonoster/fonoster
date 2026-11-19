@@ -1644,8 +1644,8 @@ ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 name: jspb.Message.getFieldWithDefault(msg, 2, ""),
 privacy: jspb.Message.getFieldWithDefault(msg, 3, 0),
 enabled: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
-domainRef: jspb.Message.getFieldWithDefault(msg, 5, ""),
-credentialsRef: jspb.Message.getFieldWithDefault(msg, 6, ""),
+domainRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f,
+credentialsRef: (f = jspb.Message.getField(msg, 6)) == null ? undefined : f,
 maxContacts: jspb.Message.getFieldWithDefault(msg, 7, 0),
 expires: jspb.Message.getFieldWithDefault(msg, 8, 0)
   };
@@ -1773,15 +1773,15 @@ proto.fonoster.agents.v1beta2.UpdateAgentRequest.serializeBinaryToWriter = funct
       f
     );
   }
-  f = message.getDomainRef();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 5));
+  if (f != null) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getCredentialsRef();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 6));
+  if (f != null) {
     writer.writeString(
       6,
       f
@@ -1890,7 +1890,25 @@ proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.getDomainRef = functi
  * @return {!proto.fonoster.agents.v1beta2.UpdateAgentRequest} returns this
  */
 proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.setDomainRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 5, value);
+  return jspb.Message.setField(this, 5, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.agents.v1beta2.UpdateAgentRequest} returns this
+ */
+proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.clearDomainRef = function() {
+  return jspb.Message.setField(this, 5, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.hasDomainRef = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 
@@ -1908,7 +1926,25 @@ proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.getCredentialsRef = f
  * @return {!proto.fonoster.agents.v1beta2.UpdateAgentRequest} returns this
  */
 proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.setCredentialsRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 6, value);
+  return jspb.Message.setField(this, 6, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.agents.v1beta2.UpdateAgentRequest} returns this
+ */
+proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.clearCredentialsRef = function() {
+  return jspb.Message.setField(this, 6, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.agents.v1beta2.UpdateAgentRequest.prototype.hasCredentialsRef = function() {
+  return jspb.Message.getField(this, 6) != null;
 };
 
 

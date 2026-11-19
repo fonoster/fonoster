@@ -151,6 +151,8 @@ test("[DSH-017] adds a number routed to an agent, reroutes it to a SIP agent and
   expect(api.callsTo("Numbers/CreateNumber")).toHaveLength(0);
 
   await page.getByLabel("Number", { exact: true }).fill("+1 (809) 555-0100");
+  // The route starts on None; pick the Agent kind, then the agent.
+  await page.getByRole("radio", { name: "Agent", exact: true }).click();
   await page.getByRole("radio", { name: /Receptionist/ }).click();
   await choose(page, "Trunk", "Acme");
   await page.getByLabel("City").fill("Santo Domingo");
@@ -356,7 +358,7 @@ test("[DSH-020] creates a SIP agent, refuses invalid fields, and disables it fro
     )
   ).toBeVisible();
   await expect(page.getByText("Between 1 and 100")).toBeVisible();
-  await expect(page.getByText("Pick a domain")).toBeVisible();
+  await expect(page.getByText("Pick a domain")).toHaveCount(0);
   expect(api.callsTo("Agents/CreateAgent")).toHaveLength(0);
 
   await page.getByLabel("Username", { exact: true }).fill("maria");

@@ -1492,7 +1492,7 @@ proto.fonoster.domains.v1beta2.UpdateDomainRequest.toObject = function(includeIn
   var f, obj = {
 ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-accessControlListRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+accessControlListRef: (f = jspb.Message.getField(msg, 3)) == null ? undefined : f,
 egressPoliciesList: jspb.Message.toObjectList(msg.getEgressPoliciesList(),
     proto.fonoster.domains.v1beta2.EgressPolicy.toObject, includeInstance)
   };
@@ -1591,8 +1591,8 @@ proto.fonoster.domains.v1beta2.UpdateDomainRequest.serializeBinaryToWriter = fun
       f
     );
   }
-  f = message.getAccessControlListRef();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 3));
+  if (f != null) {
     writer.writeString(
       3,
       f
@@ -1659,7 +1659,25 @@ proto.fonoster.domains.v1beta2.UpdateDomainRequest.prototype.getAccessControlLis
  * @return {!proto.fonoster.domains.v1beta2.UpdateDomainRequest} returns this
  */
 proto.fonoster.domains.v1beta2.UpdateDomainRequest.prototype.setAccessControlListRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.domains.v1beta2.UpdateDomainRequest} returns this
+ */
+proto.fonoster.domains.v1beta2.UpdateDomainRequest.prototype.clearAccessControlListRef = function() {
+  return jspb.Message.setField(this, 3, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.domains.v1beta2.UpdateDomainRequest.prototype.hasAccessControlListRef = function() {
+  return jspb.Message.getField(this, 3) != null;
 };
 
 

@@ -22,6 +22,7 @@ import { confirm, input, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
+import { refChange } from "../../../utils/refChange";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "modify the configuration of a Domain";
@@ -78,13 +79,14 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     }
 
     try {
-      // Filter out null ACL reference
+      // The ACL is sent only when it changed: "" removes it, absent keeps it
       const request: UpdateDomainRequest = {
         ref: answers.ref,
         name: answers.name,
-        ...(answers.accessControlListRef && {
-          accessControlListRef: answers.accessControlListRef
-        })
+        accessControlListRef: refChange(
+          answers.accessControlListRef,
+          domainFromDb.accessControlList?.ref
+        )
       };
 
       await domains.updateDomain(request);

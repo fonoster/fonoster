@@ -417,6 +417,34 @@ describe("@sipnet[sipnet/linkTwilio]", function () {
     });
   });
 
+  it("keeps the route of a number already in the workspace when no route is given", async function () {
+    // Arrange
+    const { numbers, invoke } = await setup({
+      numbers: [
+        {
+          ref: "number-old",
+          name: "Old",
+          telUrl: TEL_URL,
+          aorLink: ROUTR_DEFAULT_PEER_AOR,
+          extraHeaders: [{ name: APP_REF_HEADER, value: APP_REF }],
+          extended: owned
+        }
+      ]
+    });
+
+    // Act
+    await invoke({ appRef: undefined });
+
+    // Assert
+    const sent = numbers.updateNumber.firstCall.args[0];
+    expect(sent).to.not.have.property("aorLink");
+    expect(sent).to.not.have.property("clearExtraHeaders");
+    expect(numbers.store.get("number-old")).to.deep.include({
+      aorLink: ROUTR_DEFAULT_PEER_AOR,
+      extraHeaders: [{ name: APP_REF_HEADER, value: APP_REF }]
+    });
+  });
+
   it("ignores another workspace's number with the same telUrl", async function () {
     // Arrange
     const { numbers, invoke } = await setup({

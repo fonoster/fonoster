@@ -176,7 +176,7 @@ class Domains {
    * @param {string} request.ref - The reference of the Domain to update
    * @param {string} request.name - The name of the Domain
    * @param {string} request.domainUri - The URI of the Domain
-   * @param {string} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain
+   * @param {string} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain. Send "" to remove it; leave it out to keep it.
    * @param {EgressPolicy[]} request.egressPolicies - The egress policy of the Domain
    * @param {string} request.egressPolicies[].rule - A regular expression that defines which calls to send to the PSTN
    * @param {string} request.egressPolicies[].numberRef - The Number that will be used to send the call to the PSTN

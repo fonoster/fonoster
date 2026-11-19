@@ -382,5 +382,6 @@
   "APT-026": "Call metadata reaches the system prompt",
   "APT-027": "The call's first message replaces the agent's",
   "APT-028": "A handoff keeps the agent's first message",
-  "OPS-010": "Routr's SIP TLS certificate is issued by DNS-01 through a CNAME and renewed"
+  "OPS-010": "Routr's SIP TLS certificate is issued by DNS-01 through a CNAME and renewed",
+  "API-084": "An empty ref clears, an absent one keeps"
 }

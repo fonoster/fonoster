@@ -79,10 +79,21 @@ describe("Overview", () => {
     expect(listCalls).toHaveBeenCalledTimes(2);
     expect(listCalls.mock.calls[1][0].pageToken).toBe("t1");
 
-    await user.click(screen.getByRole("radio", { name: "30d" }));
+    await user.click(screen.getByRole("radio", { name: "7d" }));
+    expect(
+      await screen.findByText("Calls in Acme Support, last 7 days.")
+    ).toBeInTheDocument();
+  });
+
+  it("opens on the last 30 days", async () => {
+    setup();
     expect(
       await screen.findByText("Calls in Acme Support, last 30 days.")
     ).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "30d" })).toHaveAttribute(
+      "aria-checked",
+      "true"
+    );
   });
 
   it("shows the steps to a first call instead of drawing empty charts", async () => {

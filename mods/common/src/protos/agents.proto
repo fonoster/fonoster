@@ -113,9 +113,9 @@ message UpdateAgentRequest {
   // The enabled status of the Agent
   bool enabled = 4;
   // Reference to the Domain of the Agent
-  string domain_ref = 5;
+  optional string domain_ref = 5;
   // Reference to the Credentials of the Agent
-  string credentials_ref = 6;
+  optional string credentials_ref = 6;
   // The maximum number of contacts that can be created for this Agent
   int32 max_contacts = 7;
   // Value to override the expires requested by the Agent

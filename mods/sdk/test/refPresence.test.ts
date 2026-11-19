@@ -1,0 +1,131 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { expect } from "chai";
+import { jsonToObject } from "../src/client/jsonToObject";
+import { FonosterClient } from "../src/client/types";
+import * as NodeAgents from "../src/generated/node/agents_pb";
+import * as NodeDomains from "../src/generated/node/domains_pb";
+import * as NodeNumbers from "../src/generated/node/numbers_pb";
+import * as NodeTrunks from "../src/generated/node/trunks_pb";
+import * as WebAgents from "../src/generated/web/agents_pb";
+import * as WebDomains from "../src/generated/web/domains_pb";
+import * as WebNumbers from "../src/generated/web/numbers_pb";
+import * as WebTrunks from "../src/generated/web/trunks_pb";
+import { Trunks } from "../src/Trunks";
+
+type Message = { serializeBinary(): Uint8Array };
+type MessageClass<T extends Message> = (new () => T) & {
+  deserializeBinary(bytes: Uint8Array): T;
+};
+
+/** Builds the request the way the SDK does, then reads it back off the wire. */
+function overTheWire<T extends Message>(
+  constructor: MessageClass<T>,
+  json: Record<string, unknown>
+): T {
+  const built = jsonToObject({ json, objectConstructor: constructor });
+  return constructor.deserializeBinary(built.serializeBinary());
+}
+
+// Each update request and the refs that "" clears.
+const CASES = [
+  {
+    name: "UpdateNumberRequest",
+    classes: [NodeNumbers.UpdateNumberRequest, WebNumbers.UpdateNumberRequest],
+    refs: ["trunkRef"]
+  },
+  {
+    name: "UpdateAgentRequest",
+    classes: [NodeAgents.UpdateAgentRequest, WebAgents.UpdateAgentRequest],
+    refs: ["domainRef", "credentialsRef"]
+  },
+  {
+    name: "UpdateDomainRequest",
+    classes: [NodeDomains.UpdateDomainRequest, WebDomains.UpdateDomainRequest],
+    refs: ["accessControlListRef"]
+  },
+  {
+    name: "UpdateTrunkRequest",
+    classes: [NodeTrunks.UpdateTrunkRequest, WebTrunks.UpdateTrunkRequest],
+    refs: [
+      "accessControlListRef",
+      "inboundCredentialsRef",
+      "outboundCredentialsRef"
+    ]
+  }
+];
+
+const has = (message: unknown, ref: string) =>
+  (message as Record<string, () => boolean>)[
+    `has${ref.charAt(0).toUpperCase()}${ref.slice(1)}`
+  ]();
+
+describe("@sdk[refPresence] an empty ref clears, an absent one keeps", function () {
+  for (const { name, classes, refs } of CASES) {
+    for (const [build, constructor] of [
+      ["node", classes[0]],
+      ["web", classes[1]]
+    ] as const) {
+      it(`${name} (${build}) sends "" and leaves out an absent ref`, function () {
+        for (const ref of refs) {
+          const cleared = overTheWire(
+            constructor as unknown as MessageClass<Message>,
+            { ref: "r-1", [ref]: "" }
+          );
+          expect(has(cleared, ref), `${ref} ""`).to.equal(true);
+
+          const renamed = overTheWire(
+            constructor as unknown as MessageClass<Message>,
+            { ref: "r-1", name: "Renamed" }
+          );
+          expect(has(renamed, ref), `${ref} absent`).to.equal(false);
+        }
+      });
+    }
+  }
+
+  it("updateTrunk sends \"\" refs and leaves out absent ones", async function () {
+    let sent: NodeTrunks.UpdateTrunkRequest | undefined;
+    const client = {
+      getMetadata: () => ({}),
+      getTrunksClient: () => ({
+        updateTrunk: (
+          req: NodeTrunks.UpdateTrunkRequest,
+          _m: unknown,
+          cb: (e: null, r: unknown) => void
+        ) => {
+          sent = NodeTrunks.UpdateTrunkRequest.deserializeBinary(
+            req.serializeBinary()
+          );
+          cb(null, { toObject: () => ({ ref: "trunk-1" }) });
+        }
+      })
+    } as unknown as FonosterClient;
+
+    await new Trunks(client).updateTrunk({
+      ref: "trunk-1",
+      accessControlListRef: ""
+    });
+
+    expect(sent!.hasAccessControlListRef()).to.equal(true);
+    expect(sent!.getAccessControlListRef()).to.equal("");
+    expect(sent!.hasInboundCredentialsRef()).to.equal(false);
+    expect(sent!.hasOutboundCredentialsRef()).to.equal(false);
+  });
+});
