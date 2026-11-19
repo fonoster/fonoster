@@ -752,7 +752,8 @@ tls_case() {
   before="$(pair_sum)"
   if play "$A" "$WORK/apply-tls-refused.log" -e "@$WORK/routr-tls-refused.json"; then
     record OPS-010 "a refused token fails at the issuance task, the pair unchanged" fail "the play passed"
-  elif ! grep -B4 '^fatal:' "$WORK/apply-tls-refused.log" | grep -qF 'TASK [host : Routr TLS certificate (lego)]'; then
+  elif ! grep -E '^(TASK|fatal:)' "$WORK/apply-tls-refused.log" | grep -B1 '^fatal:' | head -1 \
+    | grep -qF 'TASK [host : Routr TLS certificate (lego)]'; then
     record OPS-010 "a refused token fails at the issuance task, the pair unchanged" fail "$(grep -B4 -A3 '^fatal:' "$WORK/apply-tls-refused.log" | tail -8)"
   elif [ "$before" != "$(pair_sum)" ]; then
     record OPS-010 "a refused token fails at the issuance task, the pair unchanged" fail "server.crt or server.key changed"
