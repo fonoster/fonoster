@@ -1,0 +1,12 @@
+#!/bin/sh
+# lego's deploy hook: writes the new certificate (full chain) and key over Routr's server.crt and
+# server.key in place, so the files keep their inode, owner and mode and the bind mounts see the
+# new pair. Routr rereads them every 30 s and serves them on new handshakes; it is never restarted.
+# Managed by Ansible (ops/ansible, role host).
+set -eu
+dir={{ routr_tls_dir | quote }}
+# Routr runs as uid 1000. On the first certificate the files don't exist yet.
+[ -e "$dir/server.key" ] || install -o 1000 -g 1000 -m 0600 /dev/null "$dir/server.key"
+[ -e "$dir/server.crt" ] || install -o 1000 -g 1000 -m 0644 /dev/null "$dir/server.crt"
+cat "$LEGO_HOOK_CERT_KEY_PATH" >"$dir/server.key"
+cat "$LEGO_HOOK_CERT_PATH" >"$dir/server.crt"

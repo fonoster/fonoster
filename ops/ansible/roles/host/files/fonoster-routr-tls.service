@@ -1,0 +1,10 @@
+# Renews Routr's SIP TLS certificate when it is within 30 days of expiry. Managed by Ansible
+# (ops/ansible, role host). A failed renewal fails the unit: systemctl --failed, journalctl.
+[Unit]
+Description=Renew Routr's SIP TLS certificate (lego)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/fonoster-routr-tls

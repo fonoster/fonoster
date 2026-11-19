@@ -1,0 +1,18 @@
+#!/bin/sh
+# Gets Routr's SIP TLS certificate, or renews it within 30 days of expiry, by DNS-01 through
+# DigitalOcean DNS; the deploy hook runs only when lego issued one. Run by the role once and by
+# fonoster-routr-tls.timer daily. Extra arguments go to lego (--renew-force).
+# Managed by Ansible (ops/ansible, role host).
+set -eu
+export DO_AUTH_TOKEN_FILE=/etc/fonoster-routr-tls/digitalocean-token
+export DO_API_URL={{ routr_tls_digitalocean_api_url | quote }}
+exec /usr/local/bin/lego run --accept-tos --email {{ routr_tls_email | quote }} \
+  --server {{ routr_tls_acme_server | quote }} --dns digitalocean \
+{% for resolver in routr_tls_dns_resolvers %}
+  --dns.resolvers {{ resolver | quote }} \
+{% endfor %}
+  --key-type rsa2048 --cert.name routr-tls \
+{% for domain in routr_tls_domains %}
+  --domains {{ domain | quote }} \
+{% endfor %}
+  --path /var/lib/lego --renew-days 30 --deploy-hook /usr/local/sbin/fonoster-routr-tls-hook "$@"

@@ -3,6 +3,10 @@ fonoster_public_url: https://voice.example.com
 fonoster_api_host: api.example.com
 certbot_domains: [voice.example.com, api.example.com]
 certbot_email: ops@example.com
+# Routr's SIP over TLS certificate (a wildcard by DNS-01 through DigitalOcean DNS); see README.md.
+# routr_tls_domains: ["*.pstn.example.com"]
+# routr_tls_email: ops@example.com
+# routr_tls_digitalocean_token: "{{ vault_digitalocean_token }}"
 routr_traces_enabled: true
 routr_traces_retention_days: 30
 

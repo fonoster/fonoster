@@ -18,3 +18,6 @@ fonoster_env_secrets:
   FONOSTER_REGION_SECRETS_KEY: "s<hex16>"
   OTEL_EXPORTER_OTLP_HEADERS: ""
 vault_database_url_fonoster: "postgresql://fonoster:<password>@db.example.com:25060/fonoster?sslmode=require"
+# DigitalOcean API token with write access to the zone the _acme-challenge CNAME points into
+# (routr_tls_digitalocean_token in main.yml).
+# vault_digitalocean_token: "dop_v1_<64 hex>"
