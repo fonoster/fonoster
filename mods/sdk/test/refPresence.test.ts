@@ -27,7 +27,9 @@ import * as WebAgents from "../src/generated/web/agents_pb";
 import * as WebDomains from "../src/generated/web/domains_pb";
 import * as WebNumbers from "../src/generated/web/numbers_pb";
 import * as WebTrunks from "../src/generated/web/trunks_pb";
+import { Numbers } from "../src/Numbers";
 import { Trunks } from "../src/Trunks";
+import { clearRefs } from "../src/utils";
 
 type Message = { serializeBinary(): Uint8Array };
 type MessageClass<T extends Message> = (new () => T) & {
@@ -100,7 +102,7 @@ describe("@sdk[refPresence] an empty ref clears, an absent one keeps", function 
     }
   }
 
-  it("updateTrunk sends \"\" refs and leaves out absent ones", async function () {
+  it('updateTrunk sends "" refs and leaves out absent ones', async function () {
     let sent: NodeTrunks.UpdateTrunkRequest | undefined;
     const client = {
       getMetadata: () => ({}),
@@ -127,5 +129,78 @@ describe("@sdk[refPresence] an empty ref clears, an absent one keeps", function 
     expect(sent!.getAccessControlListRef()).to.equal("");
     expect(sent!.hasInboundCredentialsRef()).to.equal(false);
     expect(sent!.hasOutboundCredentialsRef()).to.equal(false);
+  });
+
+  it('updateNumber sends null refs as "" and leaves out absent ones', async function () {
+    let sent: NodeNumbers.UpdateNumberRequest | undefined;
+    const client = {
+      getMetadata: () => ({}),
+      getNumbersClient: () => ({
+        updateNumber: (
+          req: NodeNumbers.UpdateNumberRequest,
+          _m: unknown,
+          cb: (e: null, r: unknown) => void
+        ) => {
+          sent = NodeNumbers.UpdateNumberRequest.deserializeBinary(
+            req.serializeBinary()
+          );
+          cb(null, new NodeNumbers.UpdateNumberResponse());
+        }
+      })
+    } as unknown as FonosterClient;
+
+    await new Numbers(client).updateNumber({
+      ref: "number-1",
+      trunkRef: null,
+      appRef: null
+    });
+
+    expect(sent!.hasTrunkRef()).to.equal(true);
+    expect(sent!.getTrunkRef()).to.equal("");
+    expect(sent!.hasAppRef()).to.equal(true);
+    expect(sent!.getAppRef()).to.equal("");
+    expect(sent!.hasAgentAor()).to.equal(false);
+  });
+
+  it('updateTrunk sends null refs as ""', async function () {
+    let sent: NodeTrunks.UpdateTrunkRequest | undefined;
+    const client = {
+      getMetadata: () => ({}),
+      getTrunksClient: () => ({
+        updateTrunk: (
+          req: NodeTrunks.UpdateTrunkRequest,
+          _m: unknown,
+          cb: (e: null, r: unknown) => void
+        ) => {
+          sent = NodeTrunks.UpdateTrunkRequest.deserializeBinary(
+            req.serializeBinary()
+          );
+          cb(null, { toObject: () => ({ ref: "trunk-1" }) });
+        }
+      })
+    } as unknown as FonosterClient;
+
+    await new Trunks(client).updateTrunk({
+      ref: "trunk-1",
+      inboundCredentialsRef: null
+    });
+
+    expect(sent!.hasInboundCredentialsRef()).to.equal(true);
+    expect(sent!.getInboundCredentialsRef()).to.equal("");
+    expect(sent!.hasAccessControlListRef()).to.equal(false);
+  });
+
+  it('clearRefs turns only the listed null fields into ""', function () {
+    expect(
+      clearRefs(
+        { ref: "r", domainRef: null, name: null, credentialsRef: "c" },
+        ["domainRef", "credentialsRef"]
+      )
+    ).to.deep.equal({
+      ref: "r",
+      domainRef: "",
+      name: null,
+      credentialsRef: "c"
+    });
   });
 });

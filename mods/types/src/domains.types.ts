@@ -50,7 +50,11 @@ type CreateDomainRequestExtended = CreateDomainRequest & {
 };
 
 type UpdateDomainRequest = Flatten<
-  BaseApiObject & Omit<Partial<CreateDomainRequest>, "domainUri">
+  BaseApiObject &
+    Omit<Partial<CreateDomainRequest>, "domainUri" | "accessControlListRef"> & {
+      /** null (or "") removes the ACL; leaving it out keeps it. */
+      accessControlListRef?: string | null;
+    }
 >;
 
 type ListDomainsRequest = ListRequest;

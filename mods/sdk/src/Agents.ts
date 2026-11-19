@@ -39,6 +39,7 @@ import {
   UpdateAgentRequest as UpdateAgentRequestPB,
   UpdateAgentResponse as UpdateAgentResponsePB
 } from "./generated/node/agents_pb";
+import { clearRefs } from "./utils";
 
 /**
  * @classdesc Fonoster Agents, part of the Fonoster SIP Proxy subsystem,
@@ -177,8 +178,8 @@ class Agents {
    * @param {Privacy} request.privacy - The privacy of the Agent
    * @param {boolean} request.enabled - The status of the Agent
    * @param {number} request.maxContacts - The maximum number of contacts the Agent can have
-   * @param {string} request.domainRef - The reference of the Domain to associate the Agent. Send "" to remove it; leave it out to keep it.
-   * @param {string} request.credentialsRef - The Credentials of the Agent. Send "" to remove it; leave it out to keep it.
+   * @param {string} request.domainRef - The reference of the Domain to associate the Agent. Send null to remove it (or ""); leave it out to keep it.
+   * @param {string} request.credentialsRef - The Credentials of the Agent. Send null to remove it (or ""); leave it out to keep it.
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Agent
    * @example
    * const agents = new SDK.Agents(client); // Existing client object
@@ -208,7 +209,7 @@ class Agents {
       method: client.updateAgent.bind(client),
       requestPBObjectConstructor: UpdateAgentRequestPB,
       metadata: this.client.getMetadata(),
-      request,
+      request: clearRefs(request, ["domainRef", "credentialsRef"]),
       enumMapping: [["privacy", PrivacyPB]]
     });
   }

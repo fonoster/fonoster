@@ -47,6 +47,7 @@ import {
   UpdateNumberRequest as UpdateNumberRequestPB,
   UpdateNumberResponse as UpdateNumberResponsePB
 } from "./generated/node/numbers_pb";
+import { clearRefs } from "./utils";
 
 /**
  * protobuf names a repeated string "aliasesList" and objectToJson renames only lists of
@@ -192,8 +193,8 @@ class Numbers {
    * @param {string} request.name - The name of the Number
    * @param {string[]} request.aliases - Replaces the Number's aliases; an empty list keeps them
    * @param {boolean} request.clearAliases - Removes every alias; wins over aliases
-   * @param {string} request.trunkRef - The Trunk of the Number. Send "" to remove it; leave it out to keep it.
-   * @param {string} request.appRef - The Application that answers the Number (or agentAor). "" in either removes the route; leaving both out keeps it.
+   * @param {string} request.trunkRef - The Trunk of the Number. Send null to remove it (or ""); leave it out to keep it.
+   * @param {string} request.appRef - The Application that answers the Number (or agentAor). null (or "") in either removes the route; leaving both out keeps it.
    * @param {string} request.agentAor - The SIP agent that answers the Number (or appRef)
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Number
    * @example
@@ -202,7 +203,7 @@ class Numbers {
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "My Number",
-   *   trunkRef: "" // no Trunk
+   *   trunkRef: null // no Trunk
    * };
    *
    * numbers
@@ -221,7 +222,7 @@ class Numbers {
       method: client.updateNumber.bind(client),
       requestPBObjectConstructor: UpdateNumberRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request: clearRefs(request, ["trunkRef", "appRef", "agentAor"])
     });
   }
 

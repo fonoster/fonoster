@@ -183,8 +183,8 @@ destination, change it on the number:
 You can change a number's name, trunk, aliases and destination. With the SDK, `aliases` replaces
 the number's aliases and `clearAliases: true` removes them all; an update without either keeps them.
 To take a number off its trunk or remove its destination, choose **None** in the dashboard or the
-CLI, or send an empty string with the SDK: `trunkRef: ""`, or `appRef: ""` for the destination. A field
-you leave out keeps its value. To change the number itself, its city or its country, remove it and add
+CLI, or send `null` with the SDK: `trunkRef: null`, or `appRef: null` for the destination (an empty
+string works too). A field you leave out keeps its value. To change the number itself, its city or its country, remove it and add
 it again.
 
 ## Check it

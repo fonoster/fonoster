@@ -96,7 +96,20 @@ type CreateTrunkRequestExtended = CreateTrunkRequest & {
   extended?: Record<string, unknown>;
 };
 
-type UpdateTrunkRequest = Flatten<BaseApiObject & Partial<CreateTrunkRequest>>;
+type UpdateTrunkRequest = Flatten<
+  BaseApiObject &
+    Omit<
+      Partial<CreateTrunkRequest>,
+      | "accessControlListRef"
+      | "inboundCredentialsRef"
+      | "outboundCredentialsRef"
+    > & {
+      /** null (or "") removes the reference; leaving it out keeps it. */
+      accessControlListRef?: string | null;
+      inboundCredentialsRef?: string | null;
+      outboundCredentialsRef?: string | null;
+    }
+>;
 
 type ListTrunksRequest = ListRequest;
 

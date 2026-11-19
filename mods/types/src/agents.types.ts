@@ -66,7 +66,15 @@ type CreateAgentRequestExtended = CreateAgentRequest & {
 };
 
 type UpdateAgentRequest = Flatten<
-  BaseApiObject & Omit<Partial<CreateAgentRequest>, "username" | "extended">
+  BaseApiObject &
+    Omit<
+      Partial<CreateAgentRequest>,
+      "username" | "extended" | "domainRef" | "credentialsRef"
+    > & {
+      /** null (or "") removes the reference; leaving it out keeps it. */
+      domainRef?: string | null;
+      credentialsRef?: string | null;
+    }
 >;
 
 type ListAgentsRequest = ListRequest;

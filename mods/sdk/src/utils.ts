@@ -110,7 +110,20 @@ function dialStatusToString(status: number): string | undefined {
   }
 }
 
+/**
+ * The request with null in the given reference fields sent as "": the API removes a reference
+ * sent as "" and keeps one left out, and protobuf has no null.
+ */
+function clearRefs<T extends object>(request: T, fields: (keyof T)[]): T {
+  const out = { ...request };
+  for (const field of fields) {
+    if (out[field] === null) (out as Record<keyof T, unknown>)[field] = "";
+  }
+  return out;
+}
+
 export {
+  clearRefs,
   asStructInput,
   buildStructOverride,
   buildStructOverrideReverse,

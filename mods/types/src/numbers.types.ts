@@ -55,8 +55,19 @@ type UpdateNumberRequest = Flatten<
   BaseApiObject &
     Omit<
       Partial<CreateNumberRequest>,
-      "telUrl" | "city" | "country" | "countryIsoCode"
+      | "telUrl"
+      | "city"
+      | "country"
+      | "countryIsoCode"
+      | "trunkRef"
+      | "appRef"
+      | "agentAor"
     > & {
+      /** null (or "") removes the Trunk; leaving it out keeps it. */
+      trunkRef?: string | null;
+      /** null (or "") in appRef or agentAor removes the route; leaving both out keeps it. */
+      appRef?: string | null;
+      agentAor?: string | null;
       /** Removes every alias; wins over aliases. An empty aliases list keeps them. */
       clearAliases?: boolean;
     }

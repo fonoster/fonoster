@@ -39,6 +39,7 @@ import {
   UpdateDomainRequest as UpdateDomainRequestPB,
   UpdateDomainResponse as UpdateDomainResponsePB
 } from "./generated/node/domains_pb";
+import { clearRefs } from "./utils";
 
 /**
  * @classdesc Fonoster Domains, part of the Fonoster SIP Proxy subsystem,
@@ -176,7 +177,7 @@ class Domains {
    * @param {string} request.ref - The reference of the Domain to update
    * @param {string} request.name - The name of the Domain
    * @param {string} request.domainUri - The URI of the Domain
-   * @param {string} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain. Send "" to remove it; leave it out to keep it.
+   * @param {string} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain. Send null to remove it (or ""); leave it out to keep it.
    * @param {EgressPolicy[]} request.egressPolicies - The egress policy of the Domain
    * @param {string} request.egressPolicies[].rule - A regular expression that defines which calls to send to the PSTN
    * @param {string} request.egressPolicies[].numberRef - The Number that will be used to send the call to the PSTN
@@ -211,7 +212,7 @@ class Domains {
       method: client.updateDomain.bind(client),
       requestPBObjectConstructor: UpdateDomainRequestPB,
       metadata: this.client.getMetadata(),
-      request,
+      request: clearRefs(request, ["accessControlListRef"]),
       objectMapping: [["egressPolicies", EgressPolicyPB]]
     });
   }
