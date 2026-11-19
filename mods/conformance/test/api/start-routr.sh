@@ -7,7 +7,7 @@
 set -eu
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION=3.1.1
+VERSION=3.1.2
 : "${ROUTR_API_KEY:?set ROUTR_API_KEY}"
 # The containers reach the host's Postgres through host.docker.internal (Linux and Docker Desktop).
 HOST="--add-host=host.docker.internal:host-gateway"
