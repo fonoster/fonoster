@@ -37,6 +37,7 @@ import {
   TrunkURI,
   UpdateTrunkRequest as UpdateTrunkRequestPB
 } from "./generated/node/trunks_pb";
+import { clearRefs } from "./utils";
 
 type NumberFormats = {
   calledNumberFormat?: string;
@@ -267,9 +268,9 @@ class Trunks {
    * @param {string} request.ref - The reference of the Trunk to update
    * @param {string} request.name - The name of the Trunk
    * @param {boolean} request.sendRegister - The sendRegister of the Trunk
-   * @param {string} request.accessControlListRef - The accessControlListRef of the Trunk. Send "" to remove it; leave it out to keep it.
-   * @param {string} request.inboundCredentialsRef - The inboundCredentialsRef of the Trunk. Send "" to remove it; leave it out to keep it.
-   * @param {string} request.outboundCredentialsRef - The outboundCredentialsRef of the Trunk. Send "" to remove it; leave it out to keep it.
+   * @param {string} request.accessControlListRef - The accessControlListRef of the Trunk. Send null to remove it (or ""); leave it out to keep it.
+   * @param {string} request.inboundCredentialsRef - The inboundCredentialsRef of the Trunk. Send null to remove it (or ""); leave it out to keep it.
+   * @param {string} request.outboundCredentialsRef - The outboundCredentialsRef of the Trunk. Send null to remove it (or ""); leave it out to keep it.
    * @param {TrunkUri[]} request.uris - The uris of the Trunk
    * @param {string} request.uris[].host - The host of the Trunk
    * @param {number} request.uris[].port - The port of the Trunk
@@ -306,7 +307,12 @@ class Trunks {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async updateTrunk(request: UpdateTrunkRequest): Promise<BaseApiObject> {
+  async updateTrunk(input: UpdateTrunkRequest): Promise<BaseApiObject> {
+    const request = clearRefs(input, [
+      "accessControlListRef",
+      "inboundCredentialsRef",
+      "outboundCredentialsRef"
+    ]);
     const client = this.client.getTrunksClient();
     const updateTrunkRequest = new UpdateTrunkRequestPB();
     updateTrunkRequest.setRef(request.ref);
