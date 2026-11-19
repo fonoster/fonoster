@@ -97,6 +97,8 @@ routr_tls_digitalocean_token: "{{ vault_digitalocean_token }}"   # vault.yml
   (lego follows the CNAME):
   `_acme-challenge.pstn.example.com. CNAME _acme-challenge.pstn.example.com.<your DigitalOcean zone>.`
 - The certificate is RSA: Twilio's Secure Trunking offers only RSA cipher suites.
+- lego waits up to 5 minutes for the `_acme-challenge` TXT record: DigitalOcean's nameservers can
+  take over a minute to serve it.
 - Routr's compose overlay mounts the two files, one at a time, at `/etc/routr/certs/server.crt`
   and `server.key` (Routr's `certFile` and `keyFile`), and the `tls` transport on 5061 is on in
   `config/routr.yaml`.
