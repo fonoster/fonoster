@@ -1,0 +1,11 @@
+# Managed by Ansible (ops/ansible, role host).
+[Unit]
+Description=Daily renewal check of Routr's SIP TLS certificate
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

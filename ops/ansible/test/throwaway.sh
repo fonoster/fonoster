@@ -10,12 +10,13 @@
 # /var/lib/fonoster/keys). Without <b> the version switch is not checked. --rollback (needs <b>)
 # then applies <b> with a smoke test that fails and checks that playbooks/rollback.yml puts <a>
 # back. Then it plans and applies <a> with Fonoster Cloud's billing from the inventory (OPS-007),
-# and last adds the ops API to it (OPS-009). The inventory is test/inventory.yml: this machine over
+# adds the ops API to it (OPS-009), and last gets Routr's SIP TLS certificate by DNS-01 from a local
+# ACME server (OPS-010). The inventory is test/inventory.yml: this machine over
 # a local connection.
 #
 # It deletes /opt/fonoster, /var/lib/fonoster and their containers and volumes first, so it runs
 # only on a throwaway machine: Ubuntu 24.04 with root or sudo, Docker, Node.js and npm (for the
-# bundle), ansible-core and ansible-lint on PATH, and GITHUB_ACTIONS=true or THROWAWAY=1 set.
+# bundle), ansible-core and ansible-lint on PATH, port 53 free on 127.0.0.1 and ::1, and GITHUB_ACTIONS=true or THROWAWAY=1 set.
 #
 # JUNIT_DIR=<dir> writes the results there (ops.xml), one test per check, each named after its case.
 # Exits 1 when any check failed.
@@ -80,6 +81,8 @@ finish() {
     compose ps -a >&2 || true
     compose logs --no-color --tail 40 >&2 || true
   fi
+  [ -z "${FAKEDO_PID:-}" ] || kill "$FAKEDO_PID" 2>/dev/null || true
+  docker rm -f ops010-pebble ops010-challtestsrv ops010-coredns >/dev/null 2>&1 || true
   rm -rf "$WORK"
   log "$([ "$FAILED" = 0 ] && echo ok || echo failed)"
   exit "$FAILED"
@@ -609,3 +612,202 @@ if [ "$billing_applied" = 1 ]; then
 else
   record OPS-009 "the ops API runs from the inventory" fail "OPS-007's apply failed"
 fi
+
+# OPS-010 Routr's SIP TLS certificate is issued by DNS-01 through a CNAME and renewed -------------
+# The host role gets a wildcard from Pebble by DNS-01, with no real DNS: lego writes the TXT record
+# through a fake of DigitalOcean's API (test/fake-digitalocean.py), which puts it in
+# pebble-challtestsrv. lego resolves through a CoreDNS that answers the fake zone's SOA and NS
+# (challtestsrv answers neither; lego needs both) and forwards everything else to challtestsrv,
+# which holds the _acme-challenge CNAME into the fake zone. Routr serves the pair on 5061 through
+# per-file bind mounts, as production does. The values reach only these plays (routr-tls.json).
+TLS_DOMAIN=pstn.ops010.test
+TLS_ZONE=dozone.test
+TLS_TOKEN="dthrowaway3b8e1f5c7a2d904617e"
+TLS_DIR=/var/lib/fonoster/files/sip-tls
+TLS_NAME="x.$TLS_DOMAIN"
+PEBBLE_VERSION=2.10.3
+
+tls_served() { # prints the serial Routr serves on 5061 when it verifies for TLS_NAME, else nothing
+  openssl s_client -connect 127.0.0.1:5061 -servername "$TLS_NAME" -verify_hostname "$TLS_NAME" \
+    -verify_return_error -CAfile "$WORK/pebble-root.pem" </dev/null 2>/dev/null \
+    | openssl x509 -noout -serial 2>/dev/null
+}
+tls_wait_serial() { # <serial>: waits up to 60 s for Routr to serve it
+  for _ in $(seq 1 30); do
+    [ "$(tls_served)" = "$1" ] && return 0
+    sleep 2
+  done
+  return 1
+}
+file_serial() { $SUDO openssl x509 -in "$TLS_DIR/server.crt" -noout -serial; }
+pair_sum() { $SUDO sha256sum "$TLS_DIR/server.crt" "$TLS_DIR/server.key"; }
+
+tls_harness() {
+  # A proof runs this script again on the same runner: no lego state, units, CA or harness left.
+  docker rm -f ops010-pebble ops010-challtestsrv ops010-coredns >/dev/null 2>&1 || true
+  $SUDO systemctl disable --now fonoster-routr-tls.timer >/dev/null 2>&1 || true
+  $SUDO rm -rf /var/lib/lego /etc/systemd/system/fonoster-routr-tls.service /etc/systemd/system/fonoster-routr-tls.timer \
+    /usr/local/share/ca-certificates/ops010-pebble-*.crt
+  $SUDO systemctl daemon-reload
+  $SUDO update-ca-certificates --fresh >/dev/null
+
+  cat >"$WORK/Corefile" <<EOF
+.:53 {
+    bind 127.0.0.1 ::1
+    template IN SOA $TLS_ZONE {
+        match "^${TLS_ZONE//./\\.}\\.\$"
+        answer "{{ .Name }} 60 IN SOA localhost. hostmaster.$TLS_ZONE. 1 60 60 60 60"
+        fallthrough
+    }
+    template IN NS $TLS_ZONE {
+        match "^${TLS_ZONE//./\\.}\\.\$"
+        answer "{{ .Name }} 60 IN NS localhost."
+        fallthrough
+    }
+    template IN SOA $TLS_ZONE ${TLS_DOMAIN#*.} {
+        rcode NOERROR
+        authority "$TLS_ZONE. 60 IN SOA localhost. hostmaster.$TLS_ZONE. 1 60 60 60 60"
+    }
+    forward . 127.0.0.1:8053
+}
+EOF
+  docker run -d --name ops010-challtestsrv --network host "ghcr.io/letsencrypt/pebble-challtestsrv:$PEBBLE_VERSION" \
+    -dnsserver 127.0.0.1:8053 -management 127.0.0.1:8055 -http01 "" -https01 "" -tlsalpn01 "" -doh "" >/dev/null || return 1
+  docker run -d --name ops010-pebble --network host -e PEBBLE_VA_NOSLEEP=1 \
+    "ghcr.io/letsencrypt/pebble:$PEBBLE_VERSION" -dnsserver 127.0.0.1:8053 >/dev/null || return 1
+  docker run -d --name ops010-coredns --network host -v "$WORK/Corefile:/Corefile:ro" \
+    coredns/coredns:1.12.4 -conf /Corefile >/dev/null || return 1
+  FAKEDO_TOKEN="$TLS_TOKEN" FAKEDO_LOG="$WORK/fakedo.log" python3 "$ANSIBLE/test/fake-digitalocean.py" 8085 &
+  FAKEDO_PID=$!
+  : >"$WORK/fakedo.log"
+
+  # Pebble's TLS root (its ACME endpoint) and, once it answers, its issuing root.
+  curl -fsS -o "$WORK/pebble-minica.pem" \
+    "https://raw.githubusercontent.com/letsencrypt/pebble/v$PEBBLE_VERSION/test/certs/pebble.minica.pem" || return 1
+  for _ in $(seq 1 30); do
+    curl -fsS --cacert "$WORK/pebble-minica.pem" -o "$WORK/pebble-root.pem" https://localhost:15000/roots/0 2>/dev/null && break
+    sleep 1
+  done
+  [ -s "$WORK/pebble-root.pem" ] || return 1
+  $SUDO cp "$WORK/pebble-minica.pem" /usr/local/share/ca-certificates/ops010-pebble-minica.crt
+  $SUDO cp "$WORK/pebble-root.pem" /usr/local/share/ca-certificates/ops010-pebble-root.crt
+  $SUDO update-ca-certificates >/dev/null || return 1
+
+  curl -fsS -d "{\"host\": \"_acme-challenge.$TLS_DOMAIN.\", \"target\": \"_acme-challenge.$TLS_DOMAIN.$TLS_ZONE.\"}" \
+    http://127.0.0.1:8055/set-cname || return 1
+
+  # The pair production has today: one Routr already serves, before lego has a certificate.
+  openssl req -x509 -newkey rsa:2048 -nodes -subj /CN=ops010-before -days 2 \
+    -keyout "$WORK/before.key" -out "$WORK/before.crt" 2>/dev/null || return 1
+  $SUDO install -d -m 0755 "$TLS_DIR"
+  $SUDO install -o 1000 -g 1000 -m 0644 "$WORK/before.crt" "$TLS_DIR/server.crt"
+  $SUDO install -o 1000 -g 1000 -m 0600 "$WORK/before.key" "$TLS_DIR/server.key"
+}
+
+tls_vars() { # <token> <out>: the host's values plus the certificate, Routr's tls transport and mounts
+  (cd "$ANSIBLE" && ansible-inventory -i test/inventory.yml --host throwaway) \
+    | TOKEN="$1" DOMAIN="$TLS_DOMAIN" DIR="$TLS_DIR" python3 -c '
+import json, os, sys
+v = json.load(sys.stdin)
+env = dict(v["fonoster_env"])
+env["COMPOSE_FILE"] += ":compose.routr-tls.yaml"
+overrides = dict(v["fonoster_overrides"])
+routr = json.loads(json.dumps(overrides["routr.yaml"]))
+# fonoster_merge replaces lists: the whole transport list, tls added (init.sh sets the tcp and udp ports).
+routr["spec"]["edgeport"] = {"transport": [
+    {"protocol": "tcp", "port": 5060}, {"protocol": "udp", "port": 5060},
+    {"protocol": "ws", "port": 5062}, {"protocol": "wss", "port": 5063},
+    {"protocol": "tls", "port": 5061}]}
+overrides["routr.yaml"] = routr
+overlays = dict(v["fonoster_compose_overlays"])
+d = os.environ["DIR"]
+overlays["compose.routr-tls.yaml"] = {"services": {"routr": {
+    "ports": ["5061:5061/tcp"],
+    "volumes": [d + "/server.crt:/etc/routr/certs/server.crt:ro", d + "/server.key:/etc/routr/certs/server.key:ro"]}}}
+json.dump({"fonoster_env": env, "fonoster_overrides": overrides, "fonoster_compose_overlays": overlays,
+           "routr_tls_domains": ["*." + os.environ["DOMAIN"]], "routr_tls_email": "ops@example.com",
+           "routr_tls_digitalocean_token": os.environ["TOKEN"],
+           "routr_tls_acme_server": "https://localhost:14000/dir",
+           "routr_tls_digitalocean_api_url": "http://127.0.0.1:8085",
+           "routr_tls_dns_resolvers": ["127.0.0.1:53"]}, sys.stdout)
+' >"$2"
+}
+
+tls_case() {
+  local before n started serial orders
+  if ! tls_harness >"$WORK/tls-harness.log" 2>&1; then
+    record OPS-010 "the DNS-01 harness starts" fail "$(tail -5 "$WORK/tls-harness.log")"
+    return
+  fi
+  tls_vars "$TLS_TOKEN" "$WORK/routr-tls.json" && tls_vars "dthrowawayrefused0000000000" "$WORK/routr-tls-refused.json" \
+    || { record OPS-010 "the plan with the certificate exits 0" fail "could not write the vars"; return; }
+
+  if play "$A" "$WORK/plan-tls.log" -e "@$WORK/routr-tls.json" --check --diff; then
+    record OPS-010 "the plan with the certificate exits 0" ok
+  else
+    record OPS-010 "the plan with the certificate exits 0" fail "$(tail -20 "$WORK/plan-tls.log")"
+  fi
+
+  # A token the DNS API refuses: the play fails at the issuance task, the pair Routr has stays.
+  before="$(pair_sum)"
+  if play "$A" "$WORK/apply-tls-refused.log" -e "@$WORK/routr-tls-refused.json"; then
+    record OPS-010 "a refused token fails at the issuance task, the pair unchanged" fail "the play passed"
+  elif ! grep -B4 '^fatal:' "$WORK/apply-tls-refused.log" | grep -qF 'TASK [host : Routr TLS certificate (lego)]'; then
+    record OPS-010 "a refused token fails at the issuance task, the pair unchanged" fail "$(grep -B4 -A3 '^fatal:' "$WORK/apply-tls-refused.log" | tail -8)"
+  elif [ "$before" != "$(pair_sum)" ]; then
+    record OPS-010 "a refused token fails at the issuance task, the pair unchanged" fail "server.crt or server.key changed"
+  else
+    record OPS-010 "a refused token fails at the issuance task, the pair unchanged" ok
+  fi
+
+  if ! play "$A" "$WORK/apply-tls.log" -e "@$WORK/routr-tls.json"; then
+    record OPS-010 "the apply with the certificate exits 0" fail "$(grep -B4 -A3 '^fatal:' "$WORK/apply-tls.log" | tail -8)"
+    return
+  fi
+  record OPS-010 "the apply with the certificate exits 0" ok
+  $SUDO openssl x509 -in "$TLS_DIR/server.crt" -noout -ext subjectAltName | grep -qF "DNS:*.$TLS_DOMAIN" \
+    && $SUDO openssl rsa -in "$TLS_DIR/server.key" -check -noout >/dev/null 2>&1 \
+    && [ "$($SUDO openssl x509 -in "$TLS_DIR/server.crt" -noout -pubkey)" = "$($SUDO openssl pkey -in "$TLS_DIR/server.key" -pubout)" ] \
+    && record OPS-010 "server.crt has SAN *.$TLS_DOMAIN and an RSA key matching server.key" ok \
+    || record OPS-010 "server.crt has SAN *.$TLS_DOMAIN and an RSA key matching server.key" fail "$($SUDO openssl x509 -in "$TLS_DIR/server.crt" -noout -subject -ext subjectAltName 2>&1)"
+  grep -qx "$TLS_ZONE _acme-challenge.$TLS_DOMAIN.$TLS_ZONE." "$WORK/fakedo.log" \
+    && record OPS-010 "the TXT record went in the CNAME target's zone" ok \
+    || record OPS-010 "the TXT record went in the CNAME target's zone" fail "fake log: $(cat "$WORK/fakedo.log")"
+  serial="$(file_serial)"
+  tls_wait_serial "$serial" && record OPS-010 "Routr serves the certificate on 5061, verified against Pebble's root" ok \
+    || record OPS-010 "Routr serves the certificate on 5061, verified against Pebble's root" fail "served: $(tls_served), file: $serial"
+  $SUDO systemctl is-enabled fonoster-routr-tls.timer >/dev/null \
+    && record OPS-010 "the renewal timer is enabled" ok || record OPS-010 "the renewal timer is enabled" fail "not enabled"
+
+  orders="$(wc -l <"$WORK/fakedo.log")"
+  if play "$A" "$WORK/apply-tls2.log" -e "@$WORK/routr-tls.json"; then
+    n="$(recap_changed "$WORK/apply-tls2.log")"
+    [ "$n" = 0 ] && [ "$(wc -l <"$WORK/fakedo.log")" = "$orders" ] \
+      && record OPS-010 "a second apply changes nothing and orders nothing" ok \
+      || record OPS-010 "a second apply changes nothing and orders nothing" fail "changed=$n, TXT records $orders -> $(wc -l <"$WORK/fakedo.log")"
+  else
+    record OPS-010 "a second apply changes nothing and orders nothing" fail "$(grep -A3 'fatal:' "$WORK/apply-tls2.log" | tail -4)"
+  fi
+
+  # The timer's command, forced: a new serial reaches Routr without a restart.
+  started="$(docker inspect -f '{{.State.StartedAt}}' "$(compose ps -q routr)")"
+  if ! $SUDO env LEGO_NO_RANDOM_SLEEP=true /usr/local/sbin/fonoster-routr-tls --renew-force >"$WORK/renew.log" 2>&1; then
+    record OPS-010 "a forced renewal reaches Routr within 60 s without a restart" fail "$(tail -5 "$WORK/renew.log")"
+  elif [ "$(file_serial)" = "$serial" ]; then
+    record OPS-010 "a forced renewal reaches Routr within 60 s without a restart" fail "server.crt still has $serial"
+  elif ! tls_wait_serial "$(file_serial)"; then
+    record OPS-010 "a forced renewal reaches Routr within 60 s without a restart" fail "Routr serves $(tls_served), server.crt has $(file_serial)"
+  elif [ "$(docker inspect -f '{{.State.StartedAt}}' "$(compose ps -q routr)")" != "$started" ]; then
+    record OPS-010 "a forced renewal reaches Routr within 60 s without a restart" fail "routr restarted"
+  else
+    record OPS-010 "a forced renewal reaches Routr within 60 s without a restart" ok
+  fi
+
+  if grep -lF "$TLS_TOKEN" "$WORK/plan-tls.log" "$WORK/apply-tls.log" "$WORK/apply-tls2.log" >&2; then
+    record OPS-010 "the token is in neither the plan nor the apply log" fail "the token is in the log above"
+  else
+    record OPS-010 "the token is in neither the plan nor the apply log" ok
+  fi
+}
+
+tls_case

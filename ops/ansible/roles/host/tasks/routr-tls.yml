@@ -1,0 +1,88 @@
+# Routr's SIP TLS certificate (routr_tls_domains): lego gets it by DNS-01 through DigitalOcean DNS,
+# a daily timer renews it, and lego's deploy hook writes it over the pair Routr's compose overlay
+# mounts. Renewal never restarts Routr: it rereads certFile and keyFile every 30 s.
+- name: Lego release archive
+  ansible.builtin.get_url:
+    url: "{{ routr_tls_lego_url }}/{{ routr_tls_lego_archive }}"
+    checksum: "sha256:{{ routr_tls_lego_url }}/lego_{{ routr_tls_lego_version }}_checksums.txt"
+    dest: /usr/local/lib/{{ routr_tls_lego_archive }}
+    mode: "0644"
+  register: routr_tls_lego_download
+
+- name: Lego folder
+  ansible.builtin.file:
+    path: /usr/local/lib/lego-{{ routr_tls_lego_version }}
+    state: directory
+    mode: "0755"
+
+# A plan on a host without this lego version can't unpack what it didn't download.
+- name: Lego unpacked
+  ansible.builtin.unarchive:
+    src: /usr/local/lib/{{ routr_tls_lego_archive }}
+    dest: /usr/local/lib/lego-{{ routr_tls_lego_version }}
+    remote_src: true
+    include: [lego]
+    creates: /usr/local/lib/lego-{{ routr_tls_lego_version }}/lego
+  when: not (ansible_check_mode and routr_tls_lego_download is changed)
+
+- name: Lego on PATH
+  ansible.builtin.file:
+    src: /usr/local/lib/lego-{{ routr_tls_lego_version }}/lego
+    dest: /usr/local/bin/lego
+    state: link
+  when: not (ansible_check_mode and routr_tls_lego_download is changed)
+
+- name: Folder of the DigitalOcean token
+  ansible.builtin.file:
+    path: /etc/fonoster-routr-tls
+    state: directory
+    mode: "0700"
+
+# lego reads it through DO_AUTH_TOKEN_FILE; it is never in an argument or an environment variable.
+- name: DigitalOcean token
+  ansible.builtin.copy:
+    content: "{{ routr_tls_digitalocean_token }}"
+    dest: /etc/fonoster-routr-tls/digitalocean-token
+    owner: root
+    group: root
+    mode: "0600"
+  no_log: true
+  diff: false
+
+- name: Routr TLS folder
+  ansible.builtin.file:
+    path: "{{ routr_tls_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Lego's deploy hook and the command that gets or renews the certificate
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /usr/local/sbin/{{ item }}
+    mode: "0755"
+  loop: [fonoster-routr-tls-hook, fonoster-routr-tls]
+
+# The first certificate. Later ones come from the timer below; a changed routr_tls_domains is not
+# reissued here (lego's certificate exists).
+- name: Routr TLS certificate (lego)
+  ansible.builtin.command:
+    cmd: /usr/local/sbin/fonoster-routr-tls
+    creates: /var/lib/lego/certificates/routr-tls.crt
+  no_log: true
+  diff: false
+
+- name: Renewal service and timer
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/{{ item }}
+    mode: "0644"
+  loop: [fonoster-routr-tls.service, fonoster-routr-tls.timer]
+  register: routr_tls_units
+
+- name: Renewal timer running
+  ansible.builtin.systemd_service:
+    name: fonoster-routr-tls.timer
+    state: started
+    enabled: true
+    daemon_reload: "{{ routr_tls_units is changed }}"
+  when: not (ansible_check_mode and routr_tls_units is changed)

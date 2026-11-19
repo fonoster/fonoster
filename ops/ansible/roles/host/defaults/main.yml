@@ -12,6 +12,20 @@ certbot_email: ""
 # above replace them.
 certbot_retired_hooks: [pre/stop-envoy.sh, post/start-envoy.sh]
 
+# Let's Encrypt certificate for Routr's SIP over TLS, by DNS-01 through DigitalOcean DNS (lego,
+# which follows an _acme-challenge CNAME). Empty: none, and the role changes nothing for it.
+routr_tls_domains: []
+routr_tls_email: ""
+# DigitalOcean API token with write access to the zone the _acme-challenge CNAME points into.
+routr_tls_digitalocean_token: ""
+# Where Routr's compose overlay mounts server.crt and server.key from.
+routr_tls_dir: /var/lib/fonoster/files/sip-tls
+routr_tls_lego_version: "5.6.0"
+# ACME and DNS endpoints; the defaults are the real ones (a test inventory points them elsewhere).
+routr_tls_acme_server: https://acme-v02.api.letsencrypt.org/directory
+routr_tls_digitalocean_api_url: https://api.digitalocean.com
+routr_tls_dns_resolvers: []
+
 # The user deploy.yaml connects as (sudo without a password) and its public key, an authorized_keys
 # line without options (it gets restrict). Empty: no deploy user.
 deploy_user: deploy

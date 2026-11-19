@@ -1,0 +1,12 @@
+diff --git a/ops/ansible/roles/host/templates/fonoster-routr-tls-hook.j2 b/ops/ansible/roles/host/templates/fonoster-routr-tls-hook.j2
+index 74b440d7a..fab60e12d 100644
+--- a/ops/ansible/roles/host/templates/fonoster-routr-tls-hook.j2
++++ b/ops/ansible/roles/host/templates/fonoster-routr-tls-hook.j2
+@@ -8,5 +8,5 @@ dir={{ routr_tls_dir | quote }}
+ # Routr runs as uid 1000. On the first certificate the files don't exist yet.
+ [ -e "$dir/server.key" ] || install -o 1000 -g 1000 -m 0600 /dev/null "$dir/server.key"
+ [ -e "$dir/server.crt" ] || install -o 1000 -g 1000 -m 0644 /dev/null "$dir/server.crt"
+-cat "$LEGO_HOOK_CERT_KEY_PATH" >"$dir/server.key"
+-cat "$LEGO_HOOK_CERT_PATH" >"$dir/server.crt"
++install -o 1000 -g 1000 -m 0600 "$LEGO_HOOK_CERT_KEY_PATH" "$dir/server.key"
++install -o 1000 -g 1000 -m 0644 "$LEGO_HOOK_CERT_PATH" "$dir/server.crt"

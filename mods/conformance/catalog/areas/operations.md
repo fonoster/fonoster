@@ -5,7 +5,7 @@ level: L4 System (deployment)
 tier: nightly
 uut: The Ansible playbook in ops/ansible (playbooks/site.yml, roles host and fonoster) putting a host on a Fonoster version from two local builds of the release archive and images
 tester: ops/ansible/test/throwaway.sh. It runs ansible-playbook against test/inventory.yml (this machine, local connection), then checks the live install, the state folder, the containers, the deploy log and the play's output, and writes one JUnit test per check
-environment: A GitHub runner, Ubuntu 24.04 with root, Docker and Node.js; ansible-core 2.21.5 and ansible-lint 26.10.1; archives and images from ops/release/bundle; no certbot, the generated certificate, the bundled Postgres
+environment: A GitHub runner, Ubuntu 24.04 with root, Docker and Node.js; ansible-core 2.21.5 and ansible-lint 26.10.1; archives and images from ops/release/bundle; no certbot, the generated certificate, the bundled Postgres; for OPS-010, Pebble and pebble-challtestsrv 2.10.3, CoreDNS 1.12.4 on port 53 of 127.0.0.1 and ::1, and a fake of DigitalOcean's DNS API (ops/ansible/test/fake-digitalocean.py), no real DNS
 cadence: proofs nightly and at release (qa-proofs.yaml)
 run: JUNIT_DIR={junitDir} bash ops/bundle/test/install.sh 0.0.0-a; JUNIT_DIR={junitDir} bash ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
 prove: sh mods/conformance/test/operations/prove.sh {id} {junitDir}
@@ -188,3 +188,25 @@ applies run, with a sentinel `OPS_SECRET` and database password. A real call fro
 in Routr's traces folder as Routr writes it (uid 1000, group 5000, modified now). The API server is recreated.
 
 **Pass.** Before the overlay, `/api/ops/interop/alerts` answers 404 through Envoy with any bearer; with the token `/api/ops/metrics` answers 200 with `schema` 1, `users.total` of 1 or more and `billing.present` 1, connecting as `fonoster_ops`; `fonoster_ops` is refused an `INSERT` into `users` and `SELECT email FROM users`; within 150 s the alerts hold exactly one `IOP-004` `whatsapp` alert with that file, and its recording downloads with the fixture's sha256; `touch /var/routr/traces/x` in the API server's container fails; after recreating it the alert is still there once and the next pass succeeds; a second apply changes nothing; neither secret is in the plan or the apply log. **Fail.** Any of those differs, or OPS-007's apply failed.
+
+### OPS-010 Routr's SIP TLS certificate is issued by DNS-01 through a CNAME and renewed
+
+- **Spec:** deployment / A playbook puts a host on a Fonoster version / Routr's SIP TLS certificate by DNS-01
+- **Priority:** P1
+- **Proof:** Make lego's deploy hook replace `server.crt` and `server.key` (`install`) instead of writing them in place; the bind mounts keep the old pair, Routr never serves the renewed certificate and the test goes red.
+- **Fault:** faults/OPS-010.patch
+- **Test:** ops/ansible/test/throwaway.sh
+
+Last, `0.0.0-a` is planned and applied with `routr_tls_domains: ["*.pstn.ops010.test"]` and the
+other `routr_tls_*` values pointed at a local ACME server, with no real DNS. Pebble validates DNS-01
+through pebble-challtestsrv, which holds the CNAME `_acme-challenge.pstn.ops010.test.` →
+`_acme-challenge.pstn.ops010.test.dozone.test.`. lego writes the TXT record through a fake of
+DigitalOcean's records API, which puts it in challtestsrv. lego resolves through a CoreDNS that
+answers the zone `dozone.test`'s SOA and NS (challtestsrv answers neither) and forwards the rest to
+challtestsrv. Pebble's roots are added to the runner's trust store. The values reach only these
+plays: Routr's `tls` transport on 5061 and an overlay that publishes it and mounts `server.crt` and
+`server.key` from `/var/lib/fonoster/files/sip-tls` one file at a time, as production does. A
+self-signed pair is there first. In order: a plan, an apply with a token the fake refuses, an apply,
+a second apply, then the timer's command with `--renew-force` (and `LEGO_NO_RANDOM_SLEEP=true`).
+
+**Pass.** The plan exits 0; the refused token fails the play at `Routr TLS certificate (lego)` with `server.crt` and `server.key` byte-identical; after the apply `server.crt` has SAN `*.pstn.ops010.test` and an RSA key matching `server.key`, the fake wrote the TXT record in `dozone.test`, Routr serves that certificate on 5061 verified against Pebble's root for `x.pstn.ops010.test`, and the renewal timer is enabled; the second apply's recap says `changed=0` and no TXT record is written; after the forced renewal Routr serves the new serial within 60 s and the routr container's StartedAt is unchanged; the token is in no plan or apply log. **Fail.** Any of those differs.

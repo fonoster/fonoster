@@ -1,4 +1,4 @@
-# What the machine needs before Fonoster: Docker, a certificate and the trace retention.
+# What the machine needs before Fonoster: Docker, certificates and the trace retention.
 - name: Base packages
   ansible.builtin.apt:
     name: [ca-certificates, curl, python3-debian, rsync, tar]
@@ -100,6 +100,11 @@
          + (certbot_domains | map('regex_replace', '^', '--domains=') | list) }}
     creates: /etc/letsencrypt/live/{{ certbot_domains[0] }}/fullchain.pem
   when: certbot_domains | length > 0
+
+# Routr's SIP TLS certificate --------------------------------------------------------------------
+- name: Routr SIP TLS certificate
+  ansible.builtin.import_tasks: routr-tls.yml
+  when: routr_tls_domains | length > 0
 
 # Routr traces -----------------------------------------------------------------------------------
 - name: Routr trace folder

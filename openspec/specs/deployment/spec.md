@@ -202,6 +202,11 @@ changing the live install on a bad checksum, an unknown `.env` name or unpersist
 - **WHEN** the playbook is applied again with the same version and inventory
 - **THEN** it reports no change, and a change to one service's config file recreates only that service
 
+#### Scenario: Routr's SIP TLS certificate by DNS-01
+- **WHEN** the inventory sets `routr_tls_domains` to a wildcard, a DigitalOcean token and the `_acme-challenge` CNAME points into a DigitalOcean zone, and the host role applies
+- **THEN** lego writes the TXT record in the CNAME target's zone and the certificate (RSA) and key over Routr's `server.crt` and `server.key` in place, and Routr serves it on 5061
+- **AND** a second apply orders nothing, a daily timer renews it on the host and Routr serves the renewed pair without a restart, a token the DNS API refuses fails the play at the issuance task with the pair unchanged, and the token is in no plan or apply log
+
 ### Requirement: Production deploys run the playbook
 
 Production SHALL be deployed by `deploy.yaml` running the playbook the release ships, on the

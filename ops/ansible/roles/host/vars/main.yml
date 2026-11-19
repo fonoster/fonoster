@@ -1,0 +1,4 @@
+# lego's release on GitHub (go-acme/lego), checked against the release's checksums.
+routr_tls_lego_url: https://github.com/go-acme/lego/releases/download/v{{ routr_tls_lego_version }}
+routr_tls_lego_archive: >-
+  lego_v{{ routr_tls_lego_version }}_linux_{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}.tar.gz

@@ -14,7 +14,8 @@ Tested on Ubuntu 24.04 with ansible-core 2.21.5 (ansible-lint 26.10.1). No colle
   `{"userland-proxy": false, "live-restore": true}`; certbot with renewal hooks that stop and
   recreate Envoy (only when `certbot_domains` is set); the Routr trace folder with a tmpfiles.d
   retention rule (`routr_traces_enabled`); with `deploy_authorized_key`, the `deploy` user (sudo
-  without a password, its one key with `restrict`).
+  without a password, its one key with `restrict`); with `routr_tls_domains`, Routr's SIP over TLS
+  certificate (below).
 - **fonoster** (tag `fonoster`):
   1. Stages the release in `/var/lib/fonoster/releases/<version>` from `fonoster_archive` (the
      GitHub release by default, or a path on the controller), checked against `SHA256SUMS`.
@@ -70,6 +71,48 @@ fonoster_inserts:
       lines: |
         include ./nats-permissions/extra.conf
 ```
+
+### Routr's SIP over TLS certificate
+
+With `routr_tls_domains` set, the host role gets a Let's Encrypt certificate for Routr's SIP over
+TLS by DNS-01 through DigitalOcean DNS, with lego (pinned by `routr_tls_lego_version`, checked
+against its release's checksums). It writes the certificate (full chain) and key to
+`routr_tls_dir` (`/var/lib/fonoster/files/sip-tls`) as `server.crt` and `server.key`, owned by uid
+1000 (Routr's user). The timer `fonoster-routr-tls.timer` checks daily and renews within 30 days of
+expiry, on the host, without a playbook run. A renewal writes the files in place and never restarts
+Routr: Routr rereads them every 30 s and serves the new pair on new handshakes, so live calls stay
+up. A failed renewal fails `fonoster-routr-tls.service` (`systemctl --failed`, `journalctl -u
+fonoster-routr-tls`). Empty `routr_tls_domains` (the default) changes nothing.
+
+```yaml
+# host_vars/<host>/main.yml
+routr_tls_domains: ["*.pstn.example.com"]
+routr_tls_email: ops@example.com
+routr_tls_digitalocean_token: "{{ vault_digitalocean_token }}"   # vault.yml
+```
+
+- The token needs write access to the DigitalOcean DNS zone the challenge record goes in. It is
+  kept in `/etc/fonoster-routr-tls/digitalocean-token` (root, 0600), never printed.
+- Once, at the domain's DNS provider, point the challenge name into a zone DigitalOcean manages
+  (lego follows the CNAME):
+  `_acme-challenge.pstn.example.com. CNAME _acme-challenge.pstn.example.com.<your DigitalOcean zone>.`
+- The certificate is RSA: Twilio's Secure Trunking offers only RSA cipher suites.
+- Routr's compose overlay mounts the two files, one at a time, at `/etc/routr/certs/server.crt`
+  and `server.key` (Routr's `certFile` and `keyFile`), and the `tls` transport on 5061 is on in
+  `config/routr.yaml`.
+- Production deploys skip the host role: apply it with `gh workflow run deploy.yaml -f
+  version=<version> -f host_role=true`.
+- Check it: `openssl s_client -connect <host>:5061 -servername x.pstn.example.com </dev/null`.
+- Before the first apply, copy the current `server.crt` and `server.key` aside. To roll back, put
+  them back in `routr_tls_dir` (write over the files, for example with `cat old >server.crt`, so the
+  mounts see them) and wait 30 s. Once carriers depend on the wildcard, roll back only to a
+  previous wildcard pair.
+- Once lego serves the certificate, remove any hand-made certbot certificate and deploy hook that
+  write the same files (`certbot delete --cert-name <name>` and the hook under
+  `/etc/letsencrypt/renewal-hooks/deploy/`, or list the hook in `certbot_retired_hooks`), or its
+  next renewal overwrites the wildcard.
+- A changed `routr_tls_domains` is not reissued by the play once lego has a certificate: run
+  `/usr/local/sbin/fonoster-routr-tls --renew-force` on the host after the apply.
 
 ### Removing the old interop watch
 
