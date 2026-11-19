@@ -6,6 +6,8 @@
 set -eu
 export DO_AUTH_TOKEN_FILE=/etc/fonoster-routr-tls/digitalocean-token
 export DO_API_URL={{ routr_tls_digitalocean_api_url | quote }}
+# DigitalOcean's nameservers can take over a minute to serve the TXT record; lego's default is 60 s.
+export DO_PROPAGATION_TIMEOUT=300
 exec /usr/local/bin/lego run --accept-tos --email {{ routr_tls_email | quote }} \
   --server {{ routr_tls_acme_server | quote }} --dns digitalocean \
 {% for resolver in routr_tls_dns_resolvers %}
