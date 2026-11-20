@@ -176,6 +176,8 @@ test("[DSH-041] builds a SIP network through the UI against the platform, then t
   await openCreate(page, "Create number");
   await page.getByLabel("Number", { exact: true }).fill(tel);
   await page.getByLabel("Name", { exact: true }).fill(`${label} number`);
+  // The route starts on None; the seeded app is an Autopilot agent.
+  await page.getByRole("radio", { name: "Agent", exact: true }).click();
   await page
     .getByRole("radio", { name: new RegExp(env("E2E_REAL_APP")) })
     .click();
