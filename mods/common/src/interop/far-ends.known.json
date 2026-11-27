@@ -22,6 +22,14 @@
     "checked": "2026-11-13"
   },
   {
+    "name": "onemax",
+    "label": "Onemax SIP Trunking",
+    "hosts": ["voip.onemax.com"],
+    "addresses": ["200.89.88.149", "200.89.88.154", "200.89.88.161"],
+    "sources": ["https://github.com/fonoster/fonoster/issues/1458"],
+    "checked": "2026-11-27"
+  },
+  {
     "name": "plivo",
     "label": "Plivo Zentrunk SIP Trunking",
     "hosts": ["*.zt.plivo.com"],

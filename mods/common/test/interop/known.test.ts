@@ -32,6 +32,7 @@ const RAW: Record<string, unknown>[] = JSON.parse(
 const PROVIDERS = [
   "bandwidth",
   "didlogic",
+  "onemax",
   "plivo",
   "signalwire",
   "telnyx",
@@ -98,6 +99,14 @@ describe("@common/interop curated far ends", function () {
     expect(matchesAddress(didlogic, "217.69.12.66")).to.equal(false);
     expect(matchesHost(didlogic, "sip.fr.didlogic.net")).to.equal(true);
     expect(matchesHost(didlogic, "acme.pstn.fonoster.ai")).to.equal(false);
+  });
+
+  it("knows Onemax by its signaling address inbound and its host outbound", function () {
+    const onemax = knownFarEnds().find((f) => f.name === "onemax")!;
+    expect(matchesAddress(onemax, "200.89.88.161")).to.equal(true);
+    expect(matchesAddress(onemax, "200.89.88.162")).to.equal(false);
+    expect(matchesHost(onemax, "voip.onemax.com")).to.equal(true);
+    expect(matchesHost(onemax, "sip.onemax.com")).to.equal(false);
   });
 
   it("lets --far-ends replace or add entries by name", function () {
